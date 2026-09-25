@@ -1,0 +1,520 @@
+{
+  "proyecto": "control-var",
+  "nodos": [
+    {
+      "id": "hmi",
+      "nombre": "Pantalla",
+      "placa": "waveshare-esp32s3-touch-lcd-4.3b",
+      "conexiones": []
+    }
+  ],
+  "enlace": null,
+  "iNodo": 0,
+  "ajustes": [],
+  "estados": [],
+  "logica": "",
+  "tema": {
+    "nombre": "Aula",
+    "desc": "El de siempre de Telar: colores vivos y Montserrat.",
+    "fondo": "#222121",
+    "superficie": "#3a3649",
+    "sub": "#433e53",
+    "borde": "#23202c",
+    "texto": "#fffcfc",
+    "tenue": "#9aa3b2",
+    "tinta3": "#6b7280",
+    "acento": "#3b9dff",
+    "ok": "#3ddc97",
+    "aviso": "#f5a524",
+    "alarma": "#e74c3c",
+    "pista": "#2c2838",
+    "rejilla": "#4a4560",
+    "boton": {
+      "fondo": "#3b9dff",
+      "borde": "#3b9dff",
+      "texto": "#04121f"
+    },
+    "seleccion": {
+      "fondo": "#1e4a73",
+      "borde": "#3b9dff",
+      "texto": "#cfe3ff"
+    },
+    "marcha": {
+      "fondo": "#3ddc97",
+      "borde": "#3ddc97",
+      "texto": "#04121f"
+    },
+    "paro": {
+      "fondo": "#e74c3c",
+      "borde": "#e74c3c",
+      "texto": "#ffffff"
+    },
+    "radio": 6,
+    "coma": false,
+    "tipografia": {
+      "numero": "medium",
+      "titulo": "medium",
+      "dato": "medium",
+      "rotulo": "medium",
+      "texto": "medium"
+    },
+    "fuente": 14,
+    "base": "aula",
+    "_partida": "aula"
+  },
+  "pantallas": [
+    {
+      "nombre": "principal",
+      "widgets": [
+        {
+          "id": "w24",
+          "tipo": "tarjeta",
+          "nombre": "tarjeta_4",
+          "x": 416,
+          "y": 60,
+          "w": 368,
+          "h": 200,
+          "bind": "",
+          "series": [],
+          "texto": "",
+          "evento": "",
+          "destino": ""
+        },
+        {
+          "id": "w1",
+          "tipo": "tarjeta",
+          "nombre": "tarjeta_2",
+          "x": 16,
+          "y": 60,
+          "w": 396,
+          "h": 200,
+          "bind": "",
+          "series": [],
+          "texto": "",
+          "evento": "",
+          "destino": ""
+        },
+        {
+          "id": "w2",
+          "tipo": "lectura",
+          "nombre": "lectura_3",
+          "x": 28,
+          "y": 83,
+          "w": 268,
+          "h": 144,
+          "bind": "",
+          "series": [],
+          "texto": "TENSIÓN MEDIDA",
+          "evento": "",
+          "destino": "",
+          "auto": true,
+          "estilo": {
+            "fuente": 112,
+            "rotulo_c": "#e1dfdb",
+            "fuente_uni": 42,
+            "tipo_uni": "chivo700",
+            "tipo_rot": "barlow700"
+          },
+          "rotuloDx": 11,
+          "rotuloDy": 4,
+          "unidad": "kV",
+          "decimales": 2,
+          "ejemplo": 0
+        },
+        {
+          "id": "w16",
+          "tipo": "tarjeta",
+          "nombre": "tarjeta_17",
+          "x": 16,
+          "y": 8,
+          "w": 768,
+          "h": 48,
+          "bind": "",
+          "series": [],
+          "texto": "",
+          "evento": "",
+          "destino": ""
+        },
+        {
+          "id": "w17",
+          "tipo": "tiempo",
+          "nombre": "tiempo_18",
+          "x": 440,
+          "y": 52,
+          "w": 171,
+          "h": 100,
+          "bind": "",
+          "series": [],
+          "texto": "TIEMPO",
+          "evento": "",
+          "destino": "",
+          "auto": true,
+          "estilo": {
+            "fuente": 72,
+            "rotulo_c": "#e1dfdb"
+          },
+          "ejemplo": 0,
+          "rotuloDx": 9,
+          "rotuloDy": 15
+        },
+        {
+          "id": "w18",
+          "tipo": "button",
+          "nombre": "button_19",
+          "x": 684,
+          "y": 64,
+          "w": 60,
+          "h": 44,
+          "bind": "",
+          "series": [],
+          "texto": "",
+          "evento": "",
+          "destino": "",
+          "estilo": {
+            "radio": 6,
+            "fuente": 18,
+            "color": "#38c8e5",
+            "texto": "#edf2f7"
+          },
+          "icono": "LV_SYMBOL_PLUS"
+        },
+        {
+          "id": "w22",
+          "tipo": "tarjeta",
+          "nombre": "tarjeta_23",
+          "x": 16,
+          "y": 264,
+          "w": 768,
+          "h": 128,
+          "bind": "",
+          "series": [],
+          "texto": "CLASE",
+          "evento": "",
+          "destino": "",
+          "estilo": {
+            "fuente": 12,
+            "tenue": "#e1dfdb"
+          }
+        },
+        {
+          "id": "w23",
+          "tipo": "tarjeta",
+          "nombre": "tarjeta_3",
+          "x": 16,
+          "y": 396,
+          "w": 348,
+          "h": 76,
+          "bind": "",
+          "series": [],
+          "texto": "",
+          "evento": "",
+          "destino": ""
+        },
+        {
+          "id": "w25",
+          "tipo": "button",
+          "nombre": "button_4",
+          "x": 44,
+          "y": 408,
+          "w": 140,
+          "h": 52,
+          "bind": "",
+          "series": [],
+          "texto": "Cargar",
+          "evento": "",
+          "destino": "",
+          "icono": "fa-arrow-up",
+          "estilo": {
+            "texto": "#edf2f7",
+            "fuente": 18
+          }
+        },
+        {
+          "id": "w26",
+          "tipo": "pildora",
+          "nombre": "pildora_27",
+          "x": 316,
+          "y": 20,
+          "w": 168,
+          "h": 28,
+          "bind": "",
+          "series": [],
+          "texto": "",
+          "evento": "",
+          "destino": ""
+        },
+        {
+          "id": "w27",
+          "tipo": "button",
+          "nombre": "button_28",
+          "x": 124,
+          "y": 280,
+          "w": 140,
+          "h": 44,
+          "bind": "",
+          "series": [],
+          "texto": "00",
+          "evento": "",
+          "destino": "",
+          "estilo": {
+            "fuente": 30
+          }
+        },
+        {
+          "id": "w37",
+          "tipo": "lectura",
+          "nombre": "lectura_2",
+          "x": 440,
+          "y": 146,
+          "w": 154,
+          "h": 100,
+          "bind": "",
+          "series": [],
+          "texto": "TENSIÓN",
+          "evento": "",
+          "destino": "",
+          "auto": true,
+          "estilo": {
+            "fuente": 72,
+            "rotulo_c": "#e1dfdb",
+            "fuente_uni": 20,
+            "tipo_uni": "chivo700",
+            "tipo_rot": "barlow700",
+            "fuente_rot": 11
+          },
+          "rotuloDx": 8,
+          "rotuloDy": 8,
+          "unidad": "kV",
+          "decimales": 2,
+          "ejemplo": 0,
+          "unidadDy": -14,
+          "unidadDx": -10
+        },
+        {
+          "id": "w41",
+          "tipo": "button",
+          "nombre": "button_2",
+          "x": 684,
+          "y": 112,
+          "w": 60,
+          "h": 44,
+          "bind": "",
+          "series": [],
+          "texto": "",
+          "evento": "",
+          "destino": "",
+          "estilo": {
+            "radio": 6,
+            "fuente": 18,
+            "color": "#38c8e5",
+            "texto": "#edf2f7"
+          },
+          "icono": "LV_SYMBOL_MINUS"
+        },
+        {
+          "id": "w43",
+          "tipo": "button",
+          "nombre": "button_10",
+          "x": 684,
+          "y": 164,
+          "w": 60,
+          "h": 44,
+          "bind": "",
+          "series": [],
+          "texto": "",
+          "evento": "",
+          "destino": "",
+          "estilo": {
+            "radio": 6,
+            "fuente": 22,
+            "color": "#38c8e5",
+            "texto": "#edf2f7"
+          },
+          "icono": "fa-chevron-up"
+        },
+        {
+          "id": "w44",
+          "tipo": "button",
+          "nombre": "button_11",
+          "x": 684,
+          "y": 212,
+          "w": 60,
+          "h": 44,
+          "bind": "",
+          "series": [],
+          "texto": "",
+          "evento": "",
+          "destino": "",
+          "estilo": {
+            "radio": 6,
+            "fuente": 22,
+            "color": "#38c8e5",
+            "texto": "#edf2f7"
+          },
+          "icono": "LV_SYMBOL_DOWN"
+        },
+        {
+          "id": "w46",
+          "tipo": "button",
+          "nombre": "button_5",
+          "x": 124,
+          "y": 332,
+          "w": 140,
+          "h": 44,
+          "bind": "",
+          "series": [],
+          "texto": "2",
+          "evento": "",
+          "destino": "",
+          "estilo": {
+            "fuente": 30
+          }
+        },
+        {
+          "id": "w47",
+          "tipo": "button",
+          "nombre": "button_6",
+          "x": 344,
+          "y": 280,
+          "w": 140,
+          "h": 44,
+          "bind": "",
+          "series": [],
+          "texto": "0",
+          "evento": "",
+          "destino": "",
+          "estilo": {
+            "fuente": 30
+          }
+        },
+        {
+          "id": "w48",
+          "tipo": "button",
+          "nombre": "button_7",
+          "x": 344,
+          "y": 332,
+          "w": 140,
+          "h": 44,
+          "bind": "",
+          "series": [],
+          "texto": "3",
+          "evento": "",
+          "destino": "",
+          "estilo": {
+            "fuente": 30
+          }
+        },
+        {
+          "id": "w49",
+          "tipo": "button",
+          "nombre": "button_8",
+          "x": 568,
+          "y": 280,
+          "w": 140,
+          "h": 44,
+          "bind": "",
+          "series": [],
+          "texto": "1",
+          "evento": "",
+          "destino": "",
+          "estilo": {
+            "fuente": 30
+          }
+        },
+        {
+          "id": "w50",
+          "tipo": "button",
+          "nombre": "button_9",
+          "x": 568,
+          "y": 332,
+          "w": 140,
+          "h": 44,
+          "bind": "",
+          "series": [],
+          "texto": "4",
+          "evento": "",
+          "destino": "",
+          "estilo": {
+            "fuente": 30
+          }
+        },
+        {
+          "id": "w52",
+          "tipo": "tarjeta",
+          "nombre": "tarjeta_5",
+          "x": 376,
+          "y": 396,
+          "w": 408,
+          "h": 76,
+          "bind": "",
+          "series": [],
+          "texto": "",
+          "evento": "",
+          "destino": ""
+        },
+        {
+          "id": "w53",
+          "tipo": "button",
+          "nombre": "button_3",
+          "x": 196,
+          "y": 408,
+          "w": 140,
+          "h": 52,
+          "bind": "",
+          "series": [],
+          "texto": "Guardar",
+          "evento": "",
+          "destino": "",
+          "icono": "LV_SYMBOL_SAVE",
+          "estilo": {
+            "texto": "#edf2f7",
+            "fuente": 18
+          }
+        },
+        {
+          "id": "w54",
+          "tipo": "button",
+          "nombre": "button_12",
+          "x": 408,
+          "y": 408,
+          "w": 156,
+          "h": 52,
+          "bind": "",
+          "series": [],
+          "texto": "Detener",
+          "evento": "",
+          "destino": "",
+          "estilo": {
+            "texto": "#edf2f7",
+            "fuente": 18,
+            "color": "#fd495b"
+          }
+        },
+        {
+          "id": "w55",
+          "tipo": "button",
+          "nombre": "button_13",
+          "x": 588,
+          "y": 408,
+          "w": 160,
+          "h": 52,
+          "bind": "",
+          "series": [],
+          "texto": "Comenzar",
+          "evento": "",
+          "destino": "",
+          "estilo": {
+            "texto": "#edf2f7",
+            "fuente": 20,
+            "color": "#00dbaf"
+          }
+        }
+      ]
+    }
+  ],
+  "iPantalla": 0,
+  "sel": null,
+  "seleccion": [],
+  "pestana": "diseno",
+  "contador": 56
+}

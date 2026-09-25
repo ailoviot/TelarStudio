@@ -1,0 +1,55 @@
+{
+  "name": "telar-studio",
+  "productName": "Telar Studio",
+  "version": "1.0.0",
+  "description": "Diseñador de pantallas y lógica para ESP32, con exportación a Arduino",
+  "author": "Telar Studio",
+  "license": "MIT",
+  "private": true,
+  "homepage": "https://github.com/ailoviot/TelarStudio",
+  "repository": { "type": "git", "url": "https://github.com/ailoviot/TelarStudio.git" },
+  "main": "main.js",
+  "scripts": {
+    "web": "node copiar-web.js",
+    "start": "node copiar-web.js && electron .",
+    "dist": "node copiar-web.js && electron-builder",
+    "dist:win": "node copiar-web.js && electron-builder --win",
+    "dist:mac": "node copiar-web.js && electron-builder --mac",
+    "dist:linux": "node copiar-web.js && electron-builder --linux"
+  },
+  "devDependencies": {
+    "electron": "44.4.5",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "com.telarstudio.escritorio",
+    "productName": "Telar Studio",
+    "artifactName": "TelarStudio-${version}-${os}-${arch}.${ext}",
+    "files": ["main.js", "preload.js", "package.json", "web/**/*", "recursos/icono.png"],
+    "directories": { "output": "dist", "buildResources": "recursos" },
+    "publish": null,
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "recursos/icono.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Telar Studio"
+    },
+    "mac": {
+      "target": [{ "target": "dmg", "arch": ["universal"] }],
+      "category": "public.app-category.developer-tools",
+      "icon": "recursos/icono.png"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "category": "Development",
+      "icon": "recursos/icono.png",
+      "maintainer": "Telar Studio",
+      "synopsis": "Diseñador de pantallas y lógica para ESP32"
+    }
+  }
+}

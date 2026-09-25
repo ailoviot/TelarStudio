@@ -1,0 +1,344 @@
+{
+  "proyecto": "ciclo_variac",
+  "nodos": [
+    {
+      "id": "hmi",
+      "nombre": "Pantalla",
+      "placa": "waveshare-esp32s3-touch-lcd-4.3b",
+      "conexiones": []
+    },
+    {
+      "id": "control",
+      "nombre": "Control",
+      "placa": "esp32-devkit-v1",
+      "conexiones": [
+        {
+          "clave": "voltage",
+          "tipo": "adc-in",
+          "pinForzado": 34,
+          "params": {
+            "unidad": "kV",
+            "escala_min": 0,
+            "escala_max": 264
+          }
+        },
+        {
+          "clave": "pwm_out",
+          "tipo": "pwm-out",
+          "pinForzado": 25,
+          "params": {
+            "frecuencia": 1000,
+            "resolucion": 8,
+            "rango": "0–255",
+            "inicial": 0
+          }
+        },
+        {
+          "clave": "motor_dir",
+          "tipo": "gpio-out",
+          "pinForzado": 26,
+          "params": {
+            "activo": "alto"
+          }
+        },
+        {
+          "clave": "motor_brake",
+          "tipo": "gpio-out",
+          "pinForzado": 27,
+          "params": {
+            "activo": "alto"
+          }
+        },
+        {
+          "clave": "relay",
+          "tipo": "gpio-out",
+          "pinForzado": 13,
+          "params": {
+            "activo": "alto"
+          }
+        }
+      ]
+    }
+  ],
+  "enlace": {
+    "tipo": "rs485",
+    "baudios": 19200
+  },
+  "iNodo": 1,
+  "ajustes": [],
+  "estados": [],
+  "tema": {
+    "fondo": "#222121",
+    "superficie": "#3a3649",
+    "borde": "#23202c",
+    "acento": "#3b9dff",
+    "alarma": "#e74c3c",
+    "ok": "#3ddc97",
+    "texto": "#fffcfc",
+    "tenue": "#9aa3b2",
+    "fuente": 14
+  },
+  "pantallas": [
+    {
+      "nombre": "principal",
+      "widgets": [
+        {
+          "id": "w100",
+          "tipo": "label",
+          "nombre": "lbl_voltage",
+          "x": 30,
+          "y": 20,
+          "w": 94,
+          "h": 18,
+          "bind": "",
+          "series": [],
+          "texto": "VOLTAJE (kV)",
+          "evento": "",
+          "destino": "",
+          "auto": true,
+          "estilo": {
+            "fuente": 16
+          }
+        },
+        {
+          "id": "w101",
+          "tipo": "value",
+          "nombre": "reading",
+          "x": 30,
+          "y": 44,
+          "w": 66,
+          "h": 52,
+          "bind": "voltage",
+          "series": [],
+          "texto": "",
+          "evento": "",
+          "destino": "",
+          "auto": true,
+          "estilo": {
+            "fuente": 48
+          }
+        },
+        {
+          "id": "w102",
+          "tipo": "label",
+          "nombre": "lbl_countdown",
+          "x": 420,
+          "y": 20,
+          "w": 143,
+          "h": 18,
+          "bind": "",
+          "series": [],
+          "texto": "CUENTA REGRESIVA",
+          "evento": "",
+          "destino": "",
+          "auto": true,
+          "estilo": {
+            "fuente": 16
+          }
+        },
+        {
+          "id": "w103",
+          "tipo": "timer",
+          "nombre": "countdown",
+          "x": 420,
+          "y": 44,
+          "w": 118,
+          "h": 52,
+          "bind": "remaining",
+          "series": [],
+          "texto": "",
+          "evento": "",
+          "destino": "",
+          "auto": true,
+          "estilo": {
+            "fuente": 48
+          }
+        },
+        {
+          "id": "w104",
+          "tipo": "label",
+          "nombre": "lbl_setpoint",
+          "x": 30,
+          "y": 150,
+          "w": 105,
+          "h": 18,
+          "bind": "",
+          "series": [],
+          "texto": "SETPOINT (kV)",
+          "evento": "",
+          "destino": "",
+          "auto": true,
+          "estilo": {
+            "fuente": 16
+          }
+        },
+        {
+          "id": "w105",
+          "tipo": "value",
+          "nombre": "sp_view",
+          "x": 30,
+          "y": 176,
+          "w": 45,
+          "h": 35,
+          "bind": "setpoint",
+          "series": [],
+          "texto": "",
+          "evento": "",
+          "destino": "",
+          "auto": true,
+          "estilo": {
+            "fuente": 32
+          }
+        },
+        {
+          "id": "w106",
+          "tipo": "button",
+          "nombre": "btn_minus",
+          "x": 200,
+          "y": 168,
+          "w": 80,
+          "h": 60,
+          "bind": "",
+          "series": [],
+          "texto": "",
+          "evento": "",
+          "destino": "",
+          "icono": "LV_SYMBOL_MINUS",
+          "estilo": {
+            "fuente": 32
+          }
+        },
+        {
+          "id": "w107",
+          "tipo": "button",
+          "nombre": "btn_plus",
+          "x": 300,
+          "y": 168,
+          "w": 80,
+          "h": 60,
+          "bind": "",
+          "series": [],
+          "texto": "",
+          "evento": "",
+          "destino": "",
+          "icono": "LV_SYMBOL_PLUS",
+          "estilo": {
+            "fuente": 32
+          }
+        },
+        {
+          "id": "w108",
+          "tipo": "label",
+          "nombre": "lbl_time",
+          "x": 420,
+          "y": 150,
+          "w": 140,
+          "h": 18,
+          "bind": "",
+          "series": [],
+          "texto": "TIEMPO DE ESPERA",
+          "evento": "",
+          "destino": "",
+          "auto": true,
+          "estilo": {
+            "fuente": 16
+          }
+        },
+        {
+          "id": "w109",
+          "tipo": "timer",
+          "nombre": "time_view",
+          "x": 420,
+          "y": 176,
+          "w": 80,
+          "h": 35,
+          "bind": "hold_time",
+          "series": [],
+          "texto": "",
+          "evento": "",
+          "destino": "",
+          "auto": true,
+          "estilo": {
+            "fuente": 32
+          }
+        },
+        {
+          "id": "w110",
+          "tipo": "button",
+          "nombre": "btn_time_minus",
+          "x": 590,
+          "y": 168,
+          "w": 80,
+          "h": 60,
+          "bind": "",
+          "series": [],
+          "texto": "",
+          "evento": "",
+          "destino": "",
+          "icono": "LV_SYMBOL_MINUS",
+          "estilo": {
+            "fuente": 32
+          }
+        },
+        {
+          "id": "w111",
+          "tipo": "button",
+          "nombre": "btn_time_plus",
+          "x": 690,
+          "y": 168,
+          "w": 80,
+          "h": 60,
+          "bind": "",
+          "series": [],
+          "texto": "",
+          "evento": "",
+          "destino": "",
+          "icono": "LV_SYMBOL_PLUS",
+          "estilo": {
+            "fuente": 32
+          }
+        },
+        {
+          "id": "w112",
+          "tipo": "button",
+          "nombre": "btn_start",
+          "x": 30,
+          "y": 360,
+          "w": 360,
+          "h": 90,
+          "bind": "",
+          "series": [],
+          "texto": "START",
+          "evento": "",
+          "destino": "",
+          "estilo": {
+            "fuente": 32
+          }
+        },
+        {
+          "id": "w113",
+          "tipo": "button",
+          "nombre": "btn_stop",
+          "x": 410,
+          "y": 360,
+          "w": 360,
+          "h": 90,
+          "bind": "",
+          "series": [],
+          "texto": "STOP",
+          "evento": "",
+          "destino": "",
+          "estilo": {
+            "fuente": 32
+          }
+        }
+      ]
+    }
+  ],
+  "iPantalla": 0,
+  "sel": null,
+  "seleccion": [],
+  "pestana": "diseno",
+  "contador": 114,
+  "logica": "cycle:\n  variables:\n    setpoint:   { type: setting, unit: kV, range: [0, 100], step: 1, start: 30 }\n    hold_time:  { type: setting, unit: s, range: [0, 3600], step: 5, start: 60 }\n    remaining:  { type: timer, from: hold_time, counts: down }\n    zero_level: { type: setting, unit: kV, range: [0, 5], step: 0.1, start: 0.5 }\n\n  start_in: IDLE\n  states:\n    IDLE:\n      on enter: [set pwm_out to 0, turn off motor_brake, turn off relay, restart remaining]\n    RAISING:\n      on enter: [turn on relay, turn on motor_dir, set pwm_out to 21]\n      if voltage >= setpoint: [go to HOLDING]\n    HOLDING:\n      on enter: [set pwm_out to 0, restart remaining]\n      while: [count remaining]\n      if remaining == 0: [go to LOWERING]\n    LOWERING:\n      on enter: [turn off motor_dir, set pwm_out to 21]\n      if voltage <= zero_level: [go to IDLE]\n\n  buttons:\n    btn_minus:\n      in IDLE: [decrease setpoint]\n      repeat: yes\n    btn_plus:\n      in IDLE: [increase setpoint]\n      repeat: yes\n    btn_time_minus:\n      in IDLE: [decrease hold_time, restart remaining]\n      repeat: yes\n    btn_time_plus:\n      in IDLE: [increase hold_time, restart remaining]\n      repeat: yes\n    btn_start:\n      in IDLE: [go to RAISING]\n    btn_stop:\n      always: [go to IDLE]\n\n  looks:\n    btn_start:\n      in IDLE:     { text: START,    color: green }\n      in RAISING:  { text: RAISING,  color: amber }\n      in HOLDING:  { text: HOLDING,  color: blue }\n      in LOWERING: { text: LOWERING, color: amber }\n    countdown:\n      in HOLDING:  { color: blue }\n    reading:\n      in RAISING:  { color: amber }\n      in LOWERING: { color: amber }\n"
+}

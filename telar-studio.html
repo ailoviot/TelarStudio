@@ -641,6 +641,16 @@ button.mas:hover{text-decoration:underline}
 .pf-cab small{display:block;font:11px var(--mono);color:var(--debil);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pf-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
 .pf-chips span{font:11px/1 var(--mono);padding:4px 7px;border-radius:5px;background:var(--panel2);border:1px solid var(--borde);color:var(--tenue)}
+.pf-chips .v-pant{color:var(--texto);border-color:color-mix(in srgb,var(--nodo-p) 45%,var(--borde))}
+.pantalla-aparte{margin:4px 0 12px;padding:10px 11px 2px;border:1px solid var(--borde);border-radius:10px;background:#1c2028}
+.pa-cab{display:flex;align-items:center;gap:9px;margin-bottom:10px;min-width:0}
+.pa-ico{width:28px;height:28px;flex:none;display:grid;place-items:center;border-radius:7px;color:var(--nodo-p);
+  background:color-mix(in srgb,var(--nodo-p) 14%,var(--panel2));border:1px solid color-mix(in srgb,var(--nodo-p) 35%,var(--borde))}
+.pa-ico svg{width:17px;height:17px}
+.pa-cab div{min-width:0}
+.pa-cab b{display:block;font-size:12.5px}
+.pa-cab small{display:block;font:11px var(--mono);color:var(--tenue);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pantalla-aparte details.sec{border-bottom:0}
 .pf-chips .v-ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 40%,var(--borde))}
 .pf-chips .v-aviso{color:var(--aviso);border-color:color-mix(in srgb,var(--aviso) 40%,var(--borde))}
 details.pf-mas{margin-top:9px}
@@ -3223,7 +3233,7 @@ function resumirTextos(){
 /* Las secciones plegables recuerdan si estaban abiertas. Es estado de la
    interfaz (como accAbierto): no va en E, ni en el .json, ni en deshacer.
    Las de esta lista empiezan cerradas. */
-const SEC_CERRADAS = new Set(['plantillas', 'proyecto-sel', 'est-botones', 'est-tipo', 'est-export', 'hw-ide', 'lg-recetas']);
+const SEC_CERRADAS = new Set(['plantillas', 'proyecto-sel', 'est-botones', 'est-tipo', 'est-export', 'hw-ide', 'lg-recetas', 'pa-pines']);
 const abierta = id => SEC_CERRADAS.has(id) ? '' : ' open';
 const seccion = (id, titulo, cuerpo, cuenta) =>
   `<details class="sec" data-sec="${id}"${abierta(id)}><summary>${titulo}${cuenta !== undefined ? `<span class="cuenta">${cuenta}</span>` : ''}</summary>${cuerpo}</details>`;
@@ -3540,7 +3550,7 @@ function panelDiseno(){
         Object.entries(placasTodas()).filter(([,v]) => !v.sin_pantalla).map(([k,v]) =>
           `<option value="${k}"${k===nodoHMI().placa?' selected':''}>${esc(v.corto)} · ${v.ancho}×${v.alto}</option>`).join('')}
       </optgroup>
-      <optgroup label="${t('Con una pantalla aparte, por SPI o I2C')}">${
+      <optgroup label="${t('Con una pantalla aparte: TFT, OLED o Nextion')}">${
         Object.entries(placasTodas()).filter(([,v]) => v.sin_pantalla && v.familia !== 'avr' && v.familia !== 'linux')
           .map(([k,v]) => `<option value="${k}"${k===nodoHMI().placa?' selected':''}>${esc(v.corto)} + ${t('pantalla aparte')}</option>`).join('')}
       </optgroup>
@@ -3996,10 +4006,22 @@ function panelEnlace(){
   let c = `<div class="enl-lados">${E.nodos.map((x, i) => `<div class="enl-lado nodo-${letraNodo(i)}">
       <span class="nc-cab"><span class="nc-ico">${ICO_NODO[letraNodo(i)]}</span><b>${esc(nomNodo(x))}</b></span>
       <small>${esc(placaDe(x).corto)}</small><code>${esc(pinesEn(x))}</code></div>`).join(`<span class="enl-flecha">${ICO_NODO.enlace}</span>`)}</div>`;
+  /* Solo los enlaces que pueden hacer los dos nodos. Si el elegido no
+     lo es (un proyecto viejo), se deja a la vista para poder cambiarlo. */
+  const posibles = enlacesPosibles();
+  const lista = Object.entries(ENLACES).filter(([k]) => posibles.includes(k) || E.enlace?.tipo === k);
   c += `<label class="campo"><span>${t('Tipo de enlace')}</span><select id="fEnlace">${
-    Object.entries(ENLACES).map(([k,v]) =>
+    lista.map(([k,v]) =>
     `<option value="${k}"${E.enlace?.tipo===k?' selected':''}>${v.icono} ${esc(nom(v))}${
-      v.generado ? '' : ' · ' + t('todavía no genera código')}</option>`).join('')}</select></label>`;
+      v.generado ? '' : ' · ' + t('todavía no genera código')}${posibles.includes(k) ? '' : ' · ' + t('no disponible')}</option>`).join('')}</select></label>`;
+  const ausentes = Object.keys(ENLACES).filter(k => !posibles.includes(k));
+  if (ausentes.length){
+    const sinEllos = E.nodos.map(n => placaDe(n)).filter(P => ausentes.some(k => !enlacesDe(P).has(k)));
+    c += `<div class="regla" style="margin:-4px 0 10px">${t('No aparecen')} ${ausentes.map(k => nom(ENLACES[k])).join(t(' ni '))}: ${
+      [...new Set(sinEllos.map(P => P.corto))].join(t(' ni '))} ${t('no los tiene. Solo los ESP32 hablan por CAN o sin cables.')}</div>`;
+  }
+  if (E.enlace && !posibles.includes(E.enlace.tipo))
+    c += `<div class="nota error">${esc(nom(ENLACES[E.enlace.tipo]))}: ${t('una de las dos placas no lo admite. Elige otro enlace.')}</div>`;
   if (L && !L.generado)
     c += `<div class="nota error"><b>${esc(L.nombre)} todavía no está implementado.</b><br><br>
       Puedes elegirlo para ver cómo queda el reparto de pines, pero <b>Exportar</b> se va a negar:
@@ -4093,7 +4115,8 @@ function panelHardware(){
         <div class="pf-cab"><span class="pf-ico">${icoWidget('_proyecto')}</span>
           <div><b>${esc(P.nombre)}</b><small title="${esc(mcu[0])}">${esc(mcu[0])}</small></div>
           ${E.iNodo === 0 ? `<button class="pf-cambiar" id="irPlacaPantalla" title="${esc(t('La placa de la pantalla se elige en Diseño › Proyecto'))}">${t('Cambiar placa')}</button>` : ''}</div>
-        <div class="pf-chips">${mcu.slice(1).map(x => `<span>${esc(x)}</span>`).join('')}
+        <div class="pf-chips">${n === nodoHMI() && placaBase(n).sin_pantalla && n.pantalla_externa
+            ? `<span class="v-pant">+ ${esc(n.pantalla_externa.controlador)}</span>` : ''}${mcu.slice(1).map(x => `<span>${esc(x)}</span>`).join('')}
           <span class="${ver ? 'v-ok' : 'v-aviso'}">${ver ? '✓ ' + t('Verificada en placa') : '⚠ ' + t('Sin verificar')}</span></div>
         <details class="pf-mas"><summary>${t('Detalles')}</summary>
           <p>${ver ? t('Datos verificados en placa.') : t('Datos de la comunidad, sin verificar en banco.')} ${esc(t(P.nota_procedencia))}</p>
@@ -4904,12 +4927,19 @@ function bloquePantallaExterna(){
                     border-radius:6px;padding:4px 6px;font:12.5px var(--mono)"></label>`;
   const rejilla = campos => `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px">${campos}</div>`;
 
-  return `<div class="bloque" style="margin-top:2px">
-    <h3>${t('La pantalla que le enchufas')}</h3>
+  /* lo elegido, de un vistazo, y los pines resumidos en el titulo de su seccion */
+  const panel = PANELES[pa.controlador] || {};
+  const bus = esUart ? t('puerto serie') : esI2c ? 'I2C' : 'SPI';
+  const resumenPines = esUart ? `TX ${pa.uart?.tx ?? '—'} · RX ${pa.uart?.rx ?? '—'}`
+    : esI2c ? `SDA ${pa.i2c?.sda ?? '—'} · SCL ${pa.i2c?.scl ?? '—'}`
+    : `SCK ${pa.spi?.sck ?? '—'} · MOSI ${pa.spi?.mosi ?? '—'} · CS ${pa.spi?.cs ?? '—'}`;
+  return `<div class="pantalla-aparte">
+    <div class="pa-cab"><span class="pa-ico">${ICO_NODO.p}</span>
+      <div><b>${t('La pantalla conectada')}</b><small>${esc(pa.controlador)} · ${med.ancho}×${med.alto} · ${bus}</small></div></div>
 
-    <label class="campo"><span>${t('Controlador')}</span><select data-pan="controlador">
+    <label class="campo"><span>${t('Modelo de pantalla')}</span><select data-pan="controlador">
       <optgroup label="${t('En color, por SPI')}">${
-        Object.entries(PANELES).filter(([,v]) => v.bus !== 'i2c').map(([k,v]) =>
+        Object.entries(PANELES).filter(([,v]) => v.bus !== 'i2c' && v.bus !== 'uart').map(([k,v]) =>
           `<option value="${k}"${k===pa.controlador?' selected':''}>${esc(v.nombre)}${v.propia ? ' · ' + t('tuya') : ''}</option>`).join('')}</optgroup>
       <optgroup label="${t('De un color (OLED), por I2C')}">${
         Object.entries(PANELES).filter(([,v]) => v.bus === 'i2c').map(([k,v]) =>
@@ -4928,6 +4958,8 @@ function bloquePantallaExterna(){
         return `<option value="${rr}"${rr===(pa.rotacion??0)?' selected':''}>${rr*90}° · ${m.ancho}×${m.alto}</option>`; }).join('')}
     </select></label>`}
 
+    ${panel.protocolo === 'nextion' ? `<div class="regla" style="margin-bottom:8px">${t('Se dibuja en su propio editor: al exportar sale NEXTION.txt con lo que hay que crear allí.')}</div>` : ''}
+    <details class="sec" data-sec="pa-pines"${abierta('pa-pines')}><summary>${t('Pines y ajustes')}<span class="cuenta">${esc(resumenPines)}</span></summary>
     <div class="regla" style="margin-bottom:8px">${t('El lienzo se dibuja a')} <b>${med.ancho}×${med.alto}</b>.
       ${t('Estos pines se descuentan de los libres: el asignador ya no los reparte a los sensores.')}</div>
 
@@ -4977,6 +5009,7 @@ function bloquePantallaExterna(){
               + pin('tactil.irq', 'IRQ', tac.irq) + pin('tactil.rst', 'RESET', tac.rst))}
       <div class="regla">${t('Si el dedo cae desplazado, lo que hay que tocar es el giro, no los pines.')}</div>` : ''}
     `}
+    </details>
   </div>`;
 }
 
@@ -5228,8 +5261,28 @@ function cambiarPlaca(n, id){
      fuera de la pantalla y parece que el trabajo se ha perdido. */
   if (n === nodoHMI()) reescalarDiseno(antes, ahora);
   for (const p of n.conexiones) p.pinForzado = null;
+  const c = ajustarEnlace();
   pintar();
+  if (c) toast(avisoEnlace(c), 'aviso', 6000);
 }
+
+/* Los enlaces que valen para el proyecto: los que admiten TODOS sus nodos */
+function enlacesPosibles(){
+  return Object.keys(ENLACES).filter(k => E.nodos.every(n => enlacesDe(placaDe(n)).has(k)));
+}
+/* Si el enlace elegido ya no lo admite alguna placa (se cambio de placa, o
+   el proyecto venia asi), pasa a RS485, o al primero posible. Devuelve
+   que cambio, para decirlo; null si no hacia falta. */
+function ajustarEnlace(){
+  if (E.nodos.length < 2 || !E.enlace || !ENLACES[E.enlace.tipo]) return null;
+  const ok = enlacesPosibles();
+  if (!ok.length || ok.includes(E.enlace.tipo)) return null;
+  const antes = E.enlace.tipo, nuevo = ok.includes('rs485') ? 'rs485' : ok[0];
+  E.enlace = { tipo: nuevo, baudios: ENLACES[nuevo].baudios };
+  return { antes, nuevo, placa: E.nodos.map(n => placaDe(n)).find(P => !enlacesDe(P).has(antes)) };
+}
+const avisoEnlace = c => `${escDlg(c.placa ? c.placa.corto : '')} ${t('no admite')} ${escDlg(nom(ENLACES[c.antes]))}: ${
+  t('el enlace pasa a')} <b>${escDlg(nom(ENLACES[c.nuevo]))}</b>.`;
 
 function anadirNodo(){
   HIST.iniciar();
@@ -5330,7 +5383,8 @@ function pintarCabecera(){
   const P = placa();
   const A = asignarPines(nodo());
   document.getElementById('chipPlaca').innerHTML =
-    E.nodos.length > 1 ? `<b>${esc(nomNodo(nodoHMI()))}</b> ⇄ <b>${esc(nomNodo(E.nodos[1]))}</b>` : `<b>${esc(P.corto)}</b>`;
+    E.nodos.length > 1 ? `<b>${esc(nomNodo(nodoHMI()))}</b> ⇄ <b>${esc(nomNodo(E.nodos[1]))}</b>`
+    : `<b>${esc(P.corto)}</b>${placaBase(nodoHMI()).sin_pantalla && nodoHMI().pantalla_externa ? ' + ' + esc(nodoHMI().pantalla_externa.controlador) : ''}`;
   document.getElementById('chipRes').innerHTML = `${P.ancho}<b>×</b>${P.alto}`;
   document.getElementById('chipPines').innerHTML =
     A.filas.some(f => f.aviso?.sinPines)
@@ -5509,7 +5563,10 @@ function abrirProyectoDesde(txt, h, nombre){
   E.seleccion = []; E.sel = null; E.iNodo = 0; E.pestana = 'diseno'; migrarDispositivos(); pintar();
   archivoProyecto = h ? { h, escribible: false } : null;
   ultimoGuardado = null; marcarGuardado();
-  toast(`${t('Abierto')}: <code>${escDlg(nombre)}</code>`);
+  /* despues de marcarGuardado: el arreglo cuenta como cambio sin guardar */
+  const c = ajustarEnlace();
+  if (c){ pintar(); toast(`${t('Abierto')}: <code>${escDlg(nombre)}</code>. ${avisoEnlace(c)}`, 'aviso', 7000); }
+  else toast(`${t('Abierto')}: <code>${escDlg(nombre)}</code>`);
 }
 document.getElementById('btnCargar').addEventListener('click', async () => {
   /* Abrir otro con cambios sin guardar: se pregunta antes de perderlos */
@@ -5830,17 +5887,18 @@ async function exportar(){
   const avrMal = [];
   for (const nd of E.nodos){
     const P = placaDe(nd);
+    /* el enlace, en todas las placas (una Pico con ESP-NOW pasaba) */
+    if (E.nodos.length > 1 && E.enlace && !enlacesDe(P).has(E.enlace.tipo))
+      avrMal.push(`${t('el enlace')} ${ENLACES[E.enlace.tipo].nombre} (${P.corto})`);
     const permitidas = esAvr(P) ? AVR_PIEZAS : esLinux(P) ? LINUX_PIEZAS : null;
     if (!permitidas) continue;
     for (const c of (nd.conexiones || []))
       if (!permitidas.has(c.tipo)) avrMal.push(`${c.clave} — ${CONEXIONES[c.tipo]?.nombre || c.tipo}`);
-    if (E.nodos.length > 1 && E.enlace && !(esLinux(P) ? LINUX_ENLACES : AVR_ENLACES).has(E.enlace.tipo))
-      avrMal.push(`${t('el enlace')} ${ENLACES[E.enlace.tipo].nombre}`);
   }
   if (avrMal.length){
     await avisar(t('Hay cosas que esta placa no puede hacer'),
       listaDlg(avrMal.map(escDlg))
-      + `<p>${t('Estas placas (AVR como UNO o Nano, y las Linux) no tienen radio ni CAN, y Telar todavía no escribe sus buses. Con ellas el enlace entre nodos va por serie: UART o RS485.')}</p>`
+      + `<p>${t('Estas placas (AVR como UNO o Nano, la Pico y las Linux) no tienen radio ni CAN, y Telar todavía no escribe sus buses. Con ellas el enlace entre nodos va por serie: UART o RS485.')}</p>`
       + `<p><b>${t('Quita esas piezas, o pon un ESP32 en ese nodo.')}</b></p>`, 'aviso');
     return;
   }

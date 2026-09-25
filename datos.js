@@ -881,6 +881,17 @@ const AVR_ENLACES = new Set(['uart', 'rs485']);
 const LINUX_PIEZAS = new Set(['gpio-in', 'gpio-out']);
 const LINUX_ENLACES = new Set(['uart', 'rs485']);
 
+/* Los enlaces que sabe hacer cada placa. ESP-NOW necesita la radio de un
+   ESP32 y CAN su controlador TWAI; las demas familias (AVR, la Pico y el
+   resto de «arduino», Linux) hablan por serie: UART o RS485. Una ficha
+   de placa puede decir los suyos con `enlaces: [...]`. */
+const ENLACES_SERIE = new Set(['uart', 'rs485']);
+function enlacesDe(P){
+  if (P && Array.isArray(P.enlaces)) return new Set(P.enlaces);
+  const f = (P && P.familia) || 'esp32';
+  return f === 'esp32' ? new Set(Object.keys(ENLACES)) : ENLACES_SERIE;
+}
+
 /* ---------------------------------------------------------------------
  * PLACAS A MEDIDA
  *

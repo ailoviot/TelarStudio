@@ -2173,9 +2173,9 @@ const CAPS = [
     <h2 id="tft-pasos">Paso a paso</h2>
     <ol class="pasos">
       <li>En <b>Diseño</b>, <b>Placa de la pantalla</b>: elige tu placa con <b>+ pantalla aparte</b> (por ejemplo, «DevKit v1 + pantalla aparte»).</li>
-      <li><b>Controlador</b>: el chip de la pantalla. Viene en el anuncio o impreso en el cable plano.</li>
+      <li><b>Modelo de pantalla</b>: el chip de la pantalla. Viene en el anuncio o impreso en el cable plano.</li>
       <li><b>Giro</b>: cada opción dice el tamaño con el que queda. El lienzo pasa a medir eso.</li>
-      <li><b>Pines</b>: Telar propone los de los tutoriales (en un ESP32 clásico, SCK 18, MOSI 23 y MISO 19). Cámbialos a como lo cableaste. Un <code>-1</code> es un pin que no se usa.</li>
+      <li><b>Pines y ajustes</b> (se abre con un clic; el título ya dice los pines): Telar propone los de los tutoriales (en un ESP32 clásico, SCK 18, MOSI 23 y MISO 19). Cámbialos a como lo cableaste. Un <code>-1</code> es un pin que no se usa.</li>
       <li><b>Retroiluminación</b>: el pin que la enciende, o <code>-1</code> si va directa a 3,3 V.</li>
       <li><b>Táctil</b>: el XPT2046 de las resistivas (por SPI) o uno capacitivo (GT911, FT6236, CST816S, por I2C). Al elegirlo, Telar propone pines libres.</li>
       <li><b>Exportar</b>. Sale <code>pantalla.h</code> con toda la descripción de la pantalla. Instala <b>LovyanGFX</b> y <b>lvgl</b> desde el gestor de librerías y sube.</li>
@@ -2198,9 +2198,9 @@ const CAPS = [
     <h2 id="tft-pasos">Step by step</h2>
     <ol class="pasos">
       <li>In <b>Design</b>, <b>Screen board</b>: choose your board with <b>+ separate screen</b> (for example, "DevKit v1 + separate screen").</li>
-      <li><b>Controller</b>: the screen's chip. It comes in the listing or printed on the flat cable.</li>
+      <li><b>Screen model</b>: the screen's chip. It comes in the listing or printed on the flat cable.</li>
       <li><b>Rotation</b>: each option says the size it ends up with. The canvas takes that size.</li>
-      <li><b>Pins</b>: Telar suggests the usual ones from tutorials (on a classic ESP32, SCK 18, MOSI 23 and MISO 19). Change them to how you wired it. A <code>-1</code> is a pin that is not used.</li>
+      <li><b>Pins and settings</b> (opens with a click; the title already shows the pins): Telar suggests the usual ones from tutorials (on a classic ESP32, SCK 18, MOSI 23 and MISO 19). Change them to how you wired it. A <code>-1</code> is a pin that is not used.</li>
       <li><b>Backlight</b>: the pin that turns it on, or <code>-1</code> if it goes straight to 3.3 V.</li>
       <li><b>Touch</b>: the XPT2046 of resistive screens (over SPI) or a capacitive one (GT911, FT6236, CST816S, over I2C). When you pick it, Telar suggests free pins.</li>
       <li><b>Export</b>. You get <code>pantalla.h</code> with the whole description of the screen. Install <b>LovyanGFX</b> and <b>lvgl</b> from the library manager and upload.</li>
@@ -2232,7 +2232,7 @@ const CAPS = [
     html: () => X(`
     <h2 id="oled-pasos">Paso a paso</h2>
     <ol class="pasos">
-      <li><b>Placa de la pantalla</b>: tu placa con <b>+ pantalla aparte</b>. En <b>Controlador</b>, grupo <b>OLED, por I2C</b>: SSD1306 de 128×64 o de 128×32, o SH1106.</li>
+      <li><b>Placa de la pantalla</b>: tu placa con <b>+ pantalla aparte</b>. En <b>Modelo de pantalla</b>, grupo <b>OLED, por I2C</b>: SSD1306 de 128×64 o de 128×32, o SH1106.</li>
       <li><b>SDA</b>, <b>SCL</b> y la <b>dirección</b> (casi siempre 0x3C).</li>
       <li>En <b>Hardware</b>, añade las piezas <b>Botón de navegación</b>: una con <i>siguiente</i> y otra con <i>aceptar</i>. Una tercera con <i>anterior</i> lo hace más cómodo.</li>
       <li>Diseña. El lienzo se ve en blanco y negro, como en la placa, y la paleta solo ofrece lo que se lee en ella: textos, números, barras, botones, interruptores, LED y la tira de estado.</li>
@@ -2261,7 +2261,7 @@ const CAPS = [
     </table></div>`, `
     <h2 id="oled-pasos">Step by step</h2>
     <ol class="pasos">
-      <li><b>Screen board</b>: your board with <b>+ separate screen</b>. Under <b>Controller</b>, group <b>OLED, over I2C</b>: SSD1306 128×64 or 128×32, or SH1106.</li>
+      <li><b>Screen board</b>: your board with <b>+ separate screen</b>. Under <b>Screen model</b>, group <b>OLED, over I2C</b>: SSD1306 128×64 or 128×32, or SH1106.</li>
       <li><b>SDA</b>, <b>SCL</b> and the <b>address</b> (almost always 0x3C).</li>
       <li>In <b>Hardware</b>, add <b>Navigation button</b> pieces: one set to <i>next</i> and one to <i>accept</i>. A third one set to <i>previous</i> makes it more comfortable.</li>
       <li>Design. The canvas looks black and white, as on the board, and the palette only offers what reads well there: texts, numbers, bars, buttons, switches, LEDs and the state strip.</li>
@@ -2302,7 +2302,7 @@ const CAPS = [
     escribirlo: escribe el código del ESP32 y una <b>hoja</b>, <code>NEXTION.txt</code>, con todo lo que hay que crear allí, en el orden en que se hace.</p>
     <h2 id="nx-pasos">Paso a paso</h2>
     <ol class="pasos">
-      <li><b>Placa de la pantalla</b>: tu placa con <b>+ pantalla aparte</b>; en <b>Controlador</b>, el grupo <b>por puerto serie</b> y tu modelo.</li>
+      <li><b>Placa de la pantalla</b>: tu placa con <b>+ pantalla aparte</b>; en <b>Modelo de pantalla</b>, el grupo <b>por puerto serie</b> y tu modelo.</li>
       <li><b>TX</b> y <b>RX</b>, cruzados: el TX de la placa al RX de la pantalla y al revés. Y las masas unidas.</li>
       <li>Diseña en Telar como siempre. La paleta solo ofrece lo que tiene equivalente en la Nextion.</li>
       <li><b>Exportar</b>. Abre <code>NEXTION.txt</code> y síguelo en el Nextion Editor: crea una fuente, las páginas y cada componente con su <code>objname</code> exacto, su posición, sus colores y el código de sus botones.</li>
@@ -2351,7 +2351,7 @@ const CAPS = [
     it writes the ESP32 code and a <b>sheet</b>, <code>NEXTION.txt</code>, with everything that has to be created there, in the order you do it.</p>
     <h2 id="nx-pasos">Step by step</h2>
     <ol class="pasos">
-      <li><b>Screen board</b>: your board with <b>+ separate screen</b>; under <b>Controller</b>, the <b>over a serial port</b> group and your model.</li>
+      <li><b>Screen board</b>: your board with <b>+ separate screen</b>; under <b>Screen model</b>, the <b>over a serial port</b> group and your model.</li>
       <li><b>TX</b> and <b>RX</b>, crossed: the board TX to the screen RX and the other way round. And the grounds joined.</li>
       <li>Design in Telar as usual. The palette only offers what has an equivalent on the Nextion.</li>
       <li><b>Export</b>. Open <code>NEXTION.txt</code> and follow it in the Nextion Editor: create a font, the pages and each component with its exact <code>objname</code>, its position, its colours and its buttons' code.</li>

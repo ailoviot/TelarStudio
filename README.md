@@ -1,10 +1,7 @@
 # Telar Studio
 
-**[🇪🇸 Español](#español)** · **[🇬🇧 English](#english)**
-
----
-
-## Español
+<details name="idioma" open>
+<summary><b>🇪🇸 Español</b></summary>
 
 Plataforma para el desarrollo fácil y rápido de interfaces con LVGL.
 
@@ -55,11 +52,10 @@ Para compilar la de escritorio, con [Node.js](https://nodejs.org) 22 o superior:
 
 **Licencia:** MIT. Las tipografías incluidas tienen la suya (SIL OFL o Apache 2.0), en `fuentes/`.
 
-<p align="right"><a href="#telar-studio">↑ Arriba</a></p>
+</details>
 
----
-
-## English
+<details name="idioma">
+<summary><b>🇬🇧 English</b></summary>
 
 A platform for building LVGL interfaces quickly and easily.
 
@@ -110,4 +106,4 @@ To build the desktop app, with [Node.js](https://nodejs.org) 22 or later: `cd es
 
 **License:** MIT. The bundled typefaces have their own (SIL OFL or Apache 2.0), in `fuentes/`.
 
-<p align="right"><a href="#telar-studio">↑ Top</a></p>
+</details>

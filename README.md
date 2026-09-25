@@ -10,7 +10,13 @@ Plataforma para el desarrollo fácil y rápido de interfaces con LVGL.
 
 La interfaz y la documentación están en español y en inglés: el idioma se cambia arriba a la derecha.
 
-Diseñas la pantalla arrastrando widgets, conectas sensores y salidas, escribes qué hace el aparato con un lenguaje sencillo y lo pruebas en el simulador. Al exportar, Telar escribe el proyecto de Arduino completo para placas ESP32 con pantalla (Waveshare, CrowPanel, CYD…), con sus fuentes ya generadas: se abre en el IDE y se sube.
+Diseñas la pantalla arrastrando widgets, conectas sensores y salidas, escribes qué hace el aparato con un lenguaje sencillo y lo pruebas en el simulador. Al exportar, Telar escribe el proyecto completo, con sus fuentes ya generadas, listo para abrir y subir.
+
+### Placas
+
+- **La pantalla:** placas ESP32 con pantalla integrada (Waveshare, Elecrow CrowPanel, CYD), un ESP32 con una TFT en color por SPI (ILI9341, ST7789, ST7735…) o una OLED por I2C (SSD1306, SH1106), o una Nextion/TJC por puerto serie.
+- **El control, si hace falta:** cuando la pantalla se queda sin pines, un segundo nodo lee los sensores, mueve las salidas y le manda los datos por UART o RS485. Puede ser otro ESP32, un Arduino UNO o Nano, una Raspberry Pi Pico… o una placa con Linux: **Raspberry Pi, Jetson Nano u Orange Pi**.
+- **Lo que genera:** para los microcontroladores, el sketch de Arduino (`.ino`); para las placas con Linux, un programa de Python con su servicio de arranque.
 
 ### Descargar
 
@@ -62,7 +68,13 @@ MIT. Las tipografías incluidas tienen su propia licencia (SIL OFL o Apache 2.0)
 
 A platform for building LVGL interfaces quickly and easily.
 
-You design the screen by dragging widgets, connect sensors and outputs, describe what the device does in a simple language and try it in the simulator. On export, Telar writes the complete Arduino project for ESP32 boards with a display (Waveshare, CrowPanel, CYD…), with its fonts already generated: open it in the Arduino IDE and upload.
+You design the screen by dragging widgets, connect sensors and outputs, describe what the device does in a simple language and try it in the simulator. On export, Telar writes the complete project, with its fonts already generated, ready to open and upload.
+
+### Boards
+
+- **The screen:** ESP32 boards with a built-in display (Waveshare, Elecrow CrowPanel, CYD), an ESP32 with a colour TFT over SPI (ILI9341, ST7789, ST7735…) or an OLED over I2C (SSD1306, SH1106), or a Nextion/TJC over a serial port.
+- **The control side, when needed:** when the screen runs out of pins, a second node reads the sensors, drives the outputs and sends the data over UART or RS485. It can be another ESP32, an Arduino UNO or Nano, a Raspberry Pi Pico… or a Linux board: **Raspberry Pi, Jetson Nano or Orange Pi**.
+- **What it generates:** for microcontrollers, the Arduino sketch (`.ino`); for Linux boards, a Python program with its startup service.
 
 The interface and the documentation are available in English and Spanish: switch the language at the top right.
 

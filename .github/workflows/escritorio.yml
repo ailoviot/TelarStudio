@@ -73,16 +73,34 @@ jobs:
           name: Telar Studio ${{ github.ref_name }}
           files: instaladores/*
           body: |
-            ## Descargas
+            ## Downloads · Descargas
 
-            | Sistema | Archivo |
+            | System · Sistema | File · Archivo |
             |---|---|
-            | **Windows** 10/11 | `TelarStudio-…-win-x64.exe` — doble clic e instala. |
-            | **macOS** (Intel y Apple Silicon) | `TelarStudio-…-mac-universal.dmg` — arrastra Telar Studio a Aplicaciones. |
-            | **Linux** | `TelarStudio-…-linux-x86_64.AppImage` (dale permiso de ejecución y ábrelo) o el `.deb` para Debian/Ubuntu. |
+            | **Windows** 10/11 | `TelarStudio-…-win-x64.exe` |
+            | **macOS** (Intel & Apple Silicon) | `TelarStudio-…-mac-universal.dmg` |
+            | **Linux** | `TelarStudio-…-linux-x86_64.AppImage` · `.deb` (Debian/Ubuntu) |
+
+            ### English
+
+            - **Windows:** double-click the `.exe` and it installs itself.
+            - **macOS:** open the `.dmg` and drag Telar Studio to Applications.
+            - **Linux:** make the `.AppImage` executable and open it, or install the `.deb`.
+
+            **First launch:** the app is not signed yet.
+            - On **Windows**, if you see "Windows protected your PC": *More info* → *Run anyway*.
+            - On **macOS**: right-click Telar Studio → *Open* → *Open*.
+
+            You can also use it without installing anything: open `telar-studio.html` in Chrome or Edge. The interface is available in English and Spanish.
+
+            ### Español
+
+            - **Windows:** doble clic en el `.exe` y se instala solo.
+            - **macOS:** abre el `.dmg` y arrastra Telar Studio a Aplicaciones.
+            - **Linux:** dale permiso de ejecución al `.AppImage` y ábrelo, o instala el `.deb`.
 
             **La primera vez:** la aplicación todavía no está firmada.
             - En **Windows**, si sale «Windows protegió su PC»: *Más información* → *Ejecutar de todas formas*.
             - En **macOS**: clic derecho sobre Telar Studio → *Abrir* → *Abrir*.
 
-            También se puede usar sin instalar nada: abre `telar-studio.html` en Chrome o Edge.
+            También se puede usar sin instalar nada: abre `telar-studio.html` en Chrome o Edge. La interfaz está en español y en inglés.

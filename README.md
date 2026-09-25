@@ -36,9 +36,7 @@ Descarga un `.telar.json` y ábrelo con el botón **Abrir**.
 | | Ejemplo | Qué enseña |
 |---|---|---|
 | <img src="docs/capturas/ejemplo-control-var.webp" width="220" alt="control-var"> | [control-var](ejemplos/control-var.telar.json) | El proyecto de referencia, probado en la placa: tensión y tiempo con − y +, clase de ensayo, guardar y cargar en memoria y dos nodos por RS485. |
-| <img src="docs/capturas/ejemplo-ciclo_variac.webp" width="220" alt="ciclo_variac"> | [ciclo_variac](ejemplos/ciclo_variac.telar.json) | Un ciclo con estados: reposo, subida, retención con temporizador y bajada. |
-| <img src="docs/capturas/ejemplo-variac_industrial.webp" width="220" alt="variac_industrial"> | [variac_industrial](ejemplos/variac_industrial.telar.json) | El mismo ciclo con el tema Industrial: reloj de aguja, curva del ensayo, consigna, pasos del proceso y pantalla de diagnóstico. |
-| <img src="docs/capturas/ejemplo-variac_plantillas.webp" width="220" alt="variac_plantillas"> | [variac_plantillas](ejemplos/variac_plantillas.telar.json) | Hecho con las plantillas: tres pantallas (operación, ajustes y diagnóstico) sin dibujar a mano. |
+| <img src="docs/capturas/ejemplo-variac_industrial.webp" width="220" alt="variac_industrial"> | [variac_industrial](ejemplos/variac_industrial.telar.json) | Un ciclo de ensayo con estados (reposo, subida, retención con temporizador y bajada) y el tema Industrial: reloj de aguja, curva, consigna, pasos del proceso y pantalla de diagnóstico. |
 
 ### Para desarrolladores
 
@@ -91,9 +89,7 @@ Download a `.telar.json` and open it with the **Open** button. The projects are 
 | | Example | What it shows |
 |---|---|---|
 | <img src="docs/capturas/ejemplo-control-var.webp" width="220" alt="control-var"> | [control-var](ejemplos/control-var.telar.json) | The reference project, tested on the board: voltage and time with − and +, test class, save and load to memory, and two nodes over RS485. |
-| <img src="docs/capturas/ejemplo-ciclo_variac.webp" width="220" alt="ciclo_variac"> | [ciclo_variac](ejemplos/ciclo_variac.telar.json) | A cycle built with states: idle, ramp up, hold with a timer, and ramp down. |
-| <img src="docs/capturas/ejemplo-variac_industrial.webp" width="220" alt="variac_industrial"> | [variac_industrial](ejemplos/variac_industrial.telar.json) | The same cycle with the Industrial theme: needle gauge, test curve, setpoint, process steps and a diagnostics screen. |
-| <img src="docs/capturas/ejemplo-variac_plantillas.webp" width="220" alt="variac_plantillas"> | [variac_plantillas](ejemplos/variac_plantillas.telar.json) | Built from the templates: three screens (operation, settings and diagnostics) without drawing by hand. |
+| <img src="docs/capturas/ejemplo-variac_industrial.webp" width="220" alt="variac_industrial"> | [variac_industrial](ejemplos/variac_industrial.telar.json) | A test cycle built with states (idle, ramp up, hold with a timer, ramp down) and the Industrial theme: needle gauge, curve, setpoint, process steps and a diagnostics screen. |
 
 ### For developers
 

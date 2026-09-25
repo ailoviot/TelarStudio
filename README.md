@@ -18,7 +18,8 @@ La aplicación para Windows, macOS y Linux está en **[Releases](https://github.
 ### Placas
 
 - **La pantalla:** placas ESP32 con pantalla integrada (Waveshare, Elecrow CrowPanel, CYD), un ESP32 con una TFT en color por SPI (ILI9341, ST7789, ST7735…) o una OLED por I2C (SSD1306, SH1106), o una Nextion/TJC por puerto serie.
-- **El control, si hace falta:** cuando la pantalla se queda sin pines, un segundo nodo lee los sensores, mueve las salidas y le manda los datos por UART o RS485. Puede ser otro ESP32, un Arduino UNO o Nano, una Raspberry Pi Pico… o una placa con Linux: **Raspberry Pi, Jetson Nano u Orange Pi**.
+- **El control, si hace falta:** cuando la pantalla se queda sin pines, un segundo nodo lee los sensores, mueve las salidas y le manda los datos. Puede ser otro ESP32, un Arduino UNO o Nano, una Raspberry Pi Pico… o una placa con Linux: **Raspberry Pi, Jetson Nano u Orange Pi**.
+- **El enlace entre los dos:** **RS485** (lejos o con motores cerca), **UART** (menos de un metro), **CAN** (pensado para más de dos nodos) o **ESP-NOW**, sin cables. CAN y ESP-NOW, entre placas ESP32; los Arduino y las placas con Linux, por UART o RS485.
 - **Lo que genera:** para los microcontroladores, el sketch de Arduino (`.ino`); para las placas con Linux, un programa de Python con su servicio de arranque.
 
 ### Así se ve
@@ -72,7 +73,8 @@ Rather not install anything? Download the repository and open `telar-studio.html
 ### Boards
 
 - **The screen:** ESP32 boards with a built-in display (Waveshare, Elecrow CrowPanel, CYD), an ESP32 with a colour TFT over SPI (ILI9341, ST7789, ST7735…) or an OLED over I2C (SSD1306, SH1106), or a Nextion/TJC over a serial port.
-- **The control side, when needed:** when the screen runs out of pins, a second node reads the sensors, drives the outputs and sends the data over UART or RS485. It can be another ESP32, an Arduino UNO or Nano, a Raspberry Pi Pico… or a Linux board: **Raspberry Pi, Jetson Nano or Orange Pi**.
+- **The control side, when needed:** when the screen runs out of pins, a second node reads the sensors, drives the outputs and sends the data. It can be another ESP32, an Arduino UNO or Nano, a Raspberry Pi Pico… or a Linux board: **Raspberry Pi, Jetson Nano or Orange Pi**.
+- **The link between them:** **RS485** (long distances or motors nearby), **UART** (under one metre), **CAN** (meant for more than two nodes) or **ESP-NOW**, wireless. CAN and ESP-NOW between ESP32 boards; Arduino and Linux boards use UART or RS485.
 - **What it generates:** for microcontrollers, the Arduino sketch (`.ino`); for Linux boards, a Python program with its startup service.
 
 ### What it looks like

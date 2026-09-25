@@ -2,7 +2,7 @@
  * TELAR STUDIO DE ESCRITORIO — el puente con la pagina
  *
  * Deja en window.telarNativo unas pocas funciones del sistema, y nada
- * mas: la pagina no tiene Node ni acceso libre al disco. escritorio.js
+ * mas: la pagina no tiene Node ni acceso libre al disco. puente-escritorio.js
  * (dentro de Telar Studio) monta con ellas los selectores de archivos.
  * ===================================================================== */
 'use strict';

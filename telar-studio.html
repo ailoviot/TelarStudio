@@ -5335,7 +5335,7 @@ function pintarCabecera(){
   document.getElementById('chipPines').innerHTML =
     A.filas.some(f => f.aviso?.sinPines)
       ? `<b style="color:var(--error)">${t('sin pines')}</b>`
-      : `${A.libresTras}<b> libres</b>${E.nodos.length>1?' · '+esc(nodo().nombre):''}${
+      : `${A.libresTras}<b> ${t('libres')}</b>${E.nodos.length>1?' · '+esc(nomNodo(nodo())):''}${
           A.filas.some(f => f.aviso?.tipo === 'error') ? ` <b style="color:var(--error)">⚠</b>` : ''}`;
 }
 
@@ -5563,7 +5563,7 @@ if (window.ResizeObserver){
 <script src="generador-serie.js"></script>
 <script src="logica-editor.js"></script>
 <script src="simulador.js"></script>
-<script src="escritorio.js"></script>
+<script src="puente-escritorio.js"></script>
 <script>
   /* Las fuentes cargan en segundo plano; al llegar, el lienzo se repinta
      con ellas y las cajas ceñidas se vuelven a medir. */

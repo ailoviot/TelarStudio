@@ -6,13 +6,63 @@
       "nombre": "Pantalla",
       "placa": "waveshare-esp32s3-touch-lcd-4.3b",
       "conexiones": []
+    },
+    {
+      "id": "control",
+      "nombre": "Control",
+      "placa": "esp32-devkit-v1",
+      "conexiones": [
+        {
+          "clave": "voltage",
+          "tipo": "adc-in",
+          "pinForzado": 34,
+          "params": {
+            "muestras": 32,
+            "unidad": "kV"
+          }
+        },
+        {
+          "clave": "pwm_out",
+          "tipo": "pwm-out",
+          "pinForzado": 25,
+          "params": {
+            "frecuencia": 1000,
+            "resolucion": "8",
+            "rango": "0–255",
+            "inicial": 21
+          }
+        },
+        {
+          "clave": "brake",
+          "tipo": "gpio-out",
+          "pinForzado": 26,
+          "params": {}
+        },
+        {
+          "clave": "dir",
+          "tipo": "gpio-out",
+          "pinForzado": 27,
+          "params": {}
+        },
+        {
+          "clave": "bip",
+          "tipo": "gpio-out",
+          "pinForzado": 32,
+          "params": {
+            "activo": "alto"
+          }
+        }
+      ]
     }
   ],
-  "enlace": null,
+  "enlace": {
+    "tipo": "rs485",
+    "baudios": 19200
+  },
   "iNodo": 0,
   "ajustes": [],
   "estados": [],
-  "logica": "",
+  "logica": "variables:\n  setpoint: { type: setting, unit: kV, range: [0, 100], step: 0.1, start: 0 }\n  clock: { type: setting, unit: s, range: [0, 900], step: 1, start: 0 }\n  hold_time: {type: timer, from: clock, counts: down}\n \n\nstart_in: IDLE\nclick: bip   \nstates: \n  IDLE:     \n    on enter: [load clock, set pwm_out to 0, turn on dir, turn off bip] \n      \n  START:\n    on enter: [set pwm_out to 21, turn off brake]      \n    if setpoint > 0 and voltage >= setpoint: [go to RUNNING]     \n      \n  RUNNING:\n    on enter: [restart hold_time, set pwm_out to 0, turn on brake]  \n    while: [count hold_time]    \n    if hold_time == 0: [go to FINISHED]    \n     \n  FINISHED:\n    on enter: [set pwm_out to 21, turn off brake, turn off dir, blink bip on 2 off 2 for 14]    \n    if voltage <= 0.4: [go to IDLE]\n    \n  RETURN:\n   on enter: [set pwm_out to 21, turn off brake, turn off dir]\n   if voltage <= 0.4: [go to IDLE] \n\n        \n    \nbuttons:\n   btn_time_minus:\n     always: [decrease clock]\n     repeat: yes\n     \n   btn_time_plus:\n     always: [increase clock]\n     repeat: yes  \n\n   btn_tension_down:\n     always: [decrease setpoint]\n     repeat: yes\n     \n   btn_tension_up:\n     always: [increase setpoint]\n     repeat: yes    \n    \n   btn_cl_00:\n     always: [set setpoint to 2.5]  \n     \n   btn_cl_0:\n     always: [set setpoint to 5]\n          \n   btn_cl_1:\n     always: [set setpoint to 10] \n     \n   btn_cl_2:\n     always: [set setpoint to 20] \n     \n   btn_cl_3:\n     always: [set setpoint to 30]\n        \n   btn_cl_4:\n     always: [set setpoint to 40]              \n   \n   btn_save:\n     in IDLE: [save clock, save setpoint]  \n        \n   btn_load:\n     in IDLE: [load clock, load setpoint]        \n     \n   btn_start:\n     in IDLE: [go to START] \n         \n   btn_stop:\n    in START:   [go to RETURN]\n    in RUNNING: [go to RETURN]\n     \nlooks:\n    btn_cl_00, btn_cl_0, btn_cl_1, btn_cl_2, btn_cl_3, btn_cl_4,\n    btn_time_minus, btn_time_plus, btn_tension_down, btn_tension_up,\n    btn_save, btn_load:\n     in  RUNNING: {disabled: yes, color: \"#7abdff\"}    \n         \n     \n              ",
   "tema": {
     "nombre": "Aula",
     "desc": "El de siempre de Telar: colores vivos y Montserrat.",
@@ -97,12 +147,12 @@
         {
           "id": "w2",
           "tipo": "lectura",
-          "nombre": "lectura_3",
+          "nombre": "tension",
           "x": 28,
-          "y": 83,
-          "w": 268,
-          "h": 144,
-          "bind": "",
+          "y": 75,
+          "w": 367,
+          "h": 152,
+          "bind": "voltage",
           "series": [],
           "texto": "TENSIÓN MEDIDA",
           "evento": "",
@@ -119,7 +169,9 @@
           "rotuloDy": 4,
           "unidad": "kV",
           "decimales": 2,
-          "ejemplo": 0
+          "ejemplo": 100,
+          "unidadDx": -46,
+          "unidadDy": -43
         },
         {
           "id": "w16",
@@ -141,9 +193,9 @@
           "nombre": "tiempo_18",
           "x": 440,
           "y": 52,
-          "w": 171,
+          "w": 202,
           "h": 100,
-          "bind": "",
+          "bind": "hold_time",
           "series": [],
           "texto": "TIEMPO",
           "evento": "",
@@ -151,7 +203,8 @@
           "auto": true,
           "estilo": {
             "fuente": 72,
-            "rotulo_c": "#e1dfdb"
+            "rotulo_c": "#e1dfdb",
+            "tipo_rot": "chivo700"
           },
           "ejemplo": 0,
           "rotuloDx": 9,
@@ -160,7 +213,7 @@
         {
           "id": "w18",
           "tipo": "button",
-          "nombre": "button_19",
+          "nombre": "btn_time_plus",
           "x": 684,
           "y": 64,
           "w": 60,
@@ -193,7 +246,8 @@
           "destino": "",
           "estilo": {
             "fuente": 12,
-            "tenue": "#e1dfdb"
+            "tenue": "#e1dfdb",
+            "tipo_rot": "chivo700"
           }
         },
         {
@@ -202,7 +256,7 @@
           "nombre": "tarjeta_3",
           "x": 16,
           "y": 396,
-          "w": 348,
+          "w": 356,
           "h": 76,
           "bind": "",
           "series": [],
@@ -213,7 +267,7 @@
         {
           "id": "w25",
           "tipo": "button",
-          "nombre": "button_4",
+          "nombre": "btn_load",
           "x": 44,
           "y": 408,
           "w": 140,
@@ -246,7 +300,7 @@
         {
           "id": "w27",
           "tipo": "button",
-          "nombre": "button_28",
+          "nombre": "btn_cl_00",
           "x": 124,
           "y": 280,
           "w": 140,
@@ -257,7 +311,8 @@
           "evento": "",
           "destino": "",
           "estilo": {
-            "fuente": 30
+            "fuente": 30,
+            "color": "#3b9dff"
           }
         },
         {
@@ -266,9 +321,9 @@
           "nombre": "lectura_2",
           "x": 440,
           "y": 146,
-          "w": 154,
+          "w": 233,
           "h": 100,
-          "bind": "",
+          "bind": "setpoint",
           "series": [],
           "texto": "TENSIÓN",
           "evento": "",
@@ -279,21 +334,21 @@
             "rotulo_c": "#e1dfdb",
             "fuente_uni": 20,
             "tipo_uni": "chivo700",
-            "tipo_rot": "barlow700",
+            "tipo_rot": "chivo700",
             "fuente_rot": 11
           },
-          "rotuloDx": 8,
-          "rotuloDy": 8,
+          "rotuloDx": 7,
+          "rotuloDy": 16,
           "unidad": "kV",
           "decimales": 2,
-          "ejemplo": 0,
-          "unidadDy": -14,
-          "unidadDx": -10
+          "ejemplo": 100,
+          "unidadDy": -22,
+          "unidadDx": -23
         },
         {
           "id": "w41",
           "tipo": "button",
-          "nombre": "button_2",
+          "nombre": "btn_time_minus",
           "x": 684,
           "y": 112,
           "w": 60,
@@ -314,7 +369,7 @@
         {
           "id": "w43",
           "tipo": "button",
-          "nombre": "button_10",
+          "nombre": "btn_tension_up",
           "x": 684,
           "y": 164,
           "w": 60,
@@ -335,7 +390,7 @@
         {
           "id": "w44",
           "tipo": "button",
-          "nombre": "button_11",
+          "nombre": "btn_tension_down",
           "x": 684,
           "y": 212,
           "w": 60,
@@ -356,7 +411,7 @@
         {
           "id": "w46",
           "tipo": "button",
-          "nombre": "button_5",
+          "nombre": "btn_cl_2",
           "x": 124,
           "y": 332,
           "w": 140,
@@ -373,7 +428,7 @@
         {
           "id": "w47",
           "tipo": "button",
-          "nombre": "button_6",
+          "nombre": "btn_cl_0",
           "x": 344,
           "y": 280,
           "w": 140,
@@ -390,7 +445,7 @@
         {
           "id": "w48",
           "tipo": "button",
-          "nombre": "button_7",
+          "nombre": "btn_cl_3",
           "x": 344,
           "y": 332,
           "w": 140,
@@ -407,7 +462,7 @@
         {
           "id": "w49",
           "tipo": "button",
-          "nombre": "button_8",
+          "nombre": "btn_cl_1",
           "x": 568,
           "y": 280,
           "w": 140,
@@ -424,7 +479,7 @@
         {
           "id": "w50",
           "tipo": "button",
-          "nombre": "button_9",
+          "nombre": "btn_cl_4",
           "x": 568,
           "y": 332,
           "w": 140,
@@ -455,7 +510,7 @@
         {
           "id": "w53",
           "tipo": "button",
-          "nombre": "button_3",
+          "nombre": "btn_save",
           "x": 196,
           "y": 408,
           "w": 140,
@@ -474,7 +529,7 @@
         {
           "id": "w54",
           "tipo": "button",
-          "nombre": "button_12",
+          "nombre": "btn_stop",
           "x": 408,
           "y": 408,
           "w": 156,
@@ -493,7 +548,7 @@
         {
           "id": "w55",
           "tipo": "button",
-          "nombre": "button_13",
+          "nombre": "btn_start",
           "x": 588,
           "y": 408,
           "w": 160,
@@ -515,6 +570,9 @@
   "iPantalla": 0,
   "sel": null,
   "seleccion": [],
-  "pestana": "diseno",
-  "contador": 56
+  "pestana": "hard",
+  "contador": 56,
+  "placas_propias": {},
+  "pantallas_propias": {},
+  "placaEdit": null
 }

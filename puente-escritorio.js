@@ -1,6 +1,10 @@
 /* =====================================================================
  * TELAR STUDIO DE ESCRITORIO
  *
+ * (No se llama escritorio.js a proposito: al lado esta la carpeta
+ * escritorio/ con la app, y Electron, al arrancar esa carpeta, cogia
+ * este archivo en su lugar.)
+ *
  * En el navegador este archivo no hace nada. Dentro de la aplicacion de
  * escritorio (Electron), el preload deja en window.telarNativo unas pocas
  * funciones del sistema: elegir carpeta, guardar como, abrir, leer y

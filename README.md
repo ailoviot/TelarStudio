@@ -8,9 +8,15 @@
 
 Plataforma para el desarrollo fácil y rápido de interfaces con LVGL.
 
-La interfaz y la documentación están en español y en inglés: el idioma se cambia arriba a la derecha.
+![Telar Studio: la pestaña Diseño](docs/capturas/portada-es.webp)
 
-Diseñas la pantalla arrastrando widgets, conectas sensores y salidas, escribes qué hace el aparato con un lenguaje sencillo y lo pruebas en el simulador. Al exportar, Telar escribe el proyecto completo, con sus fuentes ya generadas, listo para abrir y subir.
+Diseñas la pantalla arrastrando widgets, conectas sensores y salidas, escribes qué hace el aparato con un lenguaje sencillo y lo pruebas en el simulador. Al exportar, Telar escribe el proyecto completo, con sus fuentes ya generadas, listo para abrir y subir. La interfaz y la documentación están en español y en inglés.
+
+### Descargar
+
+La aplicación para Windows, macOS y Linux está en **[Releases](https://github.com/ailoviot/TelarStudio/releases)**. Todavía no está firmada: en Windows, si sale «Windows protegió su PC», *Más información* → *Ejecutar de todas formas*; en macOS, clic derecho → *Abrir*.
+
+¿Sin instalar nada? Descarga el repositorio y abre `telar-studio.html` en Chrome o Edge.
 
 ### Placas
 
@@ -18,47 +24,36 @@ Diseñas la pantalla arrastrando widgets, conectas sensores y salidas, escribes 
 - **El control, si hace falta:** cuando la pantalla se queda sin pines, un segundo nodo lee los sensores, mueve las salidas y le manda los datos por UART o RS485. Puede ser otro ESP32, un Arduino UNO o Nano, una Raspberry Pi Pico… o una placa con Linux: **Raspberry Pi, Jetson Nano u Orange Pi**.
 - **Lo que genera:** para los microcontroladores, el sketch de Arduino (`.ino`); para las placas con Linux, un programa de Python con su servicio de arranque.
 
-### Descargar
+### Así se ve
 
-En **[Releases](https://github.com/ailoviot/TelarStudio/releases)** está la aplicación de escritorio para Windows, macOS y Linux.
+| Lógica | Hardware | Simulador |
+|:---:|:---:|:---:|
+| [![Lógica](docs/capturas/logica-es.webp)](docs/capturas/logica-es.webp) | [![Hardware](docs/capturas/hardware-es.webp)](docs/capturas/hardware-es.webp) | [![Simulador](docs/capturas/simulador-es.webp)](docs/capturas/simulador-es.webp) |
+| Qué hace el aparato, con índice y ayuda | Cada nodo, sus pines y el enlace | Se prueba todo sin compilar |
 
-La primera vez que la abras: todavía no está firmada.
-- En **Windows**, si sale «Windows protegió su PC»: *Más información* → *Ejecutar de todas formas*.
-- En **macOS**: clic derecho sobre Telar Studio → *Abrir* → *Abrir*.
+### Ejemplos
 
-### Sin instalar nada
+Descarga un `.telar.json` y ábrelo con el botón **Abrir**.
 
-Telar Studio también funciona en el navegador: descarga el repositorio y abre `telar-studio.html` con **Chrome** o **Edge** (hace falta la API de acceso a archivos para exportar a una carpeta).
+| | Ejemplo | Qué enseña |
+|---|---|---|
+| <img src="docs/capturas/ejemplo-control-var.webp" width="220" alt="control-var"> | [control-var](ejemplos/control-var.telar.json) | El proyecto de referencia, probado en la placa: tensión y tiempo con − y +, clase de ensayo, guardar y cargar en memoria y dos nodos por RS485. |
+| <img src="docs/capturas/ejemplo-ciclo_variac.webp" width="220" alt="ciclo_variac"> | [ciclo_variac](ejemplos/ciclo_variac.telar.json) | Un ciclo con estados: reposo, subida, retención con temporizador y bajada. |
+| <img src="docs/capturas/ejemplo-variac_industrial.webp" width="220" alt="variac_industrial"> | [variac_industrial](ejemplos/variac_industrial.telar.json) | El mismo ciclo con el tema Industrial: reloj de aguja, curva del ensayo, consigna, pasos del proceso y pantalla de diagnóstico. |
+| <img src="docs/capturas/ejemplo-variac_plantillas.webp" width="220" alt="variac_plantillas"> | [variac_plantillas](ejemplos/variac_plantillas.telar.json) | Hecho con las plantillas: tres pantallas (operación, ajustes y diagnóstico) sin dibujar a mano. |
 
-### Qué hay aquí
+### Para desarrolladores
 
 | Carpeta o archivo | Qué es |
 |---|---|
 | `telar-studio.html` y los `.js` | La aplicación: diseño, estilo, hardware, lógica, simulador y generador de código |
 | `docs/logica.html` | La documentación del lenguaje de lógica, con ejemplos |
-| `fuentes/` | Las tipografías que usa Telar y sus licencias |
 | `lv-font-conv.js` | [lv_font_conv](https://github.com/lvgl/lv_font_conv) empaquetado para el navegador: genera las fuentes al exportar |
-| `ejemplos/` | Proyectos de ejemplo (`.telar.json`), para abrir con el botón **Abrir** |
 | `escritorio/` | La aplicación de escritorio (Electron) |
-| `herramientas/` | Utilidades de desarrollo, como la que empaqueta `lv-font-conv.js` |
 
-### Compilar la aplicación de escritorio
+Para compilar la de escritorio, con [Node.js](https://nodejs.org) 22 o superior: `cd escritorio`, `npm install`, `node node_modules/electron/install.js` y `npm start` (o `npm run dist:win` para el instalador). Al subir una etiqueta de versión (`v1.2.0`), GitHub compila los tres instaladores y los publica en Releases.
 
-Con [Node.js](https://nodejs.org) 22 o superior:
-
-```
-cd escritorio
-npm install
-node node_modules/electron/install.js
-npm start            # abre Telar Studio de escritorio
-npm run dist:win     # instalador de Windows en escritorio/dist/
-```
-
-`npm run dist:mac` y `npm run dist:linux` generan los de macOS y Linux (cada uno en su sistema). Al subir una etiqueta de versión (`v1.2.0`), GitHub compila los tres y los publica en Releases.
-
-### Licencia
-
-MIT. Las tipografías incluidas tienen su propia licencia (SIL OFL o Apache 2.0), en `fuentes/`. `lv-font-conv.js` incluye lv_font_conv (MIT), FreeType (FTL) y sus dependencias.
+**Licencia:** MIT. Las tipografías incluidas tienen la suya (SIL OFL o Apache 2.0), en `fuentes/`.
 
 <p align="right"><a href="#telar-studio">↑ Arriba</a></p>
 
@@ -68,7 +63,15 @@ MIT. Las tipografías incluidas tienen su propia licencia (SIL OFL o Apache 2.0)
 
 A platform for building LVGL interfaces quickly and easily.
 
-You design the screen by dragging widgets, connect sensors and outputs, describe what the device does in a simple language and try it in the simulator. On export, Telar writes the complete project, with its fonts already generated, ready to open and upload.
+![Telar Studio: the Design tab](docs/capturas/portada-en.webp)
+
+You design the screen by dragging widgets, connect sensors and outputs, describe what the device does in a simple language and try it in the simulator. On export, Telar writes the complete project, with its fonts already generated, ready to open and upload. The interface and the documentation are available in English and Spanish.
+
+### Download
+
+The app for Windows, macOS and Linux is on **[Releases](https://github.com/ailoviot/TelarStudio/releases)**. It is not signed yet: on Windows, if you see "Windows protected your PC", *More info* → *Run anyway*; on macOS, right-click → *Open*.
+
+Rather not install anything? Download the repository and open `telar-studio.html` in Chrome or Edge.
 
 ### Boards
 
@@ -76,48 +79,35 @@ You design the screen by dragging widgets, connect sensors and outputs, describe
 - **The control side, when needed:** when the screen runs out of pins, a second node reads the sensors, drives the outputs and sends the data over UART or RS485. It can be another ESP32, an Arduino UNO or Nano, a Raspberry Pi Pico… or a Linux board: **Raspberry Pi, Jetson Nano or Orange Pi**.
 - **What it generates:** for microcontrollers, the Arduino sketch (`.ino`); for Linux boards, a Python program with its startup service.
 
-The interface and the documentation are available in English and Spanish: switch the language at the top right.
+### What it looks like
 
-### Download
+| Logic | Hardware | Simulator |
+|:---:|:---:|:---:|
+| [![Logic](docs/capturas/logica-en.webp)](docs/capturas/logica-en.webp) | [![Hardware](docs/capturas/hardware-en.webp)](docs/capturas/hardware-en.webp) | [![Simulator](docs/capturas/simulador-en.webp)](docs/capturas/simulador-en.webp) |
+| What the device does, with an index and help | Each node, its pins and the link | Try everything without compiling |
 
-The desktop app for Windows, macOS and Linux is on the **[Releases](https://github.com/ailoviot/TelarStudio/releases)** page.
+### Examples
 
-The first time you open it: the app is not signed yet.
-- On **Windows**, if you see "Windows protected your PC": *More info* → *Run anyway*.
-- On **macOS**: right-click Telar Studio → *Open* → *Open*.
+Download a `.telar.json` and open it with the **Open** button. The projects are in Spanish.
 
-### Without installing anything
+| | Example | What it shows |
+|---|---|---|
+| <img src="docs/capturas/ejemplo-control-var.webp" width="220" alt="control-var"> | [control-var](ejemplos/control-var.telar.json) | The reference project, tested on the board: voltage and time with − and +, test class, save and load to memory, and two nodes over RS485. |
+| <img src="docs/capturas/ejemplo-ciclo_variac.webp" width="220" alt="ciclo_variac"> | [ciclo_variac](ejemplos/ciclo_variac.telar.json) | A cycle built with states: idle, ramp up, hold with a timer, and ramp down. |
+| <img src="docs/capturas/ejemplo-variac_industrial.webp" width="220" alt="variac_industrial"> | [variac_industrial](ejemplos/variac_industrial.telar.json) | The same cycle with the Industrial theme: needle gauge, test curve, setpoint, process steps and a diagnostics screen. |
+| <img src="docs/capturas/ejemplo-variac_plantillas.webp" width="220" alt="variac_plantillas"> | [variac_plantillas](ejemplos/variac_plantillas.telar.json) | Built from the templates: three screens (operation, settings and diagnostics) without drawing by hand. |
 
-Telar Studio also runs in the browser: download the repository and open `telar-studio.html` in **Chrome** or **Edge** (exporting to a folder needs the File System Access API).
-
-### What is in here
+### For developers
 
 | Folder or file | What it is |
 |---|---|
 | `telar-studio.html` and the `.js` files | The app: design, style, hardware, logic, simulator and code generator |
 | `docs/logica.html` | Documentation of the logic language, with examples |
-| `fuentes/` | The typefaces Telar uses, with their licenses |
 | `lv-font-conv.js` | [lv_font_conv](https://github.com/lvgl/lv_font_conv) bundled for the browser: generates the fonts on export |
-| `ejemplos/` | Example projects (`.telar.json`), to open with the **Open** button |
 | `escritorio/` | The desktop app (Electron) |
-| `herramientas/` | Development tools, such as the one that bundles `lv-font-conv.js` |
 
-### Building the desktop app
+To build the desktop app, with [Node.js](https://nodejs.org) 22 or later: `cd escritorio`, `npm install`, `node node_modules/electron/install.js` and `npm start` (or `npm run dist:win` for the installer). Pushing a version tag (`v1.2.0`) makes GitHub build the three installers and publish them on Releases.
 
-With [Node.js](https://nodejs.org) 22 or later:
-
-```
-cd escritorio
-npm install
-node node_modules/electron/install.js
-npm start            # opens Telar Studio desktop
-npm run dist:win     # Windows installer in escritorio/dist/
-```
-
-`npm run dist:mac` and `npm run dist:linux` build the macOS and Linux installers (each on its own system). Pushing a version tag (`v1.2.0`) makes GitHub build all three and publish them on Releases.
-
-### License
-
-MIT. The bundled typefaces have their own licenses (SIL OFL or Apache 2.0), in `fuentes/`. `lv-font-conv.js` includes lv_font_conv (MIT), FreeType (FTL) and their dependencies.
+**License:** MIT. The bundled typefaces have their own (SIL OFL or Apache 2.0), in `fuentes/`.
 
 <p align="right"><a href="#telar-studio">↑ Top</a></p>

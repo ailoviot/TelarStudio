@@ -93,6 +93,22 @@
   .lg-k{color:#8fb8ff} .lg-kw{color:#c9a0ff} .lg-v{color:#9fe0bf} .lg-nm{color:#ffd89a} .lg-n{color:#f5c07a}
   .lg-s{color:#b5e8c9} .lg-cm{color:#6b7a90;font-style:italic} .lg-p{color:#6b7280} .lg-op{color:#f0a3a3}
   .lg-st{color:#e6f1ff;background:#23324a;border-radius:3px;padding:0 2px}
+
+  /* --- los widgets, uno a uno: una ficha por widget --- */
+  /* minmax(0,1fr) y min-width:0: sin ellos, un bloque de codigo largo ensancha la
+     columna y en el movil la ficha se sale por la derecha */
+  .wfichas{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;margin:10px 0 22px}
+  .wficha{min-width:0}
+  .wficha{background:var(--panel);border:1px solid var(--borde);border-radius:10px;padding:14px 16px;scroll-margin-top:12px}
+  .wficha h3{margin:0 0 2px;font-size:17px}
+  .wficha .wf-img{display:block;max-width:100%;height:auto;border-radius:8px;border:1px solid var(--borde);margin:8px 0 10px}
+  .wficha .wf-pie{margin:-4px 0 10px;color:var(--debil);font-size:13px;font-style:italic}
+  .wficha .wf-que{margin:0 0 8px;color:var(--texto)}
+  .wficha ol{margin:0 0 8px;padding-left:20px;color:var(--tenue)}
+  .wficha ol li{margin:2px 0}
+  .wficha .wf-ej{margin:8px 0 6px}
+  .wficha .wf-nota{margin:6px 0 0;color:var(--tenue);font-size:14px}
+  .wf-grupo{font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.12em;color:var(--azul-suave);margin:18px 0 0}
   b[class^="lg-"]{font-weight:inherit}
   .leyenda{display:flex;flex-wrap:wrap;gap:6px 14px;font:12.5px var(--mono);margin:10px 0 0}
   .leyenda span{display:flex;align-items:center;gap:6px;color:var(--tenue)}
@@ -218,29 +234,29 @@ const PIEZAS = {
 const bound = (es, en, v) => ({ es: `${es}, enlazado a <code>${v}</code>`, en: `${en}, bound to <code>${v}</code>` });
 const boton = txt => ({ es: `Botón con el texto ${txt}`, en: `Button with the text ${txt}` });
 const ELEMENTOS = {
-  reading:        { tipo: 'value',  que: bound('Número grande', 'Big number', 'voltage') },
-  sp_view:        { tipo: 'value',  que: bound('Número grande', 'Big number', 'setpoint') },
-  power_view:     { tipo: 'value',  que: bound('Número grande', 'Big number', 'power') },
-  level_view:     { tipo: 'value',  que: bound('Número grande', 'Big number', 'level') },
-  time_view:      { tipo: 'timer',  que: bound('Tiempo', 'Time', 'hold_time') },
-  countdown:      { tipo: 'timer',  que: bound('Tiempo', 'Time', 'remaining') },
+  reading:        { tipo: 'lectura', que: bound('Número', 'Number', 'voltage') },
+  sp_view:        { tipo: 'lectura', que: bound('Número', 'Number', 'setpoint') },
+  power_view:     { tipo: 'lectura', que: bound('Número', 'Number', 'power') },
+  level_view:     { tipo: 'lectura', que: bound('Número', 'Number', 'level') },
+  time_view:      { tipo: 'tiempo', que: bound('Tiempo', 'Time', 'hold_time') },
+  countdown:      { tipo: 'tiempo', que: bound('Tiempo', 'Time', 'remaining') },
   btn_minus:      { tipo: 'button', que: boton('−') },
   btn_plus:       { tipo: 'button', que: boton('+') },
   btn_time_minus: { tipo: 'button', que: boton('−') },
   btn_time_plus:  { tipo: 'button', que: boton('+') },
   btn_start:      { tipo: 'button', que: boton('START') },
   btn_reset:      { tipo: 'button', que: boton('RESET') },
-  fault_led:      { tipo: 'led',    que: bound('LED', 'LED', 'fault') },
-  rounds_view:    { tipo: 'value',  que: bound('Número grande', 'Big number', 'rounds') },
-  pieces_view:    { tipo: 'value',  que: bound('Número grande', 'Big number', 'pieces') },
-  total_view:     { tipo: 'value',  que: bound('Número grande', 'Big number', 'total') },
+  fault_led:      { tipo: 'led',    que: bound('Piloto', 'LED', 'fault') },
+  rounds_view:    { tipo: 'lectura', que: bound('Número', 'Number', 'rounds') },
+  pieces_view:    { tipo: 'lectura', que: bound('Número', 'Number', 'pieces') },
+  total_view:     { tipo: 'lectura', que: bound('Número', 'Number', 'total') },
   btn_jog:        { tipo: 'button', que: boton('JOG') },
   btn_stop:       { tipo: 'button', que: boton('STOP') },
   btn_lower:      { tipo: 'button', que: { es: 'Botón con el texto BAJAR', en: 'Button with the text LOWER' } },
   btn_on:         { tipo: 'button', que: boton('ON') },
   btn_save:       { tipo: 'button', que: { es: 'Botón con el texto Guardar', en: 'Button with the text Save' } },
   btn_load:       { tipo: 'button', que: { es: 'Botón con el texto Cargar', en: 'Button with the text Load' } },
-  strip:          { tipo: 'state-strip', que: { es: 'Tira de estado (opcional): muestra en qué estado estás', en: 'State strip (optional): shows which state you are in' } },
+  strip:          { tipo: 'pildora', que: { es: 'Estado actual (opcional): muestra en qué estado estás', en: 'Current state (optional): shows which state you are in' } },
 };
 
 /* ----------------------------------------------------------- ejemplos
@@ -260,13 +276,13 @@ const EJEMPLOS = [
       es: [
         'En la pestaña <b>Hardware</b>, añade una <b>Entrada analógica (ADC)</b> y ponle de nombre <code>voltage</code>.',
         'En sus parámetros, escribe la <b>Unidad</b> (<code>kV</code>) y la escala: qué valor corresponde al pin a 0 V (<code>0</code>) y al pin al máximo (<code>264</code>). Así la pantalla muestra kilovoltios y no un número del 0 al 4095.',
-        'En <b>Diseño</b>, añade un <b>Número grande</b> y en <b>Enlazado a</b> elige <code>voltage</code>. En <b>Decimales</b> eliges cuántos se ven.',
+        'En <b>Diseño</b>, añade un <b>Número</b> y en <b>Enlazado a</b> elige <code>voltage</code>. En <b>Decimales</b> eliges cuántos se ven.',
         'Pon un <b>Texto</b> encima, como <code>VOLTAJE (kV)</code>, para que se sepa qué es.',
       ],
       en: [
         'In the <b>Hardware</b> tab, add an <b>Analog input (ADC)</b> and name it <code>voltage</code>.',
         'In its parameters, type the <b>Unit</b> (<code>kV</code>) and the scale: the value for the pin at 0 V (<code>0</code>) and for the pin at maximum (<code>264</code>). That way the screen shows kilovolts and not a number from 0 to 4095.',
-        'In <b>Design</b>, add a <b>Big number</b> and in <b>Bound to</b> choose <code>voltage</code>. In <b>Decimals</b> you pick how many are shown.',
+        'In <b>Design</b>, add a <b>Number</b> and in <b>Bound to</b> choose <code>voltage</code>. In <b>Decimals</b> you pick how many are shown.',
         'Put a <b>Label</b> above it, like <code>VOLTAGE (kV)</code>, so it is clear what it is.',
       ],
     },
@@ -306,14 +322,14 @@ buttons:
         '<code>range: [0, 100]</code> son los límites: por más que pulses, nunca baja de 0 ni pasa de 100. <code>step: 1</code> es cuánto cambia con cada toque. <code>start: 30</code> es con cuánto arranca la placa.',
         'Cada botón dice qué hace: <code>decrease</code> resta un paso, <code>increase</code> suma uno. <code>always</code> significa «en cualquier estado».',
         '<code>repeat: yes</code>: si dejas el botón pulsado, sigue sumando solo. Sin eso, hay que tocar una vez por paso.',
-        'Para ver el número, el <b>Número grande</b> <code>sp_view</code> va <b>Enlazado a</b> <code>setpoint</code>.',
+        'Para ver el número, el <b>Número</b> <code>sp_view</code> va <b>Enlazado a</b> <code>setpoint</code>.',
       ],
       en: [
         '<code>setpoint</code> is a <b>setting</b>: a number changed from the screen. It is created in <code>variables</code>.',
         '<code>range: [0, 100]</code> are the limits: however much you press, it never goes below 0 or above 100. <code>step: 1</code> is how much it changes with each tap. <code>start: 30</code> is the value the board starts with.',
         'Each button says what it does: <code>decrease</code> subtracts one step, <code>increase</code> adds one. <code>always</code> means "in any state".',
         '<code>repeat: yes</code>: if you hold the button down, it keeps adding on its own. Without it, you have to tap once per step.',
-        'To see the number, the <b>Big number</b> <code>sp_view</code> is <b>Bound to</b> <code>setpoint</code>.',
+        'To see the number, the <b>Number</b> <code>sp_view</code> is <b>Bound to</b> <code>setpoint</code>.',
       ],
     },
     prueba: {
@@ -355,14 +371,14 @@ buttons:
 `,
     pasos: {
       es: [
-        'Un setting vive en la memoria RAM: al apagar la placa vuelve a su <code>start</code>. Para que no se pierda hay que guardarlo en la <b>NVS</b>, una parte de la memoria flash que no se borra al apagar.',
+        'Un setting vive en la memoria RAM: al apagar la placa vuelve a su <code>start</code>. Para que no se pierda hay que guardarlo en la <b>NVS</b>, una parte de la memoria flash que no se borra al apagar. En la Pico va a la EEPROM que su núcleo guarda en la flash, y en una pantalla con Linux, a un fichero: <code>save</code> y <code>load</code> se escriben igual.',
         '<code>save hold_time</code> escribe el valor actual en la NVS. Aquí lo hace <code>btn_save</code>.',
         '<code>load hold_time</code> lo vuelve a leer y lo pone en el setting, siempre dentro de su <code>range</code>. Si todavía no se guardó nada, no cambia.',
         '<code>on enter: [load hold_time]</code> en el primer estado hace que <b>al encender</b> se cargue solo lo último que se guardó. <code>btn_load</code> sirve para volver a lo guardado si cambiaste el valor y te arrepentiste.',
         'Si el tiempo está enlazado a un <code>timer</code> (con <code>from: hold_time</code>), el timer también toma el valor cargado mientras no esté contando.',
       ],
       en: [
-        'A setting lives in RAM: when the board is powered off it goes back to its <code>start</code>. To keep it, it has to be saved to <b>NVS</b>, a part of the flash memory that is not erased at power-off.',
+        'A setting lives in RAM: when the board is powered off it goes back to its <code>start</code>. To keep it, it has to be saved to <b>NVS</b>, a part of the flash memory that is not erased at power-off. On the Pico it goes to the EEPROM its core keeps in flash, and on a Linux screen, to a file: <code>save</code> and <code>load</code> are written the same.',
         '<code>save hold_time</code> writes the current value to NVS. Here <code>btn_save</code> does it.',
         '<code>load hold_time</code> reads it back and puts it in the setting, always within its <code>range</code>. If nothing has been saved yet, nothing changes.',
         '<code>on enter: [load hold_time]</code> in the first state makes the last saved value load by itself <b>at power-on</b>. <code>btn_load</code> is for going back to the saved value if you changed it and regret it.',
@@ -385,7 +401,7 @@ buttons:
   {
     id: 'orden', grupo: 'mostrar',
     titulo: { es: 'Subir o bajar una salida PWM con un botón, sin lógica', en: 'Raise or lower a PWM output with a button, without logic' },
-    para: { es: 'Mover a mano la potencia de un motor o el brillo de una luz, de a un paso.', en: 'Move a motor power or a light brightness by hand, one step at a time.' },
+    para: { es: 'Mover a mano la potencia de un motor o el brillo de una luz, de a un paso.', en: 'Move a motor\'s power or a light\'s brightness by hand, one step at a time.' },
     aprende: { es: ['O dar la orden', 'Paso', 'Salida PWM'], en: ['Or give the order', 'Step', 'PWM output'] },
     hw: ['pwm_out'], lienzo: [],
     lienzoTexto: { es: ['Dos <b>Botones</b>: uno con el texto ▲ y otro con ▼'], en: ['Two <b>Buttons</b>: one with the text ▲ and another with ▼'] },
@@ -450,8 +466,8 @@ buttons:
       ],
     },
     prueba: {
-      es: ['Simula y pulsa START: la tira de estado (y el <b>estado actual</b>, arriba a la derecha) pasa a RUNNING.', 'Pulsa START otra vez: no pasa nada, porque ya no estás en IDLE.', 'Pulsa STOP: vuelve a IDLE.'],
-      en: ['Simulate and press START: the state strip (and the <b>current state</b>, top right) switches to RUNNING.', 'Press START again: nothing happens, because you are no longer in IDLE.', 'Press STOP: back to IDLE.'],
+      es: ['Simula y pulsa START: el <b>Estado actual</b> (arriba a la derecha) pasa a RUNNING.', 'Pulsa START otra vez: no pasa nada, porque ya no estás en IDLE.', 'Pulsa STOP: vuelve a IDLE.'],
+      en: ['Simulate and press START: the <b>Current state</b> (top right) switches to RUNNING.', 'Press START again: nothing happens, because you are no longer in IDLE.', 'Press STOP: back to IDLE.'],
     },
     ojo: { es: 'Si pones <code>always</code> en START, se podría «re-arrancar» a mitad del proceso. Piensa en qué estados tiene sentido cada botón.',
            en: 'If you put <code>always</code> on START, the process could be "restarted" halfway through. Think about which states each button makes sense in.' },
@@ -658,7 +674,7 @@ buttons:
         'Se pregunta con su nombre solo: <code>if fault</code> se cumple si está en sí, <code>if not fault</code> si está en no. Se puede unir con otras: <code>if not fault and voltage &lt; 10</code>.',
         'Aquí, si la tensión pasa de 90 mientras anda, se enciende <code>fault</code> y vuelve a reposo. La bandera <b>se queda en sí</b> aunque cambie de estado: por eso sirve para recordar.',
         'Los botones no llevan condiciones, así que START no va directo a <code>RUNNING</code>: va a <code>CHECK</code>, que decide en un instante. Si hay falla vuelve a <code>IDLE</code>; si no (<code>else</code>), arranca.',
-        'Un <b>LED</b> enlazado a <code>fault</code> se enciende mientras la falla no se reconozca. En un <b>Número</b> se ve como SI o NO.',
+        'Un <b>Piloto</b> enlazado a <code>fault</code> se enciende mientras la falla no se reconozca. En un <b>Número</b> se ve como SI o NO.',
       ],
       en: [
         'A <b>flag</b> (<code>type: flag</code>) holds a yes or a no. It starts at <code>no</code> (<code>start: no</code>); if <code>start</code> is not written, too.',
@@ -1066,7 +1082,7 @@ buttons:
       en: ['Simulate (plant on <b>Manual</b>), press START and watch the countdown: it stays at 01:00 even as the seconds pass.', 'Type 30 in the <code>voltage</code> box: it switches to HOLDING and the countdown starts going down.', 'At ×20, when it reaches 00:00 it switches to DONE.'],
     },
     ojo: { es: '¿Y si la medición cae durante la espera? Puedes agregar en <code>HOLDING</code> la línea <code>if voltage &lt; setpoint - 2: [go to RAISING]</code>. Vuelve a subir y, al llegar otra vez, la cuenta empieza de nuevo. El <code>- 2</code> es un margen para que no salte por una décima.',
-           en: 'What if the measurement drops during the hold? You can add to <code>HOLDING</code> the line <code>if voltage &lt; setpoint - 2: [go to RAISING]</code>. It rises again and, on reaching it again, the countdown starts over. The <code>- 2</code> is a margin so it does not jump over a tenth.' },
+           en: 'What if the measurement drops during the hold? You can add to <code>HOLDING</code> the line <code>if voltage &lt; setpoint - 2: [go to RAISING]</code>. It rises again and, on reaching it again, the countdown starts over. The <code>- 2</code> is a margin so that a change of a tenth does not trigger it.' },
     variac: { es: 'el paso de <code>RAISING</code> a <code>HOLDING</code>: es el corazón del ciclo.', en: 'the step from <code>RAISING</code> to <code>HOLDING</code>: it is the heart of the cycle.' },
   },
   {
@@ -1155,8 +1171,8 @@ looks:
       es: ['Simula: el botón aparece verde con START.', 'Tócalo: cambia a STOP en rojo. Tócalo otra vez: vuelve.'],
       en: ['Simulate: the button shows up green with START.', 'Tap it: it changes to STOP in red. Tap it again: it goes back.'],
     },
-    ojo: { es: 'El texto cambia en botones y textos. En un Número grande o un Tiempo solo cambia el color, porque su texto es el valor.',
-           en: 'The text changes on buttons and labels. On a Big number or a Time only the color changes, because their text is the value.' },
+    ojo: { es: 'El texto cambia en botones y textos. En un Número o un Tiempo solo cambia el color, porque su texto es el valor.',
+           en: 'The text changes on buttons and labels. On a Number or a Time only the colour changes, because their text is the value.' },
     variac: { es: '<code>btn_start</code> dice START (verde), RAISING y LOWERING (ámbar) o HOLDING (azul): así el mismo botón muestra en qué parte del ciclo vas.',
               en: '<code>btn_start</code> shows START (green), RAISING and LOWERING (amber) or HOLDING (blue): so the same button shows which part of the cycle you are in.' },
   },
@@ -1267,7 +1283,7 @@ looks:
     },
     ojo: { es: 'Mejor apagar que esconder: el operario ve que el botón existe y entiende que ahora no toca. Y apagar no sustituye a la lógica: si un botón no debe hacer nada en un estado, que tampoco lo diga <code>buttons</code>.',
            en: 'Better to disable than to hide: the operator sees that the button exists and understands it does not apply now. And disabling does not replace the logic: if a button must do nothing in a state, <code>buttons</code> should not say it either.' },
-    variac: { es: 'MARCHA y los botones del tiempo se apagan durante <code>RAISING</code> y <code>HOLDING</code>; en <code>LOWERING</code> solo MARCHA.',
+    variac: { es: 'START y los botones del tiempo se apagan durante <code>RAISING</code> y <code>HOLDING</code>; en <code>LOWERING</code> solo START.',
               en: 'START and the time buttons are disabled during <code>RAISING</code> and <code>HOLDING</code>; in <code>LOWERING</code> only START.' },
   },
 ];
@@ -1635,6 +1651,260 @@ const PARTES = [
   [{ es: 'Pantallas', en: 'Screens' }, { es: 'Dónde se pinta todo esto —placas con pantalla, TFT y OLED sueltas, Nextion y cualquier otra que describas tú— y cómo hacer que se vea profesional.', en: 'Where all this is drawn — boards with a screen, separate TFTs and OLEDs, Nextion and any other you describe yourself — and how to make it look professional.' }],
 ];
 
+/* ============================================================
+ * LOS WIDGETS, UNO A UNO
+ * Una ficha por widget: imagen (docs/widgets/, dibujada por Telar con
+ * herramientas/guia-widgets.js), que hace, como se usa en tres pasos como
+ * mucho y un ejemplo. Si necesita logica, el trozo justo, que se valida
+ * como cualquier otro ejemplo de esta guia.
+ * ============================================================ */
+const GRUPOS_FICHA = [
+  { id: 'basico', nombre: { es: 'Básico', en: 'Basic' } },
+  { id: 'entrada', nombre: { es: 'Entrada', en: 'Input' } },
+  { id: 'visual', nombre: { es: 'Visualización', en: 'Display' } },
+];
+const FICHAS = [
+  { id: 'texto', grupo: 'basico', img: 'texto.png', ancho: 360, nombre: { es: 'Texto', en: 'Label' },
+    que: { es: 'Un título, el nombre de una zona o una instrucción corta.', en: 'A title, the name of an area or a short instruction.' },
+    pasos: { es: ['Ponlo en la pantalla.', 'Escribe en <b>Texto visible</b>. El tamaño y la letra, en <b>Tamaño de letra</b> y <b>Tipografía</b>.', 'Si quieres que cambie con la máquina, dale <code>looks</code> en la Lógica, con su <b>Nombre en el código</b>.'],
+             en: ['Put it on the screen.', 'Type in <b>Visible text</b>. Size and font in <b>Font size</b> and <b>Typography</b>.', 'To make it change with the machine, give it <code>looks</code> in the Logic, by its <b>Name in the code</b>.'] },
+    ej: { es: 'Un texto que dice qué hacer: «Pulsa MARCHA» con la máquina parada, y «Trabajando» en verde cuando arranca:', en: 'A label that says what to do: «Pulsa MARCHA» while stopped, and «Trabajando» in green once it starts:' },
+    codigo: 'start_in: PARADO\nstates:\n  PARADO:\n  EN_MARCHA:\n\nlooks:\n  lbl_aviso:\n    in PARADO:    { text: Pulsa MARCHA }\n    in EN_MARCHA: { text: Trabajando, color: green }\n',
+    widgets: { lbl_aviso: 'label' },
+    nota: { es: 'Sin <code>looks</code>, el texto es siempre el que escribiste.', en: 'Without <code>looks</code>, the text is always the one you typed.' } },
+  { id: 'boton', grupo: 'basico', img: 'boton.png', ancho: 300, nombre: { es: 'Botón', en: 'Button' },
+    que: { es: 'Hace algo al tocarlo: cambia de pantalla, sube o baja un valor, enciende una salida o le avisa a la lógica.',
+           en: 'Does something when touched: changes screen, raises or lowers a value, switches an output on or tells the logic.' },
+    pasos: { es: ['Ponlo en la pantalla y escribe su texto.',
+                  'En su panel, <b>Al pulsar</b>: ir a otra pantalla, o una orden sobre una salida.',
+                  'O dale lógica en <code>buttons:</code>, con su <b>Nombre en el código</b>.'],
+             en: ['Put it on the screen and type its text.',
+                  'In its panel, <b>On tap</b>: go to another screen, or a command for an output.',
+                  'Or give it logic under <code>buttons:</code>, with its <b>Name in the code</b>.'] },
+    ej: { es: 'Un botón MARCHA que arranca la máquina, pero solo si está parada:', en: 'A START button that starts the machine, but only if it is stopped:' },
+    codigo: 'start_in: PARADO\nstates:\n  PARADO:\n  EN_MARCHA:\nbuttons:\n  btn_marcha:\n    in PARADO: [go to EN_MARCHA]\n',
+    widgets: { btn_marcha: 'button' },
+    nota: { es: 'Pulsado en PARADO, pasa a EN_MARCHA. En cualquier otro estado no hace nada. Su clase (Normal, Seleccionado, Marcha o Paro), que le da el color, se elige en Estilo.',
+            en: 'Pressed in PARADO, it moves to EN_MARCHA. In any other state it does nothing. Its kind (Normal, Selected, Start or Stop), which gives it its colour, is chosen in Style.' } },
+  { id: 'imagen', grupo: 'basico', img: 'imagen.png', ancho: 220, nombre: { es: 'Imagen', en: 'Image' },
+    que: { es: 'Un logotipo o el dibujo de la máquina.', en: 'A logo or a drawing of the machine.' },
+    pasos: { es: ['Ponla en la pantalla.', 'En <b>Fichero</b>, elige un PNG.', 'Ajusta su caja: la imagen se encaja dentro sin deformarse.'],
+             en: ['Put it on the screen.', 'In <b>File</b>, choose a PNG.', 'Adjust its box: the picture fits inside without stretching.'] },
+    ej: { es: 'El esquema de la máquina en la pantalla de inicio.', en: 'A diagram of the machine on the start screen.' },
+    nota: { es: 'Usa un PNG pequeño: cada píxel ocupa memoria de la placa.', en: 'Use a small PNG: every pixel takes board memory.' } },
+  { id: 'linea', grupo: 'basico', img: 'linea.png', ancho: 360, nombre: { es: 'Línea', en: 'Line' },
+    que: { es: 'Separa zonas de la pantalla.', en: 'Splits areas of the screen.' },
+    pasos: { es: ['Ponla en la pantalla y estírala.', 'Arrastra un extremo para girarla; con Mayús, de 15 en 15°.', 'El <b>Grosor (px)</b> y el <b>Ángulo (°)</b>, en su panel.'],
+             en: ['Put it on the screen and stretch it.', 'Drag an end to turn it; with Shift, in 15° steps.', '<b>Thickness (px)</b> and <b>Angle (°)</b> in its panel.'] },
+    ej: { es: 'Una línea bajo el título y otra de pie entre dos medidas.', en: 'One line under the title and an upright one between two readings.' },
+    nota: { es: 'El color es el de acento del tema; se cambia en Estilo.', en: 'Its colour is the theme accent; change it in Style.' } },
+  { id: 'lista', grupo: 'basico', img: 'lista.png', ancho: 280, nombre: { es: 'Lista', en: 'List' },
+    que: { es: 'Un menú de opciones para tocar, o varias líneas para leer.', en: 'A menu of options to tap, or several lines to read.' },
+    pasos: { es: ['Ponla en la pantalla.', 'En <b>Elementos (uno por línea)</b>, escribe las opciones.', 'En <b>Al tocar, guarda su número en</b>, elige una variable: el primero es 0, el segundo 1…'],
+             en: ['Put it on the screen.', 'In <b>Items (one per line)</b>, type the options.', 'In <b>On tap, saves its number in</b>, choose a variable: the first is 0, the second 1…'] },
+    ej: { es: 'Elegir la receta: al tocar «Pan», la variable <code>receta</code> vale 1 y «Pan» queda marcado. La lógica la usa igual que en el Desplegable.', en: 'Choosing the recipe: tapping «Pan», the <code>receta</code> variable becomes 1 and «Pan» stays marked. The logic uses it as with the Dropdown.' },
+    nota: { es: 'Sin variable, es solo para leer.', en: 'Without a variable, it is only for reading.' } },
+  { id: 'tabla', grupo: 'basico', img: 'tabla.png', ancho: 360, nombre: { es: 'Tabla', en: 'Table' },
+    que: { es: 'Datos fijos en filas y columnas.', en: 'Fixed data in rows and columns.' },
+    pasos: { es: ['Ponla en la pantalla.', 'En <b>Celdas</b>, escribe una fila por línea y separa las columnas con <code>;</code>.'],
+             en: ['Put it on the screen.', 'In <b>Cells</b>, type one row per line and separate the columns with <code>;</code>.'] },
+    ej: { es: 'Los minutos de secado de cada madera: <code>Material;Minutos</code>, <code>Pino;12</code>, <code>Roble;18</code>…', en: 'Drying minutes for each wood: <code>Material;Minutos</code>, <code>Pino;12</code>, <code>Roble;18</code>…' },
+    nota: { es: 'No cambia sola: lo que escribes es lo que se ve.', en: 'It does not change by itself: what you type is what shows.' } },
+  { id: 'aviso', grupo: 'basico', img: 'aviso.png', ancho: 340, nombre: { es: 'Aviso modal', en: 'Message box' },
+    que: { es: 'Una ventana con un mensaje: una alarma o algo que hay que confirmar.', en: 'A window with a message: an alarm or something to confirm.' },
+    pasos: { es: ['Ponlo en la pantalla. Título en la primera línea y el mensaje debajo.', 'En <b>Cuándo aparece</b>: al arrancar, o <b>Solo en unos estados de la lógica</b>.', 'En <b>Sale en</b>, marca esos estados.'],
+             en: ['Put it on the screen. Title on the first line and the message below.', 'In <b>When it shows</b>: at start-up, or <b>Only in some logic states</b>.', 'In <b>Shows in</b>, tick those states.'] },
+    ej: { es: 'Un aviso que sale en ALARMA, cuando el horno pasa de 250 °C:', en: 'A message that shows in ALARMA, when the oven goes over 250 °C:' },
+    codigo: 'start_in: HORNEANDO\nstates:\n  HORNEANDO:\n    if temperatura > 250: [go to ALARMA]\n  ALARMA:\n    if temperatura < 200: [go to HORNEANDO]\n',
+    hw: { temperatura: { lee: true } },
+    nota: { es: 'Aparece al entrar en ALARMA y se va al salir. Su botón Aceptar lo cierra antes.', en: 'It shows on entering ALARMA and goes away on leaving. Its Accept button closes it earlier.' } },
+  { id: 'pestanas', grupo: 'basico', img: 'pestanas.png', ancho: 420, nombre: { es: 'Pestañas', en: 'Tabs' },
+    que: { es: 'Varias vistas en el mismo sitio, cuando la pantalla es pequeña.', en: 'Several views in the same place, when the screen is small.' },
+    pasos: { es: ['Ponlas en la pantalla.', 'En <b>Pestañas (una por línea)</b>, escribe sus nombres.'],
+             en: ['Put it on the screen.', 'In <b>Tabs (one per line)</b>, type their names.'] },
+    ej: { es: 'Medidas, Ajustes y Alarmas en una pantalla de 3,5".', en: 'Measurements, Settings and Alarms on a 3.5" screen.' },
+    nota: { es: 'Nacen vacías: el editor todavía no mete widgets dentro. Lo de cada pestaña se añade a mano en el código. Si no quieres tocar código, usa varias pantallas y Botones con <b>Al pulsar, ir a</b>.', en: 'They start empty: the editor does not put widgets inside yet. Each tab is filled by hand in the code. If you do not want to touch code, use several screens and Buttons with <b>On tap, go to</b>.' } },
+  { id: 'tarjeta', grupo: 'basico', img: 'tarjeta.png', ancho: 340, nombre: { es: 'Tarjeta o panel', en: 'Card or panel' },
+    que: { es: 'Un fondo para agrupar lo que va junto, con un rótulo si quieres.', en: 'A background to group things that belong together, with a caption if you like.' },
+    pasos: { es: ['Ponla en la pantalla y dale el tamaño del grupo.', 'En <b>Capas</b>, déjala detrás; pon los widgets encima.', 'El <b>Rótulo</b> y las <b>Esquinas redondeadas (px)</b>, en su panel.'],
+             en: ['Put it on the screen and give it the size of the group.', 'In <b>Layers</b>, keep it behind; put the widgets on top.', '<b>Caption</b> and <b>Rounded corners (px)</b> in its panel.'] },
+    ej: { es: 'La tarjeta HORNO con un Número de la temperatura encima.', en: 'The HORNO card with a temperature Number on top.' },
+    nota: { es: 'Con un color de borde (en Estilo) queda como un panel con marco.', en: 'With a border colour (in Style) it looks like a framed panel.' } },
+  { id: 'icono', grupo: 'basico', img: 'icono.png', ancho: 330, nombre: { es: 'Icono', en: 'Icon' },
+    que: { es: 'Un símbolo junto a un dato: un rayo, un termómetro, una gota.', en: 'A symbol next to a value: a bolt, a thermometer, a drop.' },
+    pasos: { es: ['Ponlo en la pantalla.', 'En <b>Icono</b>, elige uno: hay más de cien, por temas.', 'El tamaño es el de la letra y el color, el del texto.'],
+             en: ['Put it on the screen.', 'In <b>Icon</b>, choose one: there are over a hundred, by topic.', 'Its size is the font size and its colour, the text colour.'] },
+    ej: { es: 'Un rayo al lado de la tensión y un termómetro al lado de la temperatura.', en: 'A bolt next to the voltage and a thermometer next to the temperature.' },
+    nota: { es: 'Un Botón también puede llevar icono, en su panel.', en: 'A Button can carry an icon too, in its panel.' } },
+  { id: 'deslizador', grupo: 'entrada', img: 'deslizador.png', ancho: 320, nombre: { es: 'Deslizador', en: 'Slider' },
+    que: { es: 'Fija un valor arrastrando: una velocidad, un brillo, una consigna.', en: 'Sets a value by dragging: a speed, a brightness, a setpoint.' },
+    pasos: { es: ['Ponlo en la pantalla.', 'En <b>Enlazado a</b>, elige una salida con valor (un PWM) o un ajuste de la Lógica.', 'Va de un extremo a otro del rango de esa variable.'],
+             en: ['Put it on the screen.', 'In <b>Bound to</b>, choose an output with a value (a PWM) or a Logic setting.', 'It goes from one end to the other of that variable\'s range.'] },
+    ej: { es: 'Enlazado a la salida PWM del ventilador: al arrastrar, el ventilador gira más o menos deprisa.', en: 'Bound to the fan PWM output: dragging makes the fan spin faster or slower.' },
+    nota: { es: 'Para un número exacto, mejor un Contador o un Campo de texto.', en: 'For an exact number, a Spinbox or a Text area is better.' } },
+  { id: 'interruptor', grupo: 'entrada', img: 'interruptor.png', ancho: 300, nombre: { es: 'Interruptor', en: 'Switch' },
+    que: { es: 'Enciende o apaga algo y se queda como lo dejas.', en: 'Turns something on or off and stays as you leave it.' },
+    pasos: { es: ['Ponlo en la pantalla, con un Texto al lado que diga qué enciende.', 'En <b>Enlazado a</b>, elige una salida de sí/no (o un ajuste: 1 encendido, 0 apagado).'],
+             en: ['Put it on the screen, with a Label next to it saying what it switches.', 'In <b>Bound to</b>, choose an on/off output (or a setting: 1 on, 0 off).'] },
+    ej: { es: 'Dos interruptores: Luz (encendida) y Bomba (apagada), cada uno enlazado a su relé.', en: 'Two switches: Luz (on) and Bomba (off), each bound to its relay.' },
+    nota: { es: 'Un Botón enlazado a una salida da un pulso y vuelve; el Interruptor se queda.', en: 'A Button bound to an output gives a pulse and returns; the Switch stays.' } },
+  { id: 'casilla', grupo: 'entrada', img: 'casilla.png', ancho: 300, nombre: { es: 'Casilla', en: 'Checkbox' },
+    que: { es: 'Activa o desactiva una opción: marcada vale 1, sin marcar 0.', en: 'Turns an option on or off: ticked is 1, unticked 0.' },
+    pasos: { es: ['Ponla en la pantalla y escribe su <b>Texto visible</b>.', 'Crea un ajuste de 0 a 1 en la Lógica y elígelo en <b>Enlazado a</b>.', 'En la lógica, pregunta <code>if automatico == 1</code>.'],
+             en: ['Put it on the screen and type its <b>Visible text</b>.', 'Create a 0 to 1 setting in the Logic and choose it in <b>Bound to</b>.', 'In the logic, ask <code>if automatico == 1</code>.'] },
+    ej: { es: 'Modo automático: si está marcada y el depósito baja del 20 %, se llena solo.', en: 'Automatic mode: if it is ticked and the tank drops below 20 %, it fills by itself.' },
+    codigo: 'variables:\n  automatico: { type: setting, range: [0, 1], step: 1, start: 0 }\n\nstart_in: ESPERA\nstates:\n  ESPERA:\n    if automatico == 1 and nivel < 20: [go to LLENANDO]\n  LLENANDO:\n    on enter: [turn on bomba]\n    if nivel >= 90: [turn off bomba, go to ESPERA]\n',
+    hw: { nivel: { lee: true }, bomba: { escribe: true, booleano: true } },
+    nota: { es: '<code>nivel</code> y <code>bomba</code> son las piezas del Hardware, por su nombre.', en: '<code>nivel</code> and <code>bomba</code> are the Hardware parts, by name.' } },
+  { id: 'desplegable', grupo: 'entrada', img: 'desplegable.png', ancho: 280, nombre: { es: 'Desplegable', en: 'Dropdown' },
+    que: { es: 'Elige entre pocas opciones sin ocupar sitio.', en: 'Chooses between a few options without taking space.' },
+    pasos: { es: ['Ponlo en la pantalla. En <b>Opciones (una por línea)</b>, escríbelas.', 'En <b>Enlazado a</b>, un ajuste: recibe el número de la elegida (0, 1, 2…).', 'En la lógica, pregunta por ese número.'],
+             en: ['Put it on the screen. In <b>Options (one per line)</b>, type them.', 'In <b>Bound to</b>, a setting: it gets the number of the chosen one (0, 1, 2…).', 'In the logic, ask for that number.'] },
+    ej: { es: 'Masa madre (0), Pan (1) o Pizza (2): cada receta para el horno a su temperatura.', en: 'Masa madre (0), Pan (1) or Pizza (2): each recipe stops the oven at its temperature.' },
+    codigo: 'variables:\n  receta: { type: setting, range: [0, 2], step: 1, start: 0 }\n\nstart_in: ESPERA\nstates:\n  ESPERA:\n  HORNEANDO:\n    if receta == 0 and temperatura >= 180: [go to ESPERA]\n    if receta == 1 and temperatura >= 220: [go to ESPERA]\n    if receta == 2 and temperatura >= 250: [go to ESPERA]\n\nbuttons:\n  btn_marcha:\n    in ESPERA: [go to HORNEANDO]\n',
+    hw: { temperatura: { lee: true } }, widgets: { btn_marcha: 'button' },
+    nota: { es: 'El rango del ajuste va de 0 al número de opciones menos uno.', en: 'The setting range goes from 0 to the number of options minus one.' } },
+  { id: 'rueda', grupo: 'entrada', img: 'rueda.png', ancho: 220, nombre: { es: 'Rueda', en: 'Roller' },
+    que: { es: 'Lo mismo que el Desplegable, pero siempre a la vista y cómoda con el dedo.', en: 'Same as the Dropdown, but always visible and easy with a finger.' },
+    pasos: { es: ['Ponla en la pantalla. En <b>Opciones</b>, una por línea.', 'En <b>Enlazado a</b>, un ajuste: recibe el número de la elegida (0, 1, 2…).'],
+             en: ['Put it on the screen. In <b>Options</b>, one per line.', 'In <b>Bound to</b>, a setting: it gets the number of the chosen one (0, 1, 2…).'] },
+    ej: { es: 'La receta, girando la rueda. La lógica es la misma que la del Desplegable.', en: 'The recipe, by turning the roller. The logic is the same as the Dropdown one.' },
+    nota: { es: 'La elegida es la del centro, resaltada.', en: 'The chosen one is the highlighted one in the middle.' } },
+  { id: 'contador', grupo: 'entrada', img: 'contador.png', ancho: 260, nombre: { es: 'Contador', en: 'Spinbox' },
+    que: { es: 'Ajusta un número exacto con − y +.', en: 'Sets an exact number with − and +.' },
+    pasos: { es: ['Ponlo en la pantalla.', 'En <b>Enlazado a</b>, un ajuste de la Lógica.', '<b>Paso</b> es cuánto cambia con cada toque, y <b>Decimales</b> los que enseña. Nunca se sale del rango.'],
+             en: ['Put it on the screen.', 'In <b>Bound to</b>, a Logic setting.', '<b>Step</b> is how much each tap changes it, and <b>Decimals</b> how many it shows. It never leaves the range.'] },
+    ej: { es: 'El tiempo de riego, de 10 en 10 segundos. Al pulsar Regar, la bomba riega ese tiempo:', en: 'The watering time, in 10-second steps. Pressing Regar, the pump waters for that time:' },
+    codigo: 'variables:\n  riego: { type: setting, unit: s, range: [10, 600], step: 10, start: 60 }\n  queda: { type: timer, from: riego, counts: down }\n\nstart_in: ESPERA\nstates:\n  ESPERA:\n  REGANDO:\n    on enter: [turn on bomba, restart queda]\n    while: [count queda]\n    if queda == 0: [turn off bomba, go to ESPERA]\n\nbuttons:\n  btn_regar:\n    in ESPERA: [go to REGANDO]\n',
+    hw: { bomba: { escribe: true, booleano: true } }, widgets: { btn_regar: 'button' },
+    nota: { es: 'Mantenido pulsado, sigue sumando. Para ver lo que queda, un Tiempo enlazado a <code>queda</code>.', en: 'Held down, it keeps adding. To see the time left, a Time bound to <code>queda</code>.' } },
+  { id: 'rejilla', grupo: 'entrada', img: 'rejilla.png', ancho: 300, nombre: { es: 'Rejilla de botones', en: 'Button matrix' },
+    que: { es: 'Varios botones iguales juntos, como un teclado numérico.', en: 'Several equal buttons together, like a keypad.' },
+    pasos: { es: ['Ponla en la pantalla.', 'Escribe los botones: una fila por línea, separados por espacios.'],
+             en: ['Put it on the screen.', 'Type the buttons: one row per line, separated by spaces.'] },
+    ej: { es: '<code>1 2 3</code>, <code>4 5 6</code>, <code>7 8 9</code>.', en: '<code>1 2 3</code>, <code>4 5 6</code>, <code>7 8 9</code>.' },
+    nota: { es: 'Por ahora solo se dibuja: sus pulsaciones hay que atenderlas a mano en el código. Para botones que hagan algo sin código, usa Botones sueltos; para teclear un número, el Teclado.', en: 'For now it is only drawn: its taps have to be handled by hand in the code. For buttons that do something without code, use separate Buttons; to type a number, the Keyboard.' } },
+  { id: 'campo', grupo: 'entrada', img: 'campo.png', ancho: 300, nombre: { es: 'Campo de texto', en: 'Text area' },
+    que: { es: 'Donde se escribe un número exacto con el Teclado.', en: 'Where an exact number is typed with the Keyboard.' },
+    pasos: { es: ['Ponlo en la pantalla, con un Teclado debajo.', 'En <b>Guarda el número en</b>, elige un ajuste de la Lógica.', 'Al pulsar ✓ en el teclado, el número escrito pasa al ajuste.'],
+             en: ['Put it on the screen, with a Keyboard below.', 'In <b>Saves the number in</b>, choose a Logic setting.', 'Pressing ✓ on the keyboard sends the typed number to the setting.'] },
+    ej: { es: 'Escribir la temperatura a la que se para de calentar:', en: 'Typing the temperature at which heating stops:' },
+    codigo: 'variables:\n  consigna: { type: setting, unit: °C, range: [0, 300], step: 1, start: 25 }\n\nstart_in: CALENTANDO\nstates:\n  CALENTANDO:\n    on enter: [turn on resistencia]\n    if temperatura >= consigna: [go to LISTO]\n  LISTO:\n    on enter: [turn off resistencia]\n',
+    hw: { temperatura: { lee: true }, resistencia: { escribe: true, booleano: true } },
+    nota: { es: 'Si escribes un número fuera del rango, se queda en el límite.', en: 'If you type a number outside the range, it stays at the limit.' } },
+  { id: 'teclado', grupo: 'entrada', img: 'teclado.png', ancho: 420, nombre: { es: 'Teclado', en: 'Keyboard' },
+    que: { es: 'Teclea en un Campo de texto.', en: 'Types into a Text area.' },
+    pasos: { es: ['Ponlo en la pantalla. En <b>Teclas</b>, elige <b>Números (teclado numérico)</b>.', 'Si no hay campo, <b>+ Añadir un Campo de texto encima</b>.', 'En el campo, elige <b>Guarda el número en</b> (ver Campo de texto).'],
+             en: ['Put it on the screen. In <b>Keys</b>, choose <b>Numbers (numeric keypad)</b>.', 'If there is no field, <b>+ Add a Text area above</b>.', 'In the field, choose <b>Saves the number in</b> (see Text area).'] },
+    ej: { es: 'Un teclado numérico para escribir la consigna del ejemplo del Campo de texto.', en: 'A numeric keypad to type the setpoint of the Text area example.' },
+    nota: { es: 'Con Letras, lo escrito solo se ve: no llega a ninguna variable.', en: 'With Letters, the text is only shown: it does not reach any variable.' } },
+  { id: 'escala', grupo: 'visual', img: 'escala.png', ancho: 360, nombre: { es: 'Escala', en: 'Scale' },
+    que: { es: 'Una regla con números, junto a una Barra o un Deslizador.', en: 'A ruler with numbers, next to a Bar or a Slider.' },
+    pasos: { es: ['Ponla junto a la Barra, del mismo largo.', 'El rango sale de <b>Desde</b> y <b>Hasta</b>, o de su variable en <b>Enlazado a</b>.', '<b>Divisiones</b>, <b>Un número cada</b> y <b>Los números van</b>, en su panel.'],
+             en: ['Put it next to the Bar, the same length.', 'The range comes from <b>From</b> and <b>To</b>, or from its variable in <b>Bound to</b>.', '<b>Divisions</b>, <b>A number every</b> and <b>Numbers go</b> in its panel.'] },
+    ej: { es: 'Una escala de 0 a 100 debajo de una Barra al 62 %.', en: 'A 0 to 100 scale under a Bar at 62 %.' },
+    nota: { es: 'No se mueve: solo marca los números.', en: 'It does not move: it only marks the numbers.' } },
+  { id: 'piloto', grupo: 'visual', img: 'piloto.png', ancho: 300, nombre: { es: 'Piloto', en: 'LED' },
+    que: { es: 'Una luz que se enciende cuando algo pasa: marcha, fallo, alarma.', en: 'A light that turns on when something happens: running, fault, alarm.' },
+    pasos: { es: ['Ponlo en la pantalla, con un Texto al lado.', 'En <b>Enlazado a</b>, una variable de sí/no: una entrada, una salida o una bandera.', 'Se enciende cuando vale 1. El color, en Estilo.'],
+             en: ['Put it on the screen, with a Label next to it.', 'In <b>Bound to</b>, an on/off variable: an input, an output or a flag.', 'It lights up when it is 1. The colour, in Style.'] },
+    ej: { es: 'Un piloto de Fallo enlazado a la bandera <code>fallo</code>, que la lógica enciende si se calienta de más:', en: 'A Fault LED bound to the <code>fallo</code> flag, which the logic turns on if it overheats:' },
+    codigo: 'variables:\n  fallo: { type: flag }\n\nstart_in: MARCHA\nstates:\n  MARCHA:\n    if temperatura > 90: [turn on fallo, go to PARADO]\n  PARADO:\n',
+    hw: { temperatura: { lee: true } },
+    nota: { es: 'Para el piloto de Marcha, enlázalo directamente a la salida del motor.', en: 'For the Running LED, bind it straight to the motor output.' } },
+  { id: 'cargando', grupo: 'visual', img: 'cargando.png', ancho: 260, nombre: { es: 'Cargando', en: 'Spinner' },
+    que: { es: 'Un arco que gira: algo está en marcha y hay que esperar.', en: 'A spinning arc: something is going on and you have to wait.' },
+    pasos: { es: ['Ponlo en la pantalla que se enseña mientras se espera.', 'El <b>Grosor del arco (px)</b>, en su panel.'],
+             en: ['Put it on the screen shown while waiting.', '<b>Arc thickness (px)</b> in its panel.'] },
+    ej: { es: '«Conectando...» mientras la placa busca la wifi.', en: '«Conectando...» while the board looks for the wifi.' },
+    nota: { es: 'Gira siempre: no se enlaza a nada.', en: 'It always spins: it is not bound to anything.' } },
+  { id: 'qr', grupo: 'visual', img: 'qr.png', ancho: 300, nombre: { es: 'Código QR', en: 'QR code' },
+    que: { es: 'Lleva al móvil un manual, una web o la wifi.', en: 'Sends a manual, a website or the wifi to a phone.' },
+    pasos: { es: ['Ponlo en la pantalla.', 'En <b>Texto o enlace del QR</b>, escribe la dirección.', 'En la placa, enciende <code>LV_USE_QRCODE</code> en lv_conf.h.'],
+             en: ['Put it on the screen.', 'In <b>QR text or link</b>, type the address.', 'On the board, turn on <code>LV_USE_QRCODE</code> in lv_conf.h.'] },
+    ej: { es: 'El enlace al manual de la máquina, junto a un Texto que lo diga.', en: 'The link to the machine manual, next to a Label saying so.' },
+    nota: { es: 'En el lienzo y en esta imagen es un dibujo de muestra; el código de verdad lo dibuja la placa.', en: 'On the canvas and in this picture it is a sample drawing; the real code is drawn by the board.' } },
+  { id: 'numero', grupo: 'visual', img: 'numero.png', ancho: 340, nombre: { es: 'Número', en: 'Number' },
+    que: { es: 'Una medida grande, con su unidad y su rótulo.', en: 'A large reading, with its unit and caption.' },
+    pasos: { es: ['Ponlo en la pantalla.', 'En <b>Enlazado a</b>, elige la medida (un sensor) o un ajuste.', '<b>Rótulo</b>, <b>Unidad</b>, <b>Decimales</b> y <b>En tarjeta</b>, en su panel.'],
+             en: ['Put it on the screen.', 'In <b>Bound to</b>, choose the reading (a sensor) or a setting.', '<b>Caption</b>, <b>Unit</b>, <b>Decimals</b> and <b>In a card</b> in its panel.'] },
+    ej: { es: 'La temperatura, con un decimal y en tarjeta.', en: 'The temperature, with one decimal and in a card.' },
+    nota: { es: 'Para mostrar un valor no hace falta lógica: basta con <b>Enlazado a</b>.', en: 'Showing a value needs no logic: <b>Bound to</b> is enough.' } },
+  { id: 'estado-actual', grupo: 'visual', img: 'estado-actual.png', ancho: 440,
+    pie: { es: 'Es un solo widget, en dos momentos: a la izquierda, con la máquina parada; a la derecha, después de pulsar MARCHA. Nunca salen los dos a la vez.',
+           en: 'It is a single widget, at two moments: on the left, with the machine stopped; on the right, after pressing MARCHA (start). The two never show at the same time.' }, nombre: { es: 'Estado actual', en: 'Current state' },
+    que: { es: 'Enseña en qué estado está la máquina, con un texto y un color para cada uno. Cambia sola cuando la lógica cambia de estado.',
+           en: 'Shows which state the machine is in, with a text and a colour for each one. It changes by itself when the logic changes state.' },
+    pasos: { es: ['Ponlo en la pantalla.',
+                  'En su panel, <b>Los estados</b>: créalos (o salen de la Lógica) y elige el texto y el color de cada uno.',
+                  'En <b>Cómo cambia de estado</b>, di cuándo pasa de uno a otro: a los N segundos o al pulsar un botón.'],
+             en: ['Put it on the screen.',
+                  'In its panel, <b>The states</b>: create them (or they come from the Logic) and choose the text and colour of each.',
+                  'In <b>How the state changes</b>, say when it moves from one to another: after N seconds or when a button is pressed.'] },
+    ej: { es: 'Con el ejemplo del Botón: la máquina arranca en PARADO y la píldora dice PARADO, en gris. Al pulsar MARCHA, esa misma píldora cambia a EN MARCHA, en verde. El texto y el color de cada estado se eligen en su panel, sin escribir nada.',
+          en: 'With the Button example: the machine starts in PARADO and the pill says PARADO, in grey. Pressing START, that same pill changes to EN MARCHA, in green. The text and colour of each state are chosen in its panel, without writing anything.' },
+    nota: { es: 'Al encender, arranca en el estado marcado como «arranque». Si se cae el enlace con el otro nodo, dice SIN ENLACE.',
+            en: 'At power-up it starts in the state marked «start». If the link with the other node drops, it says SIN ENLACE (no link).' } },
+  { id: 'pasos', grupo: 'visual', img: 'pasos.png', ancho: 520, nombre: { es: 'Pasos del proceso', en: 'Process steps' },
+    que: { es: 'Una casilla por estado, en orden; se ilumina la del estado en el que está la máquina.',
+           en: 'One box per state, in order; the one for the state the machine is in lights up.' },
+    pasos: { es: ['Ponlo en la pantalla.',
+                  'En su panel, <b>Los pasos del proceso</b>: escribe los pasos separados por comas. Cada uno es un estado.',
+                  'En <b>Cómo cambia de estado</b>, di cuándo se pasa al siguiente. Para probar, <b>Que avancen solos cada 3 s</b>.'],
+             en: ['Put it on the screen.',
+                  'In its panel, <b>The process steps</b>: write the steps separated by commas. Each one is a state.',
+                  'In <b>How the state changes</b>, say when to move to the next. To try it, <b>Make them move on every 3 s</b>.'] },
+    ej: { es: 'Un depósito que se llena y se calienta; cada paso dura unos segundos:', en: 'A tank that fills and heats up; each step lasts a few seconds:' },
+    codigo: 'start_in: ESPERA\nstates:\n  ESPERA:\n    after 2: [go to LLENANDO]\n  LLENANDO:\n    after 3: [go to CALENTANDO]\n  CALENTANDO:\n    after 3: [go to LISTO]\n  LISTO:\n    after 2: [go to ESPERA]\n',
+    widgets: {},
+    nota: { es: 'La casilla iluminada va siguiendo a la máquina. El texto y el color de cada paso se cambian en su panel.',
+            en: 'The lit box follows the machine. The text and colour of each step are changed in its panel.' } },
+  { id: 'barra', grupo: 'visual', img: 'barra.png', ancho: 380, nombre: { es: 'Barra', en: 'Bar' },
+    que: { es: 'Un nivel o un llenado, con la consigna marcada en verde.', en: 'A level or a filling, with the setpoint marked in green.' },
+    pasos: { es: ['Ponla en la pantalla.', 'En <b>Enlazado a</b>, la medida. <b>Desde</b>, <b>Hasta</b> y <b>Unidad</b>, en su panel.', 'La marca verde sale de <b>Valor fijo de la consigna</b> o de un ajuste.'],
+             en: ['Put it on the screen.', 'In <b>Bound to</b>, the reading. <b>From</b>, <b>To</b> and <b>Unit</b> in its panel.', 'The green mark comes from <b>Fixed setpoint value</b> or from a setting.'] },
+    ej: { es: 'Un depósito de 0 a 200 L que hay que llenar hasta 140 L.', en: 'A 0 to 200 L tank that has to be filled up to 140 L.' },
+    nota: { es: 'Sin consigna, quita la marca en <b>Mostrar la marca de consigna</b>.', en: 'Without a setpoint, untick <b>Show the setpoint mark</b>.' } },
+  { id: 'curva', grupo: 'visual', img: 'curva.png', ancho: 380, nombre: { es: 'Curva', en: 'Trace' },
+    que: { es: 'Cómo cambia una medida con el tiempo.', en: 'How a reading changes over time.' },
+    pasos: { es: ['Ponla en la pantalla, mejor dentro de una Tarjeta.', 'En <b>Enlazado a</b>, la medida; en <b>Ventana de tiempo (s)</b>, cuántos segundos enseña.', 'Si quieres, <b>Mostrar la línea de consigna</b> y una <b>Referencia</b> en gris.'],
+             en: ['Put it on the screen, ideally inside a Card.', 'In <b>Bound to</b>, the reading; in <b>Time window (s)</b>, how many seconds it shows.', 'If you like, <b>Show the setpoint line</b> and a grey <b>Reference</b>.'] },
+    ej: { es: 'La temperatura del último minuto, subiendo hasta la consigna de 25 °C.', en: 'The temperature over the last minute, rising to the 25 °C setpoint.' },
+    nota: { es: 'La escala se ajusta sola a números redondos. No está en las pantallas de un color.', en: 'The scale adjusts itself to round numbers. It is not available on one-colour screens.' } },
+  { id: 'reloj', grupo: 'visual', img: 'reloj.png', ancho: 240, nombre: { es: 'Reloj de aguja', en: 'Gauge' },
+    que: { es: 'Una medida como en un instrumento: presión, tensión, velocidad.', en: 'A reading like on an instrument: pressure, voltage, speed.' },
+    pasos: { es: ['Ponlo en la pantalla.', 'En <b>Enlazado a</b>, la medida; <b>Desde</b>, <b>Hasta</b> y <b>Unidad</b>.', '<b>Apertura del arco</b> (270° o 180°) y la consigna, en su panel.'],
+             en: ['Put it on the screen.', 'In <b>Bound to</b>, the reading; <b>From</b>, <b>To</b> and <b>Unit</b>.', '<b>Arc opening</b> (270° or 180°) and the setpoint in its panel.'] },
+    ej: { es: 'Una presión de 0 a 10 bar, a 4,2 bar con la consigna en 6.', en: 'A 0 to 10 bar pressure, at 4.2 bar with the setpoint at 6.' },
+    nota: { es: 'El texto de la consigna se escribe en su panel y se arrastra en el lienzo.', en: 'The setpoint text is typed in its panel and dragged on the canvas.' } },
+  { id: 'tiempo', grupo: 'visual', img: 'tiempo.png', ancho: 300, nombre: { es: 'Tiempo', en: 'Time' },
+    que: { es: 'Un tiempo como mm:ss: una cuenta atrás o lo que lleva un ciclo.', en: 'A time as mm:ss: a countdown or how long a cycle has run.' },
+    pasos: { es: ['Ponlo en la pantalla.', 'En <b>Enlazado a</b>, un <code>timer</code> de la Lógica (cuenta en segundos).', '<b>Valor (segundos)</b> es solo para verlo en el editor.'],
+             en: ['Put it on the screen.', 'In <b>Bound to</b>, a Logic <code>timer</code> (it counts in seconds).', '<b>Value (seconds)</b> is only for seeing it in the editor.'] },
+    ej: { es: 'Con el ejemplo del Contador, enlázalo a <code>queda</code>: enseña lo que falta de riego.', en: 'With the Spinbox example, bind it to <code>queda</code>: it shows how much watering is left.' },
+    nota: { es: 'Enlazado a un ajuste en segundos, enseña ese tiempo sin contar.', en: 'Bound to a setting in seconds, it shows that time without counting.' } },
+];
+const fichaHTML = f => `<article class="wficha" id="w-${f.id}">
+    <h3>${X(f.nombre.es, f.nombre.en)}</h3>
+    <img class="wf-img" src="widgets/${f.img}" alt="${esc(X(f.nombre.es, f.nombre.en))}" style="width:${f.ancho}px" loading="lazy">
+    ${f.pie ? `<p class="wf-pie">${X(f.pie.es, f.pie.en)}</p>` : ''}
+    <p class="wf-que">${X(f.que.es, f.que.en)}</p>
+    <ol>${X(f.pasos.es, f.pasos.en).map(p => `<li>${p}</li>`).join('')}</ol>
+    <p class="wf-ej"><b>${X('Ejemplo', 'Example')}.</b> ${X(f.ej.es, f.ej.en)}</p>
+    ${f.codigo ? cod(f.codigo) : ''}
+    ${f.nota ? `<p class="wf-nota">${X(f.nota.es, f.nota.en)}</p>` : ''}
+  </article>`;
+
+/* El nombre de la paleta de cada tipo (las recetas y el lienzo guardan el tipo interno) */
+const NOMBRE_TIPO = {
+  label: ['Texto', 'Label'], button: ['Botón', 'Button'], lectura: ['Número', 'Number'], value: ['Número', 'Number'],
+  tiempo: ['Tiempo', 'Time'], timer: ['Tiempo', 'Time'], led: ['Piloto', 'LED'], pildora: ['Estado actual', 'Current state'],
+  'state-strip': ['Estado actual', 'Current state'], pasos: ['Pasos del proceso', 'Process steps'], slider: ['Deslizador', 'Slider'],
+  toggle: ['Interruptor', 'Switch'], 'barra-consigna': ['Barra', 'Bar'], bar: ['Barra', 'Bar'], curva: ['Curva', 'Trace'],
+  aguja: ['Reloj de aguja', 'Gauge'], tarjeta: ['Tarjeta o panel', 'Card or panel'], panel: ['Tarjeta o panel', 'Card or panel'],
+};
+const nombreTipo = k => NOMBRE_TIPO[k] ? X(NOMBRE_TIPO[k][0], NOMBRE_TIPO[k][1]) : k;
+
 const CAPS = [
   /* ---------------------------------------------------- 1 · Empezar */
   { id: 'que-es', parte: 0,
@@ -1645,13 +1915,13 @@ const CAPS = [
            ['ed-simulador', { es: 'El simulador', en: 'The simulator' }]],
     html: () => X(`
     <p>La lógica se escribe en la pestaña <b>Lógica</b> del editor. Al exportar, Telar la convierte en código C
-    (<code>logica.cpp</code>) y la conecta con la placa. Si alguna vez necesitas código escrito a mano, va en
+    (<code>logica.cpp</code>) y la conecta con la placa; en una pantalla con Linux va en <code>proyecto.json</code>. Si alguna vez necesitas código escrito a mano, va en
     <code>src/logic/</code>, que la exportación nunca borra.</p>
     <p>Cada cosa <b>nace en un solo lugar</b>. La lógica no vuelve a declarar lo que ya existe en otra pestaña: lo usa por su nombre.</p>
     <div class="tabla"><table>
       <thead><tr><th>Esto</th><th>Nace en</th><th>En la lógica se…</th></tr></thead>
       <tbody>
-        <tr><td>Un ajuste (<code>setting</code>) o un temporizador (<code>timer</code>)</td><td>la sección <code>variables</code></td><td>declara y se usa</td></tr>
+        <tr><td>Un ajuste (<code>setting</code>), un temporizador (<code>timer</code>), una bandera (<code>flag</code>) o un contador (<code>counter</code>)</td><td>la sección <code>variables</code></td><td>declara y se usa</td></tr>
         <tr><td>Una salida (relé, LED, motor) o una entrada (sensor)</td><td>la pestaña <b>Hardware</b></td><td>usa por su nombre</td></tr>
         <tr><td>Un botón o cualquier elemento de la pantalla</td><td>el lienzo, en la pestaña <b>Diseño</b></td><td>usa por su nombre</td></tr>
         <tr><td>Un estado</td><td>la sección <code>states</code></td><td>declara y se usa</td></tr>
@@ -1668,7 +1938,7 @@ const CAPS = [
       <thead><tr><th>Dónde</th><th>Qué hay</th><th>Para qué</th></tr></thead>
       <tbody>
         <tr><td>Barra del editor</td><td><b>Estás en</b> <code>states › RUNNING › on enter</code></td><td>saber en qué parte del programa está el cursor</td></tr>
-        <tr><td>Panel · arriba</td><td>si es válida, <b>Documentación</b> y <b>+ Bloque nuevo</b></td><td>ver de un vistazo si se puede exportar, abrir esta guía o empezar otra función</td></tr>
+        <tr><td>Panel · arriba</td><td>si es válida y <b>+ Bloque nuevo</b></td><td>ver de un vistazo si se puede exportar o empezar otra función. Esta guía se abre desde <b>Documentación</b>, arriba en la barra, o con F1</td></tr>
         <tr><td>Panel · <b>Índice</b></td><td>las variables, los estados, los botones y los aspectos, por su nombre</td><td>con un clic, el editor salta a esa línea; en azul, donde estás; en rojo, lo que tiene un error</td></tr>
         <tr><td>Panel · <b>Errores</b></td><td>cada error con su línea; el título dice cuántos hay</td><td>un clic te lleva a la línea</td></tr>
         <tr><td>Panel · <b>¿Qué es esto?</b></td><td>qué significa la palabra donde está el cursor, con un ejemplo</td><td>entender lo que lees sin salir del editor</td></tr>
@@ -1696,13 +1966,13 @@ const CAPS = [
       </tbody>
     </table></div>`, `
     <p>Logic is written in the <b>Logic</b> tab of the editor. On export, Telar turns it into C code
-    (<code>logica.cpp</code>) and connects it to the board. If you ever need hand-written code, it goes in
+    (<code>logica.cpp</code>) and connects it to the board; on a Linux screen it goes into <code>proyecto.json</code>. If you ever need hand-written code, it goes in
     <code>src/logic/</code>, which the export never deletes.</p>
     <p>Each thing <b>is created in one place only</b>. The logic does not declare again what already exists in another tab: it uses it by name.</p>
     <div class="tabla"><table>
       <thead><tr><th>This</th><th>Is created in</th><th>In the logic it is…</th></tr></thead>
       <tbody>
-        <tr><td>A setting (<code>setting</code>) or a timer (<code>timer</code>)</td><td>the <code>variables</code> section</td><td>declared and used</td></tr>
+        <tr><td>A setting (<code>setting</code>), a timer (<code>timer</code>), a flag (<code>flag</code>) or a counter (<code>counter</code>)</td><td>the <code>variables</code> section</td><td>declared and used</td></tr>
         <tr><td>An output (relay, LED, motor) or an input (sensor)</td><td>the <b>Hardware</b> tab</td><td>used by name</td></tr>
         <tr><td>A button or any element on the screen</td><td>the canvas, in the <b>Design</b> tab</td><td>used by name</td></tr>
         <tr><td>A state</td><td>the <code>states</code> section</td><td>declared and used</td></tr>
@@ -1719,7 +1989,7 @@ const CAPS = [
       <thead><tr><th>Where</th><th>What is there</th><th>What for</th></tr></thead>
       <tbody>
         <tr><td>Editor bar</td><td><b>You are in</b> <code>states › RUNNING › on enter</code></td><td>knowing which part of the program the cursor is in</td></tr>
-        <tr><td>Panel · top</td><td>whether it is valid, <b>Documentation</b> and <b>+ New block</b></td><td>seeing at a glance whether it can be exported, opening this guide or starting another function</td></tr>
+        <tr><td>Panel · top</td><td>whether it is valid and <b>+ New block</b></td><td>seeing at a glance whether it can be exported or starting another function. This guide opens from <b>Documentation</b>, in the top bar, or with F1</td></tr>
         <tr><td>Panel · <b>Index</b></td><td>the variables, states, buttons and looks, by name</td><td>one click and the editor jumps to that line; in blue, where you are; in red, whatever has an error</td></tr>
         <tr><td>Panel · <b>Errors</b></td><td>each error with its line; the title says how many there are</td><td>one click takes you to the line</td></tr>
         <tr><td>Panel · <b>What is this?</b></td><td>what the word under the cursor means, with an example</td><td>understanding what you read without leaving the editor</td></tr>
@@ -1770,7 +2040,7 @@ const CAPS = [
       <div class="tabla"><table>
         <thead><tr><th>Sección</th><th>Qué dice</th><th>En el programa de arriba</th></tr></thead>
         <tbody>
-          <tr><td><code>variables</code></td><td>los números que maneja la lógica: ajustes y temporizadores</td><td>no hay</td></tr>
+          <tr><td><code>variables</code></td><td>lo que maneja la lógica: ajustes, temporizadores, banderas y contadores</td><td>no hay</td></tr>
           <tr><td><code>start_in</code></td><td>en qué estado empieza al encender</td><td><code>STOPPED</code></td></tr>
           <tr><td><code>states</code></td><td>los momentos del aparato y qué pasa <b>al entrar</b> (<code>on enter</code>), <b>mientras</b> (<code>while</code>), <b>si</b> algo se cumple (<code>if</code>, y si no, <code>else</code>) y <b>con el tiempo</b> (<code>after</code>, <code>every</code>)</td><td>parado apaga el motor; andando lo prende</td></tr>
           <tr><td><code>buttons</code></td><td>qué hace cada botón en cada estado al <b>pulsar</b>, al <b>soltar</b> (<code>on release</code>) o <b>mientras</b> se mantiene (<code>hold</code>)</td><td><code>btn_main</code> arranca si está parado y para si está andando</td></tr>
@@ -1785,7 +2055,7 @@ const CAPS = [
       <div class="tabla"><table>
         <thead><tr><th>Section</th><th>What it says</th><th>In the program above</th></tr></thead>
         <tbody>
-          <tr><td><code>variables</code></td><td>the numbers the logic handles: settings and timers</td><td>none</td></tr>
+          <tr><td><code>variables</code></td><td>what the logic handles: settings, timers, flags and counters</td><td>none</td></tr>
           <tr><td><code>start_in</code></td><td>which state it starts in when powered on</td><td><code>STOPPED</code></td></tr>
           <tr><td><code>states</code></td><td>the moments of the device and what happens <b>on entering</b> (<code>on enter</code>), <b>while</b> in it (<code>while</code>), <b>if</b> something holds (<code>if</code>, and otherwise <code>else</code>) and <b>over time</b> (<code>after</code>, <code>every</code>)</td><td>stopped turns the motor off; running turns it on</td></tr>
           <tr><td><code>buttons</code></td><td>what each button does in each state on <b>pressing</b>, on <b>releasing</b> (<code>on release</code>) or <b>while</b> held (<code>hold</code>)</td><td><code>btn_main</code> starts if stopped and stops if running</td></tr>
@@ -1794,7 +2064,7 @@ const CAPS = [
       </table></div>
       <p>The motor is not turned on "on pressing", but <b>on entering</b> <code>RUNNING</code>. That way it ends up right however
       you reach that state. Anything <code>looks</code> does not mention stays as it is in the design.</p>
-      <p>There is one more, optional section: <code>click</code>, a short beep with every button that does something (<code>click: beep</code>). See
+      <p>There is one more, optional section: <code>click</code>, a short beep with every button that does something (<code>click: bip</code>). See
       <a href="#tiempo">Conditions and time</a>.</p>`) + `
       ${prueba({ es: ['Pulsa <b>▶ Simular</b> y toca el botón: cambia a STOP en ámbar.', 'A la derecha, en <b>Salidas</b>, <code>motor</code> pasa a ON.', 'Tócalo otra vez: vuelve a START y el motor a OFF.'],
                  en: ['Press <b>▶ Simulate</b> and tap the button: it changes to STOP in amber.', 'On the right, under <b>Outputs</b>, <code>motor</code> switches to ON.', 'Tap it again: it goes back to START and the motor to OFF.'] })}` + X(`
@@ -1802,7 +2072,7 @@ const CAPS = [
       <p>En la parte <b>Aprender paso a paso</b>, cada ejemplo tiene siempre las mismas piezas, en el mismo orden:</p>
       <div class="leer">
         <div><b>En Hardware / En el lienzo</b>Lo que tienes que crear antes, con el mismo nombre.</div>
-        <div><b>Código y frases</b>A la izquierda lo que escribes; a la derecha, lo mismo dicho en español.</div>
+        <div><b>Código y frases</b>Arriba lo que escribes; debajo, lo mismo dicho en español.</div>
         <div><b>Cómo funciona</b>Qué hace cada línea, en orden.</div>
         <div><b>Pruébalo</b>Qué tocar en <b>▶ Simular</b> para verlo sin compilar ni flashear.</div>
       </div>
@@ -1812,7 +2082,7 @@ const CAPS = [
       <p>In the <b>Learn step by step</b> part, every example always has the same pieces, in the same order:</p>
       <div class="leer">
         <div><b>In Hardware / On the canvas</b>What you have to create first, with the same name.</div>
-        <div><b>Code and sentences</b>On the left what you write; on the right, the same thing in plain words.</div>
+        <div><b>Code and sentences</b>Above, what you write; below, the same thing in plain words.</div>
         <div><b>How it works</b>What each line does, in order.</div>
         <div><b>Try it</b>What to touch in <b>▶ Simulate</b> to see it without compiling or flashing.</div>
       </div>
@@ -1952,9 +2222,9 @@ const CAPS = [
       <div class="tabla"><table>
         <thead><tr><th>Piece</th><th>What it does</th><th>Example</th></tr></thead>
         <tbody>
-          <tr><td><code>click: X</code></td><td>a short beep with every button that does something; it goes once, at the top</td><td><code>click: beep</code> (0.05 s) or <code>click: beep for 0.08</code></td></tr>
+          <tr><td><code>click: X</code></td><td>a short beep with every button that does something; it goes once, at the top</td><td><code>click: bip</code> (0.05 s) or <code>click: bip for 0.08</code></td></tr>
           <tr><td><code>pulse X for T</code></td><td>turns X on and off by itself after T s (without <code>for</code>, 0.1 s)</td><td><code>pulse door for 3</code></td></tr>
-          <tr><td><code>blink X on T1 off T2</code></td><td>alternates on and off; endlessly, <code>for T</code> seconds or <code>times N</code> times</td><td><code>blink beep on 2 off 2 for 14</code></td></tr>
+          <tr><td><code>blink X on T1 off T2</code></td><td>alternates on and off; endlessly, <code>for T</code> seconds or <code>times N</code> times</td><td><code>blink bip on 2 off 2 for 14</code></td></tr>
           <tr><td><code>toggle X</code></td><td>flips X, like a switch</td><td><code>always: [toggle light]</code></td></tr>
           <tr><td><code>after T:</code></td><td>once, when the state has lasted T s</td><td><code>after 3: [go to NEXT]</code></td></tr>
           <tr><td><code>every T:</code></td><td>every T s while the state lasts</td><td><code>every 1: [increase counter]</code></td></tr>
@@ -1985,17 +2255,17 @@ const CAPS = [
       </table></div>
       <div class="caja">
         <div class="cab-ej"><h3>${X('El programa completo', 'The complete program')}</h3>${sello(v)}</div>
-        <p class="para">${X(`Es el de <code>ejemplos/ciclo_variac.telar.json</code>. Está dentro de un <b>bloque</b> llamado
+        <p class="para">${X(`Es el de <code>ejemplos/variac_industrial.telar.json</code>. Está dentro de un <b>bloque</b> llamado
         <code>cycle</code> (ver <a href="#bloques">Varias funciones a la vez</a>); por eso todo lleva dos espacios más de sangría.`,
-        `It is the one in <code>ejemplos/ciclo_variac.telar.json</code>. It is inside a <b>block</b> called
+        `It is the one in <code>ejemplos/variac_industrial.telar.json</code>. It is inside a <b>block</b> called
         <code>cycle</code> (see <a href="#bloques">Several functions at once</a>); that is why everything has two extra spaces of indentation.`)}</p>
         ${codigoYFrases(CICLO, v)}
         ${prueba({
-          es: ['En Telar Studio, <b>Abrir</b> → <code>ejemplos/ciclo_variac.telar.json</code>, y luego <b>▶ Simular</b>.',
+          es: ['En Telar Studio, <b>Abrir</b> → <code>ejemplos/variac_industrial.telar.json</code>, y luego <b>▶ Simular</b>.',
                'La planta arranca en <b>Motor: sigue a las salidas</b>: la tensión se mueve sola según el PWM y el sentido.',
                'Ajusta el setpoint y el tiempo con − y +, elige <b>×20</b> arriba a la derecha y pulsa START.',
                'Mira el <b>Registro</b>: RAISING → HOLDING al llegar al setpoint → LOWERING al terminar la cuenta → IDLE al llegar a <code>zero_level</code>.'],
-          en: ['In Telar Studio, <b>Open</b> → <code>ejemplos/ciclo_variac.telar.json</code>, then <b>▶ Simulate</b>.',
+          en: ['In Telar Studio, <b>Open</b> → <code>ejemplos/variac_industrial.telar.json</code>, then <b>▶ Simulate</b>.',
                'The plant starts on <b>Motor: follows the outputs</b>: the voltage moves by itself according to the PWM and the direction.',
                'Adjust the setpoint and the time with − and +, choose <b>×20</b> at the top right and press START.',
                'Watch the <b>Log</b>: RAISING → HOLDING on reaching the setpoint → LOWERING when the countdown ends → IDLE on reaching <code>zero_level</code>.'],
@@ -2035,10 +2305,10 @@ const CAPS = [
       </table></div>
       <h2>Cómo se agrega una función</h2>
       <ul class="reglas">
-        <li>En el editor, <b>+ Otra función (bloque nuevo)</b> pone un bloque vacío al final. Si lo que había iba suelto, pasa a ser el bloque <code>main</code>.</li>
+        <li>En el editor, <b>+ Bloque nuevo</b> pone un bloque vacío al final. Si lo que había iba suelto, pasa a ser el bloque <code>main</code>.</li>
         <li><b>Añadir</b> una receta hace lo mismo: entra como un bloque más y no borra nada. Si trae un nombre que ya usas, el suyo se renombra con <code>_2</code> y te lo dice.</li>
         <li>Un programa de una sola función puede escribirse suelto, sin bloque. Lo que no se puede es mezclar: o todo suelto, o todo en bloques.</li>
-        <li>El <b>primer bloque</b> es el que se ve en la tira de estado de la pantalla.</li>
+        <li>El <b>primer bloque</b> es el que enseñan el <b>Estado actual</b> y los <b>Pasos del proceso</b>.</li>
       </ul>`, `
       <h2>What belongs to each block and what belongs to all</h2>
       <div class="tabla"><table>
@@ -2053,10 +2323,10 @@ const CAPS = [
       </table></div>
       <h2>How to add a function</h2>
       <ul class="reglas">
-        <li>In the editor, <b>+ Another function (new block)</b> puts an empty block at the end. If what was there was loose, it becomes the <code>main</code> block.</li>
+        <li>In the editor, <b>+ New block</b> puts an empty block at the end. If what was there was loose, it becomes the <code>main</code> block.</li>
         <li><b>Add</b> on a recipe does the same: it comes in as one more block and deletes nothing. If it brings a name you already use, its own is renamed with <code>_2</code> and it tells you.</li>
         <li>A single-function program can be written loose, without a block. What you cannot do is mix: either everything loose, or everything in blocks.</li>
-        <li>The <b>first block</b> is the one shown on the screen's state strip.</li>
+        <li>The <b>first block</b> is the one shown by the <b>Current state</b> and the <b>Process steps</b>.</li>
       </ul>`) + mirarOtroBloque();
     } },
 
@@ -2088,7 +2358,7 @@ const CAPS = [
           <div class="aprende">${r.teaches.map(t => `<span>${esc(t)}</span>`).join('')}</div>
           <div class="necesita">
             <div><strong>${X('En Hardware', 'In Hardware')}</strong><ul>${r.hardware.map(h => `<li><code>${h.clave}</code> — ${esc(h.que)}</li>`).join('')}</ul></div>
-            <div><strong>${X('En el lienzo', 'On the canvas')}</strong><ul>${r.widgets.map(w => `<li><code>${w.nombre}</code> — ${w.tipo}${w.bind ? X(`, enlazado a <code>${w.bind}</code>`, `, bound to <code>${w.bind}</code>`) : ''}</li>`).join('')}</ul></div>
+            <div><strong>${X('En el lienzo', 'On the canvas')}</strong><ul>${r.widgets.map(w => `<li><code>${w.nombre}</code> — ${nombreTipo(w.tipo)}${w.bind ? X(`, enlazado a <code>${w.bind}</code>`, `, bound to <code>${w.bind}</code>`) : ''}</li>`).join('')}</ul></div>
           </div>
           ${codigoYFrases(r.logic, v)}
         </div>`;
@@ -2115,24 +2385,32 @@ const CAPS = [
     titulo: { es: 'Qué pantalla elegir', en: 'Which screen to choose' },
     resumen: { es: 'Telar pinta en placas con pantalla integrada, en pantallas sueltas por SPI o I2C y en pantallas que se dibujan solas por el puerto serie. La lógica es la misma en todas.',
                en: 'Telar draws on boards with a built-in screen, on separate SPI or I2C screens and on screens that draw themselves over the serial port. The logic is the same on all of them.' },
-    subs: [['pn-tipos', { es: 'Los cinco caminos', en: 'The five paths' }],
+    subs: [['pn-tipos', { es: 'Los seis caminos', en: 'The six paths' }],
            ['pn-cambiar', { es: 'Cambiar de pantalla', en: 'Changing screens' }]],
     html: () => X(`
-    <p>La pantalla se elige en la pestaña <b>Diseño</b>, en <b>Placa de la pantalla</b>. Lo que cambia de una a otra es la capa de
+    <p>La pantalla se elige en la pestaña <b>Diseño</b>, en la lista <b>Pantalla</b>: arriba las placas que la traen integrada y debajo las que se conectan aparte. Lo que cambia de una a otra es la capa de
     abajo —cómo llegan los píxeles al cristal—; los estados, los botones y lo que muestra cada elemento no cambian. Por eso
     <b>cambiar de pantalla no obliga a reescribir la lógica</b>.</p>
-    <h2 id="pn-tipos">Los cinco caminos</h2>
+    <h2 id="pn-tipos">Los seis caminos</h2>
     <div class="tabla"><table>
       <thead><tr><th>Pantalla</th><th>Cómo se elige</th><th>Qué genera Telar</th><th>Librerías</th><th>Se maneja con</th></tr></thead>
       <tbody>
-        <tr><td>Placa con pantalla integrada: Waveshare 4,3", Elecrow CrowPanel 7", CYD 2,8"</td><td>grupo <b>Con pantalla integrada</b></td><td>todo; la placa ya trae sus pines</td><td>lvgl y ESP32_Display_Panel o LovyanGFX</td><td>el dedo</td></tr>
-        <tr><td>Un ESP32 y una TFT en color por SPI (ILI9341, ST7789, ST7735, ILI9488, ST7796)</td><td><b>+ pantalla aparte</b>, grupo <b>En color, por SPI</b></td><td><code>pantalla.h</code> con sus pines</td><td>lvgl y LovyanGFX</td><td>el dedo si tiene táctil; si no, botones</td></tr>
-        <tr><td>Un ESP32 y una OLED de un color por I2C (SSD1306, SH1106)</td><td><b>+ pantalla aparte</b>, grupo <b>OLED, por I2C</b></td><td><code>pantalla.h</code>, en blanco y negro</td><td>lvgl y LovyanGFX</td><td>botones de navegación</td></tr>
-        <tr><td>Nextion o TJC</td><td><b>+ pantalla aparte</b>, grupo <b>por puerto serie</b></td><td>la capa serie y <code>NEXTION.txt</code></td><td>ninguna</td><td>su propio táctil</td></tr>
+        <tr><td>Placa con pantalla integrada: Waveshare 4,3", Elecrow CrowPanel 7", CYD 2,8"</td><td>grupo <b>Integrada en la placa</b></td><td>todo; la placa ya trae sus pines</td><td>lvgl y ESP32_Display_Panel o LovyanGFX</td><td>el dedo</td></tr>
+        <tr><td>Un ESP32 y una TFT en color por SPI (ILI9341, ST7789, ST7735, ILI9488, ST7796)</td><td>grupo <b>Aparte, en color: TFT por SPI</b>, y la placa a la que la conectas</td><td><code>pantalla.h</code> con sus pines</td><td>lvgl y LovyanGFX</td><td>el dedo si tiene táctil; si no, botones</td></tr>
+        <tr><td>Un ESP32 y una OLED de un color por I2C (SSD1306, SH1106)</td><td>grupo <b>Aparte, de un color: OLED por I2C</b>, y la placa</td><td><code>pantalla.h</code>, en blanco y negro</td><td>lvgl y LovyanGFX</td><td>botones de navegación</td></tr>
+        <tr><td>Una Raspberry Pi, Jetson u Orange Pi y una OLED por I2C (SSD1306, SH1106)</td><td>el mismo grupo, y la placa con Linux</td><td><code>telar_pantalla.py</code> y <code>proyecto.json</code> (<a href="#oled-linux">cómo</a>)</td><td>Pillow, luma.oled, python-periphery y pyserial</td><td>botones de navegación</td></tr>
+        <tr><td>Nextion o TJC</td><td>grupo <b>Aparte, se dibujan solas: Nextion y serie</b>, y la placa</td><td>la capa serie y <code>NEXTION.txt</code></td><td>ninguna</td><td>su propio táctil</td></tr>
         <tr><td>Otra pantalla u otro micro que lea texto</td><td>el mismo grupo, <b>texto por líneas</b></td><td>la capa serie y el protocolo en el LEEME</td><td>ninguna</td><td>lo que tenga el otro lado</td></tr>
       </tbody>
     </table></div>
     <p>Y si la tuya no está en ninguna lista, se describe una vez con <a href="#pantalla-medida">Pantalla a medida</a>.</p>
+    <p>La placa que mueve la pantalla es un <b>ESP32</b> (DevKit, WROVER, XIAO S3, S3-DevKitC, C3 o S3 SuperMini), la que ya la
+    trae, o una <b>Raspberry Pi Pico</b> con una TFT por SPI o una OLED por I2C. En la Pico se dibuja con el mismo LVGL, así que
+    tiene todos los widgets; en el IDE hay que usar el núcleo <b>arduino-pico</b> (de Earle Philhower) y, en Herramientas,
+    <b>Operating System: FreeRTOS SMP</b>. Sus pines de I2C y SPI son fijos: Telar propone unos que valen y avisa si eliges
+    otros que no. Las pantallas por puerto serie (Nextion) en la Pico, todavía no. Las placas con Linux (<b>Raspberry Pi</b>,
+    <b>Jetson</b>, <b>Orange Pi</b>) mueven una <b>OLED por I2C</b> con un programa de Python (<a href="#oled-linux">cómo</a>);
+    las TFT por SPI, todavía no. Y todas ellas, más el <b>UNO</b> y el <b>Nano</b>, sirven de <b>nodo de control</b>.</p>
     <h2 id="pn-cambiar">Cambiar de pantalla</h2>
     <ul class="reglas">
       <li>El diseño se <b>reescala</b> al tamaño nuevo. De 800×480 a 128×64 cabe todo, pero apretado: revisa los tamaños después.</li>
@@ -2140,21 +2418,29 @@ const CAPS = [
       <li>Los pines de la pantalla se <b>descuentan de los libres</b>: el asignador de la pestaña Hardware ya no se los da a un sensor.</li>
       <li>Al cambiar de placa, la pantalla se conserva, pero sus pines se revisan: un pin que no existe en la placa nueva se sustituye por uno que sí.</li>
     </ul>`, `
-    <p>The screen is chosen in the <b>Design</b> tab, under <b>Screen board</b>. What changes from one to another is the layer
+    <p>The screen is chosen in the <b>Design</b> tab, in the <b>Screen</b> list: boards with the screen built in at the top, and below them the screens that connect separately. What changes from one to another is the layer
     underneath — how the pixels reach the glass —; states, buttons and what each element shows do not change. That is why
     <b>changing screens does not force you to rewrite the logic</b>.</p>
-    <h2 id="pn-tipos">The five paths</h2>
+    <h2 id="pn-tipos">The six paths</h2>
     <div class="tabla"><table>
       <thead><tr><th>Screen</th><th>How to choose it</th><th>What Telar generates</th><th>Libraries</th><th>Operated with</th></tr></thead>
       <tbody>
-        <tr><td>Board with a built-in screen: Waveshare 4.3", Elecrow CrowPanel 7", CYD 2.8"</td><td>group <b>With a built-in screen</b></td><td>everything; the board brings its pins</td><td>lvgl and ESP32_Display_Panel or LovyanGFX</td><td>your finger</td></tr>
-        <tr><td>An ESP32 and a colour SPI TFT (ILI9341, ST7789, ST7735, ILI9488, ST7796)</td><td><b>+ separate screen</b>, group <b>Colour, over SPI</b></td><td><code>pantalla.h</code> with its pins</td><td>lvgl and LovyanGFX</td><td>your finger if it has touch; otherwise buttons</td></tr>
-        <tr><td>An ESP32 and a single-colour I2C OLED (SSD1306, SH1106)</td><td><b>+ separate screen</b>, group <b>OLED, over I2C</b></td><td><code>pantalla.h</code>, in black and white</td><td>lvgl and LovyanGFX</td><td>navigation buttons</td></tr>
-        <tr><td>Nextion or TJC</td><td><b>+ separate screen</b>, group <b>over a serial port</b></td><td>the serial layer and <code>NEXTION.txt</code></td><td>none</td><td>its own touch</td></tr>
+        <tr><td>Board with a built-in screen: Waveshare 4.3", Elecrow CrowPanel 7", CYD 2.8"</td><td>group <b>Built into the board</b></td><td>everything; the board brings its pins</td><td>lvgl and ESP32_Display_Panel or LovyanGFX</td><td>your finger</td></tr>
+        <tr><td>An ESP32 and a colour SPI TFT (ILI9341, ST7789, ST7735, ILI9488, ST7796)</td><td>group <b>Separate, colour: SPI TFT</b>, and the board it connects to</td><td><code>pantalla.h</code> with its pins</td><td>lvgl and LovyanGFX</td><td>your finger if it has touch; otherwise buttons</td></tr>
+        <tr><td>An ESP32 and a single-colour I2C OLED (SSD1306, SH1106)</td><td>group <b>Separate, single colour: I2C OLED</b>, and the board</td><td><code>pantalla.h</code>, in black and white</td><td>lvgl and LovyanGFX</td><td>navigation buttons</td></tr>
+        <tr><td>A Raspberry Pi, Jetson or Orange Pi and an I2C OLED (SSD1306, SH1106)</td><td>same group, and the Linux board</td><td><code>telar_pantalla.py</code> and <code>proyecto.json</code> (<a href="#oled-linux">how</a>)</td><td>Pillow, luma.oled, python-periphery and pyserial</td><td>navigation buttons</td></tr>
+        <tr><td>Nextion or TJC</td><td>group <b>Separate, draw themselves: Nextion and serial</b>, and the board</td><td>the serial layer and <code>NEXTION.txt</code></td><td>none</td><td>its own touch</td></tr>
         <tr><td>Another screen or another micro that reads text</td><td>same group, <b>text lines</b></td><td>the serial layer and the protocol in the README</td><td>none</td><td>whatever the other side has</td></tr>
       </tbody>
     </table></div>
     <p>And if yours is on no list, describe it once with <a href="#pantalla-medida">Custom screen</a>.</p>
+    <p>The board that drives the screen is an <b>ESP32</b> (DevKit, WROVER, XIAO S3, S3-DevKitC, C3 or S3 SuperMini), the one that
+    already has it, or a <b>Raspberry Pi Pico</b> with an SPI TFT or an I2C OLED. On the Pico it is drawn with the same LVGL, so it
+    has all the widgets; in the IDE use the <b>arduino-pico</b> core (by Earle Philhower) and, in Tools, <b>Operating System:
+    FreeRTOS SMP</b>. Its I2C and SPI pins are fixed: Telar proposes valid ones and warns if you choose others that are not.
+    Serial-port screens (Nextion) on the Pico, not yet. The Linux boards (<b>Raspberry Pi</b>, <b>Jetson</b>, <b>Orange Pi</b>)
+    drive an <b>I2C OLED</b> with a Python program (<a href="#oled-linux">how</a>); SPI TFTs, not yet. And all of them, plus the
+    <b>UNO</b> and the <b>Nano</b>, work as a <b>control node</b>.</p>
     <h2 id="pn-cambiar">Changing screens</h2>
     <ul class="reglas">
       <li>The design is <b>rescaled</b> to the new size. From 800×480 to 128×64 everything fits, but tightly: check the sizes afterwards.</li>
@@ -2172,8 +2458,8 @@ const CAPS = [
     html: () => X(`
     <h2 id="tft-pasos">Paso a paso</h2>
     <ol class="pasos">
-      <li>En <b>Diseño</b>, <b>Placa de la pantalla</b>: elige tu placa con <b>+ pantalla aparte</b> (por ejemplo, «DevKit v1 + pantalla aparte»).</li>
-      <li><b>Modelo de pantalla</b>: el chip de la pantalla. Viene en el anuncio o impreso en el cable plano.</li>
+      <li>En <b>Diseño</b>, lista <b>Pantalla</b>, grupo <b>Aparte, en color: TFT por SPI</b>: el chip de tu pantalla. Viene en el anuncio o impreso en el cable plano.</li>
+      <li><b>Placa a la que la conectas</b>: tu placa (por ejemplo, DevKit v1). Si venías de una placa con pantalla integrada, Telar pone la última que usaste con una pantalla aparte.</li>
       <li><b>Giro</b>: cada opción dice el tamaño con el que queda. El lienzo pasa a medir eso.</li>
       <li><b>Pines y ajustes</b> (se abre con un clic; el título ya dice los pines): Telar propone los de los tutoriales (en un ESP32 clásico, SCK 18, MOSI 23 y MISO 19). Cámbialos a como lo cableaste. Un <code>-1</code> es un pin que no se usa.</li>
       <li><b>Retroiluminación</b>: el pin que la enciende, o <code>-1</code> si va directa a 3,3 V.</li>
@@ -2197,8 +2483,8 @@ const CAPS = [
     </table></div>`, `
     <h2 id="tft-pasos">Step by step</h2>
     <ol class="pasos">
-      <li>In <b>Design</b>, <b>Screen board</b>: choose your board with <b>+ separate screen</b> (for example, "DevKit v1 + separate screen").</li>
-      <li><b>Screen model</b>: the screen's chip. It comes in the listing or printed on the flat cable.</li>
+      <li>In <b>Design</b>, <b>Screen</b> list, group <b>Separate, colour: SPI TFT</b>: your screen's chip. It comes in the listing or printed on the flat cable.</li>
+      <li><b>Board it connects to</b>: your board (for example, DevKit v1). If you came from a board with a built-in screen, Telar picks the last one you used with a separate screen.</li>
       <li><b>Rotation</b>: each option says the size it ends up with. The canvas takes that size.</li>
       <li><b>Pins and settings</b> (opens with a click; the title already shows the pins): Telar suggests the usual ones from tutorials (on a classic ESP32, SCK 18, MOSI 23 and MISO 19). Change them to how you wired it. A <code>-1</code> is a pin that is not used.</li>
       <li><b>Backlight</b>: the pin that turns it on, or <code>-1</code> if it goes straight to 3.3 V.</li>
@@ -2228,15 +2514,16 @@ const CAPS = [
     subs: [['oled-pasos', { es: 'Paso a paso', en: 'Step by step' }],
            ['oled-nav', { es: 'Cómo se navega', en: 'How to navigate' }],
            ['oled-saber', { es: 'Lo que conviene saber', en: 'Good to know' }],
+           ['oled-linux', { es: 'En una Raspberry Pi, Jetson u Orange Pi', en: 'On a Raspberry Pi, Jetson or Orange Pi' }],
            ['oled-nada', { es: 'Si no se ve nada', en: 'If nothing shows' }]],
     html: () => X(`
     <h2 id="oled-pasos">Paso a paso</h2>
     <ol class="pasos">
-      <li><b>Placa de la pantalla</b>: tu placa con <b>+ pantalla aparte</b>. En <b>Modelo de pantalla</b>, grupo <b>OLED, por I2C</b>: SSD1306 de 128×64 o de 128×32, o SH1106.</li>
+      <li>En la lista <b>Pantalla</b>, grupo <b>Aparte, de un color: OLED por I2C</b>: SSD1306 de 128×64 o de 128×32, o SH1106. Y en <b>Placa a la que la conectas</b>, tu placa.</li>
       <li><b>SDA</b>, <b>SCL</b> y la <b>dirección</b> (casi siempre 0x3C).</li>
       <li>En <b>Hardware</b>, añade las piezas <b>Botón de navegación</b>: una con <i>siguiente</i> y otra con <i>aceptar</i>. Una tercera con <i>anterior</i> lo hace más cómodo.</li>
-      <li>Diseña. El lienzo se ve en blanco y negro, como en la placa, y la paleta solo ofrece lo que se lee en ella: textos, números, barras, botones, interruptores, LED y la tira de estado.</li>
-      <li><b>Exportar</b>: igual que una TFT, con LovyanGFX y lvgl.</li>
+      <li>Diseña. El lienzo se ve en blanco y negro, como en la placa, y la paleta solo ofrece lo que se lee en ella: textos, números, barras, botones, interruptores, casillas, pilotos, el estado actual, los pasos, el reloj de aguja y el tiempo.</li>
+      <li><b>Exportar</b>: con un ESP32 o la Pico, igual que una TFT, con LovyanGFX y lvgl. Con una placa con Linux, un programa de Python: <a href="#oled-linux">mira abajo</a>.</li>
     </ol>
     <h2 id="oled-nav">Cómo se navega</h2>
     <p><i>Siguiente</i> y <i>anterior</i> mueven un recuadro de un elemento a otro: el marcado se ve invertido. <i>Aceptar</i> lo pulsa.
@@ -2245,9 +2532,47 @@ const CAPS = [
     <h2 id="oled-saber">Lo que conviene saber</h2>
     <ul class="reglas">
       <li><b>Blanco o negro, nada más.</b> Cada color del diseño se queda en uno de los dos: los oscuros en negro y lo que se quiere ver en blanco. Un gris no existe.</li>
+      <li><b>Barras, interruptores y casillas van con contorno.</b> Su fondo es un tono oscuro que se iría a negro sobre negro: por eso el canal de la barra y del deslizador, el interruptor apagado y la casilla sin marcar se dibujan con un borde blanco de 1 px, y lo lleno, en blanco. Igual en el lienzo y en la placa.</li>
       <li><b>La letra más pequeña es de 10 px.</b> La de 8 no se lee en una OLED. Si <code>lv_conf.h</code> no tiene activa alguna, el compilador dice cuál.</li>
       <li><b>La OLED va en su propio bus I2C.</b> Si añades sensores I2C, van en otro par de pines, cada bus con su controlador.</li>
       <li><b>En una ESP32-C3</b> hay un solo controlador I2C y se lo queda la pantalla: ahí no caben sensores I2C, y la fila del sensor lo dice.</li>
+    </ul>
+    <h2 id="oled-linux">En una Raspberry Pi, Jetson u Orange Pi</h2>
+    <p>Una placa con Linux no lleva sketch: la OLED la dibuja un programa de Python, <code>telar_pantalla.py</code>, que es
+    <b>el mismo para todos los proyectos</b>. Lo de cada uno (las pantallas, la lógica y los pines) va en <code>proyecto.json</code>,
+    que Telar escribe al exportar. La lógica corre con <b>las mismas reglas</b> que en un ESP32 y que en el simulador, y cada
+    widget se pinta con las medidas del lienzo.</p>
+    <ol class="pasos">
+      <li>En <b>Pantalla</b>, la OLED (SSD1306 de 128×64 o 128×32, o SH1106). En <b>Placa a la que la conectas</b>, la Raspberry Pi, la Jetson o la Orange Pi. Telar pone SDA en el <b>GPIO2</b> (pin 3 del conector) y SCL en el <b>GPIO3</b> (pin 5).</li>
+      <li>En <b>Hardware</b>, los <b>Botones de navegación</b>, y si hacen falta entradas y salidas digitales. Una placa con Linux no mide tensiones: para eso, un segundo nodo (un ESP32 o una Pico) unido por UART o RS485.</li>
+      <li><b>Exportar</b>. Sale una carpeta con <code>telar_pantalla.py</code>, <code>proyecto.json</code>, las fuentes, el servicio para que arranque sola y un <code>LEEME.txt</code> con los pasos.</li>
+      <li>En la placa, una sola vez: encender el I2C (en una Raspberry, <code>sudo raspi-config nonint do_i2c 0</code>) e instalar lo necesario en un entorno aparte.</li>
+      <li>Arrancarla: <code>~/telar-env/bin/python telar_pantalla.py</code>.</li>
+    </ol>
+    <p>Ejemplo: el variac con una Raspberry Pi y una SSD1306, y el nodo de control en un ESP32.</p>
+    <pre>variac_industrial/
+    variac_industrial_pantalla/      &lt;- se copia a la Raspberry
+        telar_pantalla.py  proyecto.json  requisitos.txt  fuentes/  LEEME.txt  telar-pantalla.service
+    variac_industrial_control/       &lt;- se sube al ESP32 con el IDE de Arduino
+        variac_industrial_control.ino  ...
+
+sudo apt install -y python3-venv python3-pil i2c-tools
+python3 -m venv --system-site-packages ~/telar-env
+~/telar-env/bin/pip install -r requisitos.txt
+sudo usermod -aG i2c,gpio,dialout $USER   # y volver a entrar
+i2cdetect -y 1                          # tiene que salir 3c
+~/telar-env/bin/python telar_pantalla.py
+
+# que arranque sola al encender (el LEEME.txt lo explica)
+mkdir -p ~/.config/systemd/user && cp telar-pantalla.service ~/.config/systemd/user/
+systemctl --user daemon-reload && systemctl --user enable --now telar-pantalla
+sudo loginctl enable-linger $USER</pre>
+    <ul class="reglas">
+      <li><b>Se navega igual</b>: <i>siguiente</i> y <i>anterior</i> mueven el foco (el marcado sale en negativo) y <i>aceptar</i> pulsa. Un <b>deslizador</b>, que con el dedo se arrastra, aquí se edita: <i>aceptar</i> entra, <i>siguiente</i> y <i>anterior</i> lo mueven y <i>aceptar</i> sale.</li>
+      <li><b>Sin la placa</b> también se prueba: en cualquier ordenador con Python y Pillow, <code>python3 telar_pantalla.py --sin-placa</code> guarda lo que se vería en <code>pantalla.png</code>, y se maneja con las teclas n, p y a.</li>
+      <li><b>El enlace</b> con un nodo de control habla las mismas tramas que entre dos ESP32: el nodo de control no nota la diferencia.</li>
+      <li><b>save</b> y <b>load</b> guardan en <code>memoria.json</code>, al lado del programa: sobrevive a apagar la placa.</li>
+      <li>En la <b>Orange Pi</b> el número del bus I2C cambia de un modelo a otro: <code>i2cdetect -l</code> dice cuál es, y se pone en <code>"i2c_bus"</code> dentro de <code>proyecto.json</code>.</li>
     </ul>
     <h2 id="oled-nada">Si no se ve nada</h2>
     <div class="tabla"><table>
@@ -2261,11 +2586,11 @@ const CAPS = [
     </table></div>`, `
     <h2 id="oled-pasos">Step by step</h2>
     <ol class="pasos">
-      <li><b>Screen board</b>: your board with <b>+ separate screen</b>. Under <b>Screen model</b>, group <b>OLED, over I2C</b>: SSD1306 128×64 or 128×32, or SH1106.</li>
+      <li>In the <b>Screen</b> list, group <b>Separate, single colour: I2C OLED</b>: SSD1306 128×64 or 128×32, or SH1106. And under <b>Board it connects to</b>, your board.</li>
       <li><b>SDA</b>, <b>SCL</b> and the <b>address</b> (almost always 0x3C).</li>
       <li>In <b>Hardware</b>, add <b>Navigation button</b> pieces: one set to <i>next</i> and one to <i>accept</i>. A third one set to <i>previous</i> makes it more comfortable.</li>
-      <li>Design. The canvas looks black and white, as on the board, and the palette only offers what reads well there: texts, numbers, bars, buttons, switches, LEDs and the state strip.</li>
-      <li><b>Export</b>: same as a TFT, with LovyanGFX and lvgl.</li>
+      <li>Design. The canvas looks black and white, as on the board, and the palette only offers what reads well there: texts, numbers, bars, buttons, switches, checkboxes, LEDs, the current state, the steps, the gauge and the time.</li>
+      <li><b>Export</b>: with an ESP32 or the Pico, same as a TFT, with LovyanGFX and lvgl. With a Linux board, a Python program: <a href="#oled-linux">see below</a>.</li>
     </ol>
     <h2 id="oled-nav">How to navigate</h2>
     <p><i>Next</i> and <i>previous</i> move a frame from one element to another: the marked one looks inverted. <i>Accept</i> presses it.
@@ -2274,9 +2599,47 @@ const CAPS = [
     <h2 id="oled-saber">Good to know</h2>
     <ul class="reglas">
       <li><b>Black or white, nothing else.</b> Every colour in the design becomes one of the two: dark ones black and whatever should be seen white. Grey does not exist.</li>
+      <li><b>Bars, switches and checkboxes get an outline.</b> Their background is a dark shade that would turn black on black, so the track of the bar and the slider, the switch when off and the unticked checkbox are drawn with a 1 px white border, and whatever is filled, in white. The same on the canvas and on the board.</li>
       <li><b>The smallest font is 10 px.</b> 8 px cannot be read on an OLED. If <code>lv_conf.h</code> has one switched off, the compiler says which.</li>
       <li><b>The OLED gets its own I2C bus.</b> I2C sensors you add go on another pair of pins, each bus with its own controller.</li>
       <li><b>On an ESP32-C3</b> there is a single I2C controller and the screen takes it: there is no room for I2C sensors there, and the sensor's row says so.</li>
+    </ul>
+    <h2 id="oled-linux">On a Raspberry Pi, Jetson or Orange Pi</h2>
+    <p>A Linux board takes no sketch: the OLED is drawn by a Python program, <code>telar_pantalla.py</code>, which is
+    <b>the same for every project</b>. What belongs to each one (the screens, the logic and the pins) goes in <code>proyecto.json</code>,
+    written by Telar on export. The logic runs with <b>the same rules</b> as on an ESP32 and in the simulator, and every
+    widget is painted with the canvas measurements.</p>
+    <ol class="pasos">
+      <li>In <b>Screen</b>, the OLED (SSD1306 128×64 or 128×32, or SH1106). Under <b>Board it connects to</b>, the Raspberry Pi, Jetson or Orange Pi. Telar puts SDA on <b>GPIO2</b> (connector pin 3) and SCL on <b>GPIO3</b> (pin 5).</li>
+      <li>In <b>Hardware</b>, the <b>Navigation buttons</b>, and digital inputs and outputs if needed. A Linux board does not measure voltages: for that, a second node (an ESP32 or a Pico) linked by UART or RS485.</li>
+      <li><b>Export</b>. You get a folder with <code>telar_pantalla.py</code>, <code>proyecto.json</code>, the fonts, the service to start it by itself and a <code>LEEME.txt</code> with the steps.</li>
+      <li>On the board, only once: turn I2C on (on a Raspberry, <code>sudo raspi-config nonint do_i2c 0</code>) and install what is needed in a separate environment.</li>
+      <li>Start it: <code>~/telar-env/bin/python telar_pantalla.py</code>.</li>
+    </ol>
+    <p>Example: the variac with a Raspberry Pi and an SSD1306, and the control node on an ESP32.</p>
+    <pre>variac_industrial/
+    variac_industrial_pantalla/      &lt;- copied to the Raspberry
+        telar_pantalla.py  proyecto.json  requisitos.txt  fuentes/  LEEME.txt  telar-pantalla.service
+    variac_industrial_control/       &lt;- uploaded to the ESP32 with the Arduino IDE
+        variac_industrial_control.ino  ...
+
+sudo apt install -y python3-venv python3-pil i2c-tools
+python3 -m venv --system-site-packages ~/telar-env
+~/telar-env/bin/pip install -r requisitos.txt
+sudo usermod -aG i2c,gpio,dialout $USER   # then log in again
+i2cdetect -y 1                          # 3c must show up
+~/telar-env/bin/python telar_pantalla.py
+
+# start it by itself at power-up (LEEME.txt explains it)
+mkdir -p ~/.config/systemd/user && cp telar-pantalla.service ~/.config/systemd/user/
+systemctl --user daemon-reload && systemctl --user enable --now telar-pantalla
+sudo loginctl enable-linger $USER</pre>
+    <ul class="reglas">
+      <li><b>Navigation is the same</b>: <i>next</i> and <i>previous</i> move the focus (the marked one is shown inverted) and <i>accept</i> presses. A <b>slider</b>, dragged with a finger elsewhere, is edited here: <i>accept</i> enters, <i>next</i> and <i>previous</i> move it and <i>accept</i> leaves.</li>
+      <li><b>Without the board</b> it can be tried too: on any computer with Python and Pillow, <code>python3 telar_pantalla.py --sin-placa</code> saves what would be shown in <code>pantalla.png</code>, and it is operated with the keys n, p and a.</li>
+      <li><b>The link</b> with a control node speaks the same frames as between two ESP32: the control node does not notice the difference.</li>
+      <li><b>save</b> and <b>load</b> keep their values in <code>memoria.json</code>, next to the program: it survives powering the board off.</li>
+      <li>On the <b>Orange Pi</b> the I2C bus number changes from one model to another: <code>i2cdetect -l</code> tells which one, and it goes in <code>"i2c_bus"</code> inside <code>proyecto.json</code>.</li>
     </ul>
     <h2 id="oled-nada">If nothing shows</h2>
     <div class="tabla"><table>
@@ -2302,7 +2665,7 @@ const CAPS = [
     escribirlo: escribe el código del ESP32 y una <b>hoja</b>, <code>NEXTION.txt</code>, con todo lo que hay que crear allí, en el orden en que se hace.</p>
     <h2 id="nx-pasos">Paso a paso</h2>
     <ol class="pasos">
-      <li><b>Placa de la pantalla</b>: tu placa con <b>+ pantalla aparte</b>; en <b>Modelo de pantalla</b>, el grupo <b>por puerto serie</b> y tu modelo.</li>
+      <li>En la lista <b>Pantalla</b>, grupo <b>Aparte, se dibujan solas: Nextion y serie</b>, tu modelo. Y en <b>Placa a la que la conectas</b>, tu placa.</li>
       <li><b>TX</b> y <b>RX</b>, cruzados: el TX de la placa al RX de la pantalla y al revés. Y las masas unidas.</li>
       <li>Diseña en Telar como siempre. La paleta solo ofrece lo que tiene equivalente en la Nextion.</li>
       <li><b>Exportar</b>. Abre <code>NEXTION.txt</code> y síguelo en el Nextion Editor: crea una fuente, las páginas y cada componente con su <code>objname</code> exacto, su posición, sus colores y el código de sus botones.</li>
@@ -2314,12 +2677,13 @@ const CAPS = [
     <div class="tabla"><table>
       <thead><tr><th>En Telar</th><th>En la Nextion</th><th>Qué cambia el ESP32</th></tr></thead>
       <tbody>
-        <tr><td>Texto, Número grande, Temporizador, Tira de estado</td><td>Text</td><td>el texto (<code>txt</code>) y, si la lógica lo pide, el color de la letra</td></tr>
+        <tr><td>Texto, Número, Tiempo, Estado actual, Reloj de aguja</td><td>Text</td><td>el texto (<code>txt</code>) y, si la lógica lo pide, el color de la letra</td></tr>
         <tr><td>Barra</td><td>Progress bar</td><td>el valor, de 0 a 100</td></tr>
         <tr><td>Botón</td><td>Button</td><td>su texto y su color, si la lógica los cambia</td></tr>
         <tr><td>Interruptor, Casilla</td><td>Dual-state button</td><td>el valor, 0 o 1</td></tr>
-        <tr><td>LED</td><td>Text sin texto</td><td>el color de fondo</td></tr>
-        <tr><td>Panel, Línea</td><td>Text sin texto</td><td>nada: son solo un recuadro de color</td></tr>
+        <tr><td>Piloto</td><td>Text sin texto</td><td>el color de fondo</td></tr>
+        <tr><td>Tarjeta o panel, Línea</td><td>Text sin texto</td><td>nada: son solo un recuadro de color</td></tr>
+        <tr><td>Línea inclinada</td><td>ninguno: la orden <code>line</code></td><td>nada; <code>NEXTION.txt</code> trae la orden para el evento Postinitialize de la página (sale de 1 px)</td></tr>
       </tbody>
     </table></div>
     <h2 id="nx-mal">Si algo no va</h2>
@@ -2351,7 +2715,7 @@ const CAPS = [
     it writes the ESP32 code and a <b>sheet</b>, <code>NEXTION.txt</code>, with everything that has to be created there, in the order you do it.</p>
     <h2 id="nx-pasos">Step by step</h2>
     <ol class="pasos">
-      <li><b>Screen board</b>: your board with <b>+ separate screen</b>; under <b>Screen model</b>, the <b>over a serial port</b> group and your model.</li>
+      <li>In the <b>Screen</b> list, group <b>Separate, draw themselves: Nextion and serial</b>, your model. And under <b>Board it connects to</b>, your board.</li>
       <li><b>TX</b> and <b>RX</b>, crossed: the board TX to the screen RX and the other way round. And the grounds joined.</li>
       <li>Design in Telar as usual. The palette only offers what has an equivalent on the Nextion.</li>
       <li><b>Export</b>. Open <code>NEXTION.txt</code> and follow it in the Nextion Editor: create a font, the pages and each component with its exact <code>objname</code>, its position, its colours and its buttons' code.</li>
@@ -2363,12 +2727,13 @@ const CAPS = [
     <div class="tabla"><table>
       <thead><tr><th>In Telar</th><th>On the Nextion</th><th>What the ESP32 changes</th></tr></thead>
       <tbody>
-        <tr><td>Text, Big number, Timer, State strip</td><td>Text</td><td>the text (<code>txt</code>) and, if the logic asks, the font colour</td></tr>
+        <tr><td>Label, Number, Time, Current state, Gauge</td><td>Text</td><td>the text (<code>txt</code>) and, if the logic asks, the font colour</td></tr>
         <tr><td>Bar</td><td>Progress bar</td><td>the value, 0 to 100</td></tr>
         <tr><td>Button</td><td>Button</td><td>its text and colour, if the logic changes them</td></tr>
         <tr><td>Switch, Checkbox</td><td>Dual-state button</td><td>the value, 0 or 1</td></tr>
         <tr><td>LED</td><td>Text with no text</td><td>the background colour</td></tr>
-        <tr><td>Panel, Line</td><td>Text with no text</td><td>nothing: they are just a coloured box</td></tr>
+        <tr><td>Card or panel, Line</td><td>Text with no text</td><td>nothing: they are just a coloured box</td></tr>
+        <tr><td>Slanted line</td><td>none: the <code>line</code> command</td><td>nothing; <code>NEXTION.txt</code> gives the command for the page's Postinitialize event (it comes out 1 px thick)</td></tr>
       </tbody>
     </table></div>
     <h2 id="nx-mal">If something does not work</h2>
@@ -2403,7 +2768,7 @@ const CAPS = [
                en: 'For the screen that is on no list: describe it once and it is saved inside the project.' },
     subs: [['pm-campos', { es: 'Qué va en cada campo', en: 'What goes in each field' }]],
     html: () => X(`
-    <p>En el bloque de la pantalla aparte, <b>+ Pantalla a medida</b>. Lo único que hay que saber de verdad es el <b>chip</b>
+    <p>En la lista <b>Pantalla</b>, la última opción: <b>+ Pantalla a medida</b> (o el botón del mismo nombre en la ficha de la pantalla conectada). Lo único que hay que saber de verdad es el <b>chip</b>
     de la pantalla: al elegirlo, el tamaño y los colores se rellenan solos. El resto solo se toca si algo sale mal.
     La pantalla aparece luego en la lista marcada como <b>tuya</b>, y con <b>Editar esta ficha</b> se corrige.</p>
     <h2 id="pm-campos">Qué va en cada campo</h2>
@@ -2422,7 +2787,7 @@ const CAPS = [
       </tbody>
     </table></div>
     <p class="tenue">La ficha viaja dentro del <code>.telar.json</code>: quien abra el proyecto en otro ordenador tiene la pantalla sin hacer nada.</p>`, `
-    <p>In the separate-screen block, <b>+ Custom screen</b>. The only thing you really need to know is the screen's <b>chip</b>:
+    <p>In the <b>Screen</b> list, the last option: <b>+ Custom screen</b> (or the button with the same name on the connected-screen card). The only thing you really need to know is the screen's <b>chip</b>:
     when you pick it, the size and colours fill in by themselves. The rest is only touched if something comes out wrong.
     The screen then appears on the list marked as <b>yours</b>, and <b>Edit this sheet</b> corrects it.</p>
     <h2 id="pm-campos">What goes in each field</h2>
@@ -2442,6 +2807,124 @@ const CAPS = [
     </table></div>
     <p class="tenue">The sheet travels inside the <code>.telar.json</code>: whoever opens the project on another computer has the screen without doing anything.</p>`) },
 
+  { id: 'widgets', parte: 3,
+    titulo: { es: 'Qué widget usar', en: 'Which widget to use' },
+    resumen: { es: 'Los 30 de la paleta: para qué sirve cada uno y cómo se conecta. Lo mismo sale en el panel de cada widget, arriba.',
+               en: 'The 30 in the palette: what each one is for and how it connects. The same shows at the top of each widget panel.' },
+    subs: [['wg-tabla', { es: 'La tabla', en: 'The table' }], ['wg-numero', { es: 'Lo que recibe la variable', en: 'What the variable receives' }]],
+    html: () => X(`
+    <p>Cada widget dice en su panel, arriba, <b>cuándo usarlo</b> y <b>cómo</b> se conecta. Esta es la lista entera, por grupos de la paleta.</p>
+    <h2 id="wg-tabla">La tabla</h2>
+    <div class="tabla"><table>
+      <thead><tr><th>Widget</th><th>Cuándo usarlo</th><th>Cómo</th></tr></thead>
+      <tbody>
+      <tr><th colspan="3">Básico</th></tr>
+      <tr><td><b>Texto</b></td><td>Títulos, nombres de zonas, unidades o una instrucción corta.</td><td>Escribe el texto. Si la lógica tiene <b>looks</b> para él, cambia de texto y color según el estado.</td></tr>
+      <tr><td><b>Botón</b></td><td>Arrancar, parar, cambiar de pantalla o subir y bajar un valor.</td><td>En su panel, <b>Al pulsar, ir a</b> otra pantalla o una orden sobre una salida; o dale lógica en <code>buttons:</code> con su nombre.</td></tr>
+      <tr><td><b>Imagen</b></td><td>Un logotipo o el esquema de la máquina.</td><td>Carga un PNG pequeño: cada píxel ocupa memoria de la placa.</td></tr>
+      <tr><td><b>Línea</b></td><td>Separar zonas de la pantalla o marcar una guía.</td><td>Arrastra un extremo para girarla (con Mayús, de 15 en 15°); el grosor y el ángulo, en su panel.</td></tr>
+      <tr><td><b>Lista</b></td><td>Un menú de opciones, o varias líneas para leer.</td><td>Un elemento por línea. Enlazada a una variable, tocar un elemento guarda su número (el primero es 0) y lo deja marcado.</td></tr>
+      <tr><td><b>Tabla</b></td><td>Datos fijos en filas y columnas: una tabla de referencia.</td><td>Una fila por línea y las columnas separadas con <code>;</code>. No cambia sola: lo que escribes es lo que se ve.</td></tr>
+      <tr><td><b>Aviso modal</b></td><td>Una alarma, el fin de un ciclo o algo que hay que confirmar.</td><td>Título en la primera línea y el mensaje debajo. En <b>Cuándo aparece</b>, al arrancar o solo en unos estados de la lógica.</td></tr>
+      <tr><td><b>Pestañas</b></td><td>Varias vistas en el mismo sitio cuando la pantalla es pequeña.</td><td>Una pestaña por línea. Nacen vacías: el editor aún no mete widgets dentro, y lo de cada pestaña se añade a mano en el código.</td></tr>
+      <tr><td><b>Tarjeta o panel</b></td><td>Agrupar datos que van juntos, con un fondo y un rótulo.</td><td>Ponla detrás (en Capas) y los widgets encima.</td></tr>
+      <tr><td><b>Icono</b></td><td>Un símbolo junto a un dato: un rayo, un termómetro.</td><td>Elige el icono, el tamaño y el color.</td></tr>
+      <tr><th colspan="3">Entrada</th></tr>
+      <tr><td><b>Deslizador</b></td><td>Fijar un valor que va de un extremo a otro: velocidad, brillo, una consigna.</td><td>Enlázalo a una salida o a un ajuste de la lógica: al arrastrar, la variable toma su valor.</td></tr>
+      <tr><td><b>Interruptor</b></td><td>Encender o apagar algo: una luz, una bomba, un modo.</td><td>Enlázalo a una salida de sí/no (o a un ajuste: 1 encendido, 0 apagado).</td></tr>
+      <tr><td><b>Casilla</b></td><td>Activar una opción: modo automático, alarma sonora.</td><td>Enlázala a una variable: marcada vale 1 y sin marcar 0.</td></tr>
+      <tr><td><b>Desplegable</b></td><td>Elegir entre pocas opciones sin ocupar sitio: el modo, la receta.</td><td>Una opción por línea. La variable recibe el número de la elegida (0, 1, 2…) y en la lógica se pregunta: <code>if modo == 1: …</code></td></tr>
+      <tr><td><b>Rueda</b></td><td>Lo mismo que el desplegable, pero a la vista y cómodo con el dedo.</td><td>Una opción por línea; la variable recibe el número de la elegida (0, 1, 2…).</td></tr>
+      <tr><td><b>Contador</b></td><td>Ajustar un número exacto de poco en poco: minutos, grados.</td><td>Enlázalo a una variable: − y + suben o bajan su <b>paso</b> sin salirse del rango. Mantenido pulsado, sigue.</td></tr>
+      <tr><td><b>Rejilla de botones</b></td><td>Varios botones iguales juntos: un teclado numérico, un menú.</td><td>Una fila por línea, botones separados por espacios. Por ahora solo se dibuja: sus pulsaciones hay que atenderlas a mano en el código.</td></tr>
+      <tr><td><b>Campo de texto</b></td><td>Escribir un número exacto con un Teclado: una consigna, un tiempo.</td><td>Ponle un <b>Teclado</b> y elige <b>Guarda el número en</b>: al pulsar ✓, el número pasa a la variable.</td></tr>
+      <tr><td><b>Teclado</b></td><td>Teclear en un Campo de texto.</td><td>Elige <b>Números</b>, créale el campo con su botón y, en el campo, <b>Guarda el número en</b> un ajuste: al pulsar ✓, el número escrito pasa a él. Con Letras, lo escrito solo se ve.</td></tr>
+      <tr><th colspan="3">Visualización</th></tr>
+      <tr><td><b>Escala</b></td><td>Una regla con números junto a una Barra o un Deslizador.</td><td>No se mueve. El rango sale de <b>Desde/Hasta</b> o de su variable; las divisiones y dónde van los números, en su panel.</td></tr>
+      <tr><td><b>Piloto</b></td><td>Una alarma, marcha o fallo que se ve de un vistazo.</td><td>Enlázalo a una variable de sí/no (una entrada, una salida, una bandera): se enciende cuando vale 1.</td></tr>
+      <tr><td><b>Cargando</b></td><td>Que se vea que algo está en marcha: conectando, calentando.</td><td>Gira siempre: ponlo en la pantalla que se enseña mientras se espera.</td></tr>
+      <tr><td><b>Código QR</b></td><td>Llevar al móvil un manual, una web o la wifi.</td><td>Escribe el texto o el enlace. En la placa hay que encender <code>LV_USE_QRCODE</code> en lv_conf.h.</td></tr>
+      <tr><td><b>Número</b></td><td>La medida principal, grande y con su unidad.</td><td>Enlázalo a una lectura o a un ajuste; unidad, decimales y rótulo, en su panel.</td></tr>
+      <tr><td><b>Estado actual</b></td><td>El estado del proceso, con un color que se entiende de lejos.</td><td>Cambia sola cuando la lógica cambia de estado. En su panel eliges el texto y el color de cada estado; los estados se crean ahí mismo o en la Lógica.</td></tr>
+      <tr><td><b>Pasos del proceso</b></td><td>Ver en qué paso del ciclo va la máquina.</td><td>Una casilla por estado de la lógica (<code>states:</code>), en orden; se ilumina la del estado actual. Para tener más o menos pasos, añade o quita estados. El texto y el color de cada casilla van con su estado, en su panel.</td></tr>
+      <tr><td><b>Barra</b></td><td>Un nivel, un llenado o una carga, con su consigna marcada.</td><td>Enlázala a la medida; la marca verde sale de un valor fijo o de un ajuste.</td></tr>
+      <tr><td><b>Curva</b></td><td>Ver cómo evoluciona una medida con el tiempo.</td><td>Enlázala a la medida y elige la ventana de tiempo; la consigna y una referencia, si quieres.</td></tr>
+      <tr><td><b>Reloj de aguja</b></td><td>Una medida como en un instrumento: tensión, presión, velocidad.</td><td>Enlázalo a la medida; rango, apertura y consigna en su panel. El texto de la consigna se escribe y se arrastra.</td></tr>
+      <tr><td><b>Tiempo</b></td><td>Una cuenta atrás o lo que lleva un ciclo.</td><td>Enlázalo a un <code>timer</code> de la lógica (en segundos): sale como mm:ss.</td></tr>
+      </tbody>
+    </table></div>
+    <h2 id="wg-numero">Lo que recibe la variable</h2>
+    <ul class="reglas">
+      <li><b>Deslizador</b> y <b>Contador</b>: su valor, dentro del rango de la variable.</li>
+      <li><b>Interruptor</b> y <b>Casilla</b>: 1 encendido o marcada, 0 apagado o sin marcar.</li>
+      <li><b>Desplegable</b>, <b>Rueda</b> y <b>Lista</b>: el número de la opción, empezando por 0. Con <code>Manual</code>, <code>Auto</code> y <code>Parado</code>,
+      elegir <code>Auto</code> deja la variable en 1, y la lógica lo pregunta con <code>if modo == 1: …</code></li>
+      <li><b>Campo de texto</b> con su <b>Teclado</b>: el número escrito, al pulsar ✓.</li>
+    </ul>
+    <p class="tenue">Todos pueden guardar en una salida o en un ajuste de la lógica (<code>setting</code>). Y si la variable la cambia otro (la lógica,
+    un botón), el widget la sigue.</p>`, `
+    <p>Each widget says at the top of its panel <b>when to use it</b> and <b>how</b> it connects. This is the whole list, by palette group.</p>
+    <h2 id="wg-tabla">The table</h2>
+    <div class="tabla"><table>
+      <thead><tr><th>Widget</th><th>When to use it</th><th>How</th></tr></thead>
+      <tbody>
+      <tr><th colspan="3">Basic</th></tr>
+      <tr><td><b>Label</b></td><td>Titles, area names, units or a short instruction.</td><td>Type the text. If the logic has <b>looks</b> for it, its text and colour change with the state.</td></tr>
+      <tr><td><b>Button</b></td><td>Start, stop, change screen or raise and lower a value.</td><td>In its panel, <b>On tap, go to</b> another screen or a command for an output; or give it logic under <code>buttons:</code> by its name.</td></tr>
+      <tr><td><b>Image</b></td><td>A logo or a diagram of the machine.</td><td>Load a small PNG: every pixel takes board memory.</td></tr>
+      <tr><td><b>Line</b></td><td>Split areas of the screen or mark a guide.</td><td>Drag an end to turn it (with Shift, in 15° steps); thickness and angle in its panel.</td></tr>
+      <tr><td><b>List</b></td><td>A menu of options, or several lines to read.</td><td>One item per line. Linked to a variable, tapping an item saves its number (the first is 0) and leaves it marked.</td></tr>
+      <tr><td><b>Table</b></td><td>Fixed data in rows and columns: a reference table.</td><td>One row per line and columns separated with <code>;</code>. It does not change by itself: what you type is what shows.</td></tr>
+      <tr><td><b>Message box</b></td><td>An alarm, the end of a cycle or something to confirm.</td><td>Title on the first line and the message below. In <b>When it shows</b>, at start-up or only in some logic states.</td></tr>
+      <tr><td><b>Tabs</b></td><td>Several views in the same place when the screen is small.</td><td>One tab per line. They start empty: the editor does not put widgets inside yet, so each tab is filled by hand in the code.</td></tr>
+      <tr><td><b>Card or panel</b></td><td>Group data that belong together, with a background and a caption.</td><td>Put it behind (in Layers) and the widgets on top.</td></tr>
+      <tr><td><b>Icon</b></td><td>A symbol next to a value: a bolt, a thermometer.</td><td>Choose the icon, the size and the colour.</td></tr>
+      <tr><th colspan="3">Input</th></tr>
+      <tr><td><b>Slider</b></td><td>Set a value from one end to the other: speed, brightness, a setpoint.</td><td>Link it to an output or a logic setting: dragging sets the variable.</td></tr>
+      <tr><td><b>Switch</b></td><td>Turn something on or off: a light, a pump, a mode.</td><td>Link it to an on/off output (or to a setting: 1 on, 0 off).</td></tr>
+      <tr><td><b>Checkbox</b></td><td>Enable an option: automatic mode, sound alarm.</td><td>Link it to a variable: ticked is 1 and unticked 0.</td></tr>
+      <tr><td><b>Dropdown</b></td><td>Choose between a few options without taking space: the mode, the recipe.</td><td>One option per line. The variable gets the number of the chosen one (0, 1, 2…), and the logic asks: <code>if mode == 1: …</code></td></tr>
+      <tr><td><b>Roller</b></td><td>Same as the dropdown, but always visible and easy with a finger.</td><td>One option per line; the variable gets the number of the chosen one (0, 1, 2…).</td></tr>
+      <tr><td><b>Spinbox</b></td><td>Set an exact number step by step: minutes, degrees.</td><td>Link it to a variable: − and + move it by its <b>step</b> within the range. Held down, it keeps going.</td></tr>
+      <tr><td><b>Button matrix</b></td><td>Several equal buttons together: a keypad, a menu.</td><td>One row per line, buttons separated by spaces. For now it is only drawn: its taps have to be handled by hand in the code.</td></tr>
+      <tr><td><b>Text area</b></td><td>Type an exact number with a Keyboard: a setpoint, a time.</td><td>Add a <b>Keyboard</b> and choose <b>Saves the number in</b>: pressing ✓ sends the number to the variable.</td></tr>
+      <tr><td><b>Keyboard</b></td><td>Type into a Text area.</td><td>Choose <b>Numbers</b>, create its field with its button and, in the field, <b>Saves the number in</b> a setting: pressing ✓ sends the typed number to it. With Letters, the text is only shown.</td></tr>
+      <tr><th colspan="3">Display</th></tr>
+      <tr><td><b>Scale</b></td><td>A ruler with numbers next to a Bar or a Slider.</td><td>It does not move. The range comes from <b>From/To</b> or its variable; divisions and where the numbers go, in its panel.</td></tr>
+      <tr><td><b>LED</b></td><td>An alarm, running or fault you see at a glance.</td><td>Link it to an on/off variable (an input, an output, a flag): it lights up when it is 1.</td></tr>
+      <tr><td><b>Spinner</b></td><td>Show that something is going on: connecting, heating.</td><td>It always spins: put it on the screen shown while waiting.</td></tr>
+      <tr><td><b>QR code</b></td><td>Send a manual, a website or the wifi to a phone.</td><td>Type the text or the link. On the board, <code>LV_USE_QRCODE</code> has to be on in lv_conf.h.</td></tr>
+      <tr><td><b>Number</b></td><td>The main measurement, large and with its unit.</td><td>Link it to a reading or a setting; unit, decimals and caption in its panel.</td></tr>
+      <tr><td><b>Current state</b></td><td>The process state, with a colour you understand from afar.</td><td>It changes by itself when the logic changes state. In its panel you choose the text and colour of each state; states are created there or in the Logic.</td></tr>
+      <tr><td><b>Process steps</b></td><td>See which step of the cycle the machine is in.</td><td>One box per logic state (<code>states:</code>), in order; the current one lights up. For more or fewer steps, add or remove states. The text and colour of each box go with its state, in its panel.</td></tr>
+      <tr><td><b>Bar</b></td><td>A level, a filling or a load, with its setpoint marked.</td><td>Link it to the measurement; the green mark comes from a fixed value or a setting.</td></tr>
+      <tr><td><b>Trace</b></td><td>See how a measurement changes over time.</td><td>Link it to the measurement and choose the time window; the setpoint and a reference, if you like.</td></tr>
+      <tr><td><b>Gauge</b></td><td>A measurement like on an instrument: voltage, pressure, speed.</td><td>Link it to the measurement; range, opening and setpoint in its panel. The setpoint text can be edited and dragged.</td></tr>
+      <tr><td><b>Time</b></td><td>A countdown or how long a cycle has run.</td><td>Link it to a logic <code>timer</code> (in seconds): it shows as mm:ss.</td></tr>
+      </tbody>
+    </table></div>
+    <h2 id="wg-numero">What the variable receives</h2>
+    <ul class="reglas">
+      <li><b>Slider</b> and <b>Spinbox</b>: their value, within the range of the variable.</li>
+      <li><b>Switch</b> and <b>Checkbox</b>: 1 on or ticked, 0 off or unticked.</li>
+      <li><b>Dropdown</b>, <b>Roller</b> and <b>List</b>: the number of the option, starting at 0. With <code>Manual</code>, <code>Auto</code> and <code>Parado</code>,
+      choosing <code>Auto</code> sets the variable to 1, and the logic asks <code>if mode == 1: …</code></li>
+      <li><b>Text area</b> with its <b>Keyboard</b>: the typed number, when ✓ is pressed.</li>
+    </ul>
+    <p class="tenue">All of them can save into an output or a logic setting (<code>setting</code>). And if something else changes the variable (the
+    logic, a button), the widget follows it.</p>`)
+  },
+  { id: 'widgets-uno', parte: 3,
+    titulo: { es: 'Los widgets, uno a uno', en: 'The widgets, one by one' },
+    resumen: { es: 'Cada widget con su imagen, qué hace, cómo se usa en tres pasos y un ejemplo. Si necesita lógica, el trozo justo y qué hace.',
+               en: 'Each widget with its picture, what it does, how to use it in three steps and an example. If it needs logic, just the piece and what it does.' },
+    subs: GRUPOS_FICHA.filter(g => FICHAS.some(f => f.grupo === g.id)).map(g => ['wu-' + g.id, g.nombre]),
+    html: () => X(`
+    <p>Las imágenes las dibuja el propio Telar, igual que en el lienzo. Desde el panel de cada widget, <b>Ver en la guía</b> abre su ficha.</p>`, `
+    <p>The pictures are drawn by Telar itself, the same as on the canvas. From each widget panel, <b>See in the guide</b> opens its card.</p>`)
+      + GRUPOS_FICHA.filter(g => FICHAS.some(f => f.grupo === g.id)).map(g =>
+        `<div class="wf-grupo" id="wu-${g.id}">${X(g.nombre.es, g.nombre.en)}</div><div class="wfichas">${FICHAS.filter(f => f.grupo === g.id).map(fichaHTML).join('')}</div>`).join('')
+  },
   { id: 'diseno-pro', parte: 3,
     titulo: { es: 'Del aula a la industria', en: 'From the classroom to industry' },
     resumen: { es: 'Un tema sobrio, componentes de panel de instrumentos y plantillas de pantalla: una interfaz profesional sin dibujar cada píxel.',
@@ -2449,6 +2932,7 @@ const CAPS = [
     subs: [['dp-tema', { es: 'El tema', en: 'The theme' }],
            ['dp-componentes', { es: 'Los componentes industriales', en: 'The industrial components' }],
            ['dp-plantillas', { es: 'Las plantillas', en: 'The templates' }],
+           ['dp-teclado', { es: 'Escribir un número con el teclado', en: 'Typing a number with the keyboard' }],
            ['dp-otras', { es: 'En una OLED o una Nextion', en: 'On an OLED or a Nextion' }]],
     html: () => X(`
     <p>Tres piezas, de la más general a la más concreta. Ninguna obliga a nada: un proyecto de clase sigue funcionando igual, y
@@ -2460,7 +2944,7 @@ const CAPS = [
     letra de su <b>papel</b> (número, título, dato, rótulo o texto), así que no hay que elegirla una por una.</p>
     <ul class="reglas">
       <li><b>Clases de botón</b>: <i>botón</i> para lo normal, <i>selección</i> para lo elegido, <i>marcha</i> (verde) para arrancar
-      y <i>paro</i> (rojo) para parar. Se elige en el panel del botón; el color sale del tema (pestaña <b>Estilo</b>, sección <b>Botones</b>).</li>
+      y <i>paro</i> (rojo) para parar. Se elige en <b>Estilo</b>, con el botón seleccionado; el color de cada clase sale del tema (sección <b>Botones</b>).</li>
       <li><b>Coma decimal</b>: en el bloque Tipografía. Los números salen como <code>33,3</code> en la pantalla y en el simulador.</li>
       <li>Hay también <b>Industrial claro</b>, para paneles a pleno sol, y <b>Alto contraste</b>.</li>
     </ul>
@@ -2473,18 +2957,18 @@ const CAPS = [
       <tbody>
         <tr><td>Tarjeta o panel</td><td>un fondo para agrupar, con rótulo si quieres</td><td>el rótulo y, si lleva, el color del borde</td></tr>
         <tr><td>Número</td><td>un valor con su unidad; suelto y enorme, o en tarjeta como un dato</td><td>la variable, la unidad, los decimales y <b>En tarjeta</b>; si es un tiempo, sale como mm:ss</td></tr>
-        <tr><td>Estado actual</td><td>el estado, en una píldora de color</td><td>nada: texto y color salen de <code>looks</code></td></tr>
+        <tr><td>Estado actual</td><td>el estado, en una píldora de color</td><td>el texto y el color de cada estado, en su panel</td></tr>
         <tr><td>Pasos del proceso</td><td>una casilla por estado; se ilumina la actual</td><td>el texto de cada casilla</td></tr>
         <tr><td>Barra</td><td>se llena con la medida, con escala y marca de consigna opcionales</td><td>la variable, el rango, la escala y la marca</td></tr>
         <tr><td>Curva</td><td>la medida en el tiempo, con escala automática</td><td>la variable, la consigna, una referencia y la ventana</td></tr>
-        <tr><td>Reloj de aguja</td><td>un arco de 270° o de 180° con el valor en el centro</td><td>la variable, el rango, la apertura y la marca</td></tr>
+        <tr><td>Reloj de aguja</td><td>un arco de 270° o de 180° con el valor en el centro</td><td>la variable, el rango, la apertura y la marca; el texto de la consigna dice lo que quieras (o solo el número), y se arrastra, con su letra y su color</td></tr>
       </tbody>
     </table></div>
     <p>La barra, la curva y el reloj marcan la <b>consigna</b> en verde. La marca sale siempre, aunque el proyecto aún no tenga
     lógica: sin variable se coloca en un <b>valor fijo</b> que escribes tú, y en cuanto haya un ajuste (<code>setting</code>) se
     puede enlazar a él y la marca lo sigue en vivo. Si no la quieres, se desmarca <b>Mostrar la marca de consigna</b> en Diseño;
     la consigna elegida se conserva. Su color, como todos, en la pestaña Estilo.</p>
-    <p>Y en la lógica, <code>enabled: no</code> apaga un botón mientras no toca: lo explica <a href="#apagar">Apagar un botón mientras no toca</a>.</p>
+    <p>Y en la lógica, <code>enabled: no</code> apaga un botón mientras no toca: lo explica <a href="#ej-apagar">Apagar un botón mientras no toca</a>.</p>
     <h2 id="dp-plantillas">Las plantillas</h2>
     <p>En la pestaña <b>Diseño</b>, en la columna de la izquierda, abre la sección <b>Plantillas</b>. Cada dibujo muestra lo que se va a
     crear, ya en tu pantalla y con tus colores.</p>
@@ -2502,6 +2986,21 @@ const CAPS = [
     <p class="tenue">Las plantillas no se estiran: se calculan para cada pantalla. En una de 800×480 salen las medidas del HMI
     del variac; en una de 320×240 se reorganizan (la curva no cabe y se quita) sin bajar de una letra legible. Por debajo de
     320×240 no se ofrecen.</p>
+    <h2 id="dp-teclado">Escribir un número con el teclado</h2>
+    <p>El <b>Teclado</b> escribe en un <b>Campo de texto</b>, y el campo puede <b>guardar el número en una variable</b>: un ajuste de la
+    lógica (<code>setting</code>) o una salida. Así, por ejemplo, la consigna del variac se escribe tecleándola en vez de subirla
+    de uno en uno.</p>
+    <ol class="pasos">
+      <li>En la lógica, el ajuste: <code>setpoint: { type: setting, unit: kV, range: [0, 100], step: 1, start: 30 }</code>.</li>
+      <li>En <b>Diseño</b>, añade un <b>Teclado</b>. En su panel, <b>Teclas</b>: <b>Números</b>. Si no hay campo, el botón
+      <b>+ Añadir un Campo de texto encima</b> lo crea ya enlazado al teclado.</li>
+      <li>Selecciona el campo y, en <b>Guarda el número en</b>, elige <code>setpoint</code>.</li>
+      <li>En la placa, el campo enseña el valor de <code>setpoint</code>. Al tocarlo se escribe con el teclado y, al pulsar ✓,
+      el número pasa a <code>setpoint</code> sin salirse de su rango (0–100). Admite la coma o el punto.</li>
+    </ol>
+    <p class="tenue">Ojo: el campo escribe el ajuste en cualquier estado. Si en la lógica solo se puede cambiar en uno (como
+    <code>in IDLE: [increase setpoint]</code>), pon el teclado en una pantalla a la que solo se llegue desde ese estado. Con
+    <b>Letras</b>, lo escrito se queda en la pantalla: la lógica trabaja con números.</p>
     <h2 id="dp-otras">En una OLED o una Nextion</h2>
     <p>Los componentes se <b>degradan solos</b> a lo que la pantalla sabe hacer. En una OLED se ven en blanco y negro; la curva no se
     ofrece. En una Nextion, la barra pasa a su barra de progreso y la lectura, el dato y el reloj pasan a un texto con el número. La
@@ -2528,23 +3027,23 @@ const CAPS = [
       <tbody>
         <tr><td>Card or panel</td><td>a background to group things, with a caption if you want</td><td>the caption and, if it has one, the border colour</td></tr>
         <tr><td>Number</td><td>a value with its unit; on its own and huge, or in a card as a panel value</td><td>the variable, the unit, the decimals and <b>In a card</b>; if it is a time, it shows as mm:ss</td></tr>
-        <tr><td>Current state</td><td>the state, in a coloured pill</td><td>nothing: text and colour come from <code>looks</code></td></tr>
+        <tr><td>Current state</td><td>the state, in a coloured pill</td><td>the text and colour of each state, in its panel</td></tr>
         <tr><td>Process steps</td><td>one box per state; the current one lights up</td><td>the text of each box</td></tr>
         <tr><td>Bar</td><td>fills with the measurement, with optional scale and setpoint mark</td><td>the variable, the range, the scale and the mark</td></tr>
-        <tr><td>Trend</td><td>the measurement over time, with an automatic scale</td><td>the variable, the setpoint, a reference and the window</td></tr>
-        <tr><td>Gauge</td><td>a 270° or 180° arc with the value in the centre</td><td>the variable, the range, the opening and the mark</td></tr>
+        <tr><td>Trace</td><td>the measurement over time, with an automatic scale</td><td>the variable, the setpoint, a reference and the window</td></tr>
+        <tr><td>Gauge</td><td>a 270° or 180° arc with the value in the centre</td><td>the variable, the range, the opening and the mark; the setpoint text says whatever you like (or just the number), and you can drag it, with its own font and colour</td></tr>
       </tbody>
     </table></div>
-    <p>The bar, the trend and the gauge mark the <b>setpoint</b> in green. The mark always shows, even if the project has no logic
+    <p>The bar, the trace and the gauge mark the <b>setpoint</b> in green. The mark always shows, even if the project has no logic
     yet: without a variable it sits at a <b>fixed value</b> you type, and as soon as there is a <code>setting</code> it can be bound
     to it and the mark follows it live. If you do not want it, untick <b>Show the setpoint mark</b> in Design; the chosen setpoint
     is kept. Its colour, like all colours, in the Style tab.</p>
-    <p>And in the logic, <code>enabled: no</code> disables a button when it does not apply: see <a href="#apagar">Disable a button when it does not apply</a>.</p>
+    <p>And in the logic, <code>enabled: no</code> disables a button when it does not apply: see <a href="#ej-apagar">Disable a button when it does not apply</a>.</p>
     <h2 id="dp-plantillas">The templates</h2>
     <p>In the <b>Design</b> tab, in the left column, open the <b>Templates</b> section. Each drawing shows what will be created,
     already on your screen and in your colours.</p>
     <ul class="reglas">
-      <li><b>Operation</b>: the big measurement with its bar, the trend, three values, the steps and START / STOP.</li>
+      <li><b>Operation</b>: the big measurement with its bar, the trace, three values, the steps and START / STOP.</li>
       <li><b>Settings</b>: three values with − and +, and SAVE.</li>
       <li><b>Diagnostics</b>: a gauge and four values.</li>
       <li><b>Blank</b>: just the header and the button bar.</li>
@@ -2555,12 +3054,27 @@ const CAPS = [
     <p>The pieces are named as in the examples of this guide (<code>btn_start</code>, <code>reading</code>, <code>countdown</code>…):
     a program from here fits without renaming anything.</p>
     <p class="tenue">Templates are not stretched: they are calculated for each screen. On an 800×480 one you get the measurements of
-    the variac HMI; on a 320×240 one they are rearranged (the trend does not fit and is dropped) without going below a readable
+    the variac HMI; on a 320×240 one they are rearranged (the trace does not fit and is dropped) without going below a readable
     font. Below 320×240 they are not offered.</p>
+    <h2 id="dp-teclado">Typing a number with the keyboard</h2>
+    <p>The <b>Keyboard</b> types into a <b>Text area</b>, and the field can <b>save the number in a variable</b>: a logic setting
+    (<code>setting</code>) or an output. That way, for example, the variac setpoint is typed in instead of being raised one step
+    at a time.</p>
+    <ol class="pasos">
+      <li>In the logic, the setting: <code>setpoint: { type: setting, unit: kV, range: [0, 100], step: 1, start: 30 }</code>.</li>
+      <li>In <b>Design</b>, add a <b>Keyboard</b>. In its panel, <b>Keys</b>: <b>Numbers</b>. If there is no field, the
+      <b>+ Add a Text area above</b> button creates one already linked to the keyboard.</li>
+      <li>Select the field and, under <b>Saves the number in</b>, choose <code>setpoint</code>.</li>
+      <li>On the board, the field shows the value of <code>setpoint</code>. Tap it to type with the keyboard and, when you press ✓,
+      the number goes to <code>setpoint</code> within its range (0–100). A comma or a point both work.</li>
+    </ol>
+    <p class="tenue">Note: the field writes the setting in any state. If the logic only lets it change in one (like
+    <code>in IDLE: [increase setpoint]</code>), put the keyboard on a screen that can only be reached from that state. With
+    <b>Letters</b>, what is typed stays on the screen: the logic works with numbers.</p>
     <h2 id="dp-otras">On an OLED or a Nextion</h2>
-    <p>Components <b>degrade by themselves</b> to what the screen can do. On an OLED they show in black and white; the trend is not
+    <p>Components <b>degrade by themselves</b> to what the screen can do. On an OLED they show in black and white; the trace is not
     offered. On a Nextion, the bar becomes its progress bar and the reading, value and gauge become a text with the number. The
-    trend has no equivalent and appears in the "draw them by hand" list in <code>NEXTION.txt</code>.</p>`) },
+    trace has no equivalent and appears in the "draw them by hand" list in <code>NEXTION.txt</code>.</p>`) },
 ];
 
 /* Los apartados de cada capítulo, para el índice y «En este capítulo» */
@@ -2578,6 +3092,7 @@ function capituloDe(ancla){
   if (ancla.startsWith('ej-')){ const e = EJEMPLOS.find(x => `ej-${x.id}` === ancla); if (e) return CAPS.find(c => c.id === e.grupo); }
   if (ancla.startsWith('receta-')) return CAPS.find(c => c.id === 'recetas');
   if (ancla.startsWith('p-')) return CAPS.find(c => c.id === 'diccionario');
+  if (ancla.startsWith('w-') || ancla.startsWith('wu-')) return CAPS.find(c => c.id === 'widgets-uno');
   const conSub = CAPS.find(c => (c.subs || []).some(([id]) => id === ancla));
   if (conSub) return conSub;
   return null;

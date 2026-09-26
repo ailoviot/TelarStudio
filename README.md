@@ -11,16 +11,16 @@ Diseñas la pantalla arrastrando widgets, conectas sensores y salidas, escribes 
 
 ### Descargar
 
-La aplicación para Windows, macOS y Linux está en **[Releases](https://github.com/ailoviot/TelarStudio/releases)**. Todavía no está firmada: en Windows, si sale «Windows protegió su PC», *Más información* → *Ejecutar de todas formas*; en macOS, clic derecho → *Abrir*.
+La aplicación para Windows, macOS y Linux está en **[Releases](https://github.com/ailoviot/TelarStudio/releases)**, y avisa cuando sale una versión nueva. Todavía no está firmada: en Windows, si sale «Windows protegió su PC», *Más información* → *Ejecutar de todas formas*; en macOS, clic derecho → *Abrir*.
 
 ¿Sin instalar nada? Descarga el repositorio y abre `telar-studio.html` en Chrome o Edge.
 
 ### Placas
 
-- **La pantalla:** placas ESP32 con pantalla integrada (Waveshare, Elecrow CrowPanel, CYD), un ESP32 con una TFT en color por SPI (ILI9341, ST7789, ST7735…) o una OLED por I2C (SSD1306, SH1106), o una Nextion/TJC por puerto serie.
+- **La pantalla:** placas ESP32 con pantalla integrada (Waveshare, Elecrow CrowPanel, CYD); un ESP32 o una Raspberry Pi Pico con una TFT en color por SPI (ILI9341, ST7789, ST7735…) o una OLED por I2C (SSD1306, SH1106); una Nextion/TJC por puerto serie; o una placa con Linux (Raspberry Pi, Jetson Nano, Orange Pi) con una OLED por I2C.
 - **El control, si hace falta:** cuando la pantalla se queda sin pines, un segundo nodo lee los sensores, mueve las salidas y le manda los datos. Puede ser otro ESP32, un Arduino UNO o Nano, una Raspberry Pi Pico… o una placa con Linux: **Raspberry Pi, Jetson Nano u Orange Pi**.
-- **El enlace entre los dos:** **RS485** (lejos o con motores cerca), **UART** (menos de un metro), **CAN** (pensado para más de dos nodos) o **ESP-NOW**, sin cables. CAN y ESP-NOW, entre placas ESP32; los Arduino y las placas con Linux, por UART o RS485.
-- **Lo que genera:** para los microcontroladores, el sketch de Arduino (`.ino`); para las placas con Linux, un programa de Python con su servicio de arranque.
+- **El enlace entre los dos:** **RS485** (lejos o con motores cerca), **UART** (menos de un metro), **CAN** (pensado para más de dos nodos) o **ESP-NOW**, sin cables. CAN y ESP-NOW, entre placas ESP32; los Arduino, la Pico y las placas con Linux, por UART o RS485.
+- **Lo que genera:** para los microcontroladores, el sketch de Arduino (`.ino`); para las placas con Linux, un programa de Python con su servicio de arranque (`control.py` si es el control, `telar_pantalla.py` si dibuja la pantalla).
 
 ### Así se ve
 
@@ -43,11 +43,11 @@ Descarga un `.telar.json` y ábrelo con el botón **Abrir**.
 | Carpeta o archivo | Qué es |
 |---|---|
 | `telar-studio.html` y los `.js` | La aplicación: diseño, estilo, hardware, lógica, simulador y generador de código |
-| `docs/logica.html` | La documentación del lenguaje de lógica, con ejemplos |
+| `docs/logica.html` | La documentación: el lenguaje de lógica, cada widget y cada placa, con ejemplos |
 | `lv-font-conv.js` | [lv_font_conv](https://github.com/lvgl/lv_font_conv) empaquetado para el navegador: genera las fuentes al exportar |
 | `escritorio/` | La aplicación de escritorio (Electron) |
 
-Para compilar la de escritorio, con [Node.js](https://nodejs.org) 22 o superior: `cd escritorio`, `npm install`, `node node_modules/electron/install.js` y `npm start` (o `npm run dist:win` para el instalador). Al subir una etiqueta de versión (`v1.2.0`), GitHub compila los tres instaladores y los publica en Releases.
+Para compilar la de escritorio, con [Node.js](https://nodejs.org) 22 o superior: `cd escritorio`, `npm install`, `node node_modules/electron/install.js` y `npm start` (o `npm run dist:win` para el instalador). Al subir una etiqueta de versión (`vX.Y.Z`), GitHub compila los tres instaladores y los publica en Releases.
 
 **Licencia:** MIT. Las tipografías incluidas tienen la suya (SIL OFL o Apache 2.0), en `fuentes/`.
 
@@ -64,16 +64,16 @@ You design the screen by dragging widgets, connect sensors and outputs, describe
 
 ### Download
 
-The app for Windows, macOS and Linux is on **[Releases](https://github.com/ailoviot/TelarStudio/releases)**. It is not signed yet: on Windows, if you see "Windows protected your PC", *More info* → *Run anyway*; on macOS, right-click → *Open*.
+The app for Windows, macOS and Linux is on **[Releases](https://github.com/ailoviot/TelarStudio/releases)**, and it tells you when a new version is out. It is not signed yet: on Windows, if you see "Windows protected your PC", *More info* → *Run anyway*; on macOS, right-click → *Open*.
 
 Rather not install anything? Download the repository and open `telar-studio.html` in Chrome or Edge.
 
 ### Boards
 
-- **The screen:** ESP32 boards with a built-in display (Waveshare, Elecrow CrowPanel, CYD), an ESP32 with a colour TFT over SPI (ILI9341, ST7789, ST7735…) or an OLED over I2C (SSD1306, SH1106), or a Nextion/TJC over a serial port.
+- **The screen:** ESP32 boards with a built-in display (Waveshare, Elecrow CrowPanel, CYD); an ESP32 or a Raspberry Pi Pico with a colour TFT over SPI (ILI9341, ST7789, ST7735…) or an OLED over I2C (SSD1306, SH1106); a Nextion/TJC over a serial port; or a Linux board (Raspberry Pi, Jetson Nano, Orange Pi) with an I2C OLED.
 - **The control side, when needed:** when the screen runs out of pins, a second node reads the sensors, drives the outputs and sends the data. It can be another ESP32, an Arduino UNO or Nano, a Raspberry Pi Pico… or a Linux board: **Raspberry Pi, Jetson Nano or Orange Pi**.
-- **The link between them:** **RS485** (long distances or motors nearby), **UART** (under one metre), **CAN** (meant for more than two nodes) or **ESP-NOW**, wireless. CAN and ESP-NOW between ESP32 boards; Arduino and Linux boards use UART or RS485.
-- **What it generates:** for microcontrollers, the Arduino sketch (`.ino`); for Linux boards, a Python program with its startup service.
+- **The link between them:** **RS485** (long distances or motors nearby), **UART** (under one metre), **CAN** (meant for more than two nodes) or **ESP-NOW**, wireless. CAN and ESP-NOW between ESP32 boards; Arduino boards, the Pico and Linux boards use UART or RS485.
+- **What it generates:** for microcontrollers, the Arduino sketch (`.ino`); for Linux boards, a Python program with its startup service (`control.py` for the control side, `telar_pantalla.py` when it draws the screen).
 
 ### What it looks like
 
@@ -96,11 +96,11 @@ Download a `.telar.json` and open it with the **Open** button. The projects are 
 | Folder or file | What it is |
 |---|---|
 | `telar-studio.html` and the `.js` files | The app: design, style, hardware, logic, simulator and code generator |
-| `docs/logica.html` | Documentation of the logic language, with examples |
+| `docs/logica.html` | The documentation: the logic language, every widget and every board, with examples |
 | `lv-font-conv.js` | [lv_font_conv](https://github.com/lvgl/lv_font_conv) bundled for the browser: generates the fonts on export |
 | `escritorio/` | The desktop app (Electron) |
 
-To build the desktop app, with [Node.js](https://nodejs.org) 22 or later: `cd escritorio`, `npm install`, `node node_modules/electron/install.js` and `npm start` (or `npm run dist:win` for the installer). Pushing a version tag (`v1.2.0`) makes GitHub build the three installers and publish them on Releases.
+To build the desktop app, with [Node.js](https://nodejs.org) 22 or later: `cd escritorio`, `npm install`, `node node_modules/electron/install.js` and `npm start` (or `npm run dist:win` for the installer). Pushing a version tag (`vX.Y.Z`) makes GitHub build the three installers and publish them on Releases.
 
 **License:** MIT. The bundled typefaces have their own (SIL OFL or Apache 2.0), in `fuentes/`.
 

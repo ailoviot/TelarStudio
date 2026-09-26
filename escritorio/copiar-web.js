@@ -27,6 +27,9 @@ const copiar = rel => {
 };
 for (const f of sueltos) copiar(f);
 for (const f of fs.readdirSync(path.join(ORIGEN, 'docs'))) if (/\.html$/.test(f)) copiar('docs/' + f);
+/* las imágenes de la guía de widgets (docs/widgets/), dibujadas por Telar */
+if (fs.existsSync(path.join(ORIGEN, 'docs', 'widgets')))
+  for (const f of fs.readdirSync(path.join(ORIGEN, 'docs', 'widgets'))) if (/\.(png|webp)$/i.test(f)) copiar('docs/widgets/' + f);
 /* las fuentes van dentro de fuentes-datos.js; sus licencias (OFL) viajan con ellas */
 for (const f of fs.readdirSync(path.join(ORIGEN, 'fuentes'))) if (/\.txt$/i.test(f)) copiar('fuentes/' + f);
 

@@ -103,7 +103,8 @@ function componentesSerie(){
   const N = nombresSerie();
   return E.pantallas.map((s, ip) => ({
     pagina: s, ip, nombre: N.pag.get(s.nombre),
-    comps: s.widgets.filter(w => TIPO_NEXTION[w.tipo]).map(w => ({
+    /* la linea inclinada no es ningun componente de la Nextion: va aparte */
+    comps: s.widgets.filter(w => TIPO_NEXTION[w.tipo] && !(w.tipo === 'line' && w.diag)).map(w => ({
       w, obj: N.obj.get(w), tipo: TIPO_NEXTION[w.tipo],
       v: variables().find(x => x.nombre === w.bind),
       accion: accionSerie(w, N), repite: repiteSerie(w),
@@ -621,6 +622,18 @@ function genHojaNextion(){
     for (const c of p.comps){
       const w = c.w;
       L.push(`  ${col(c.obj, 15)}${col(c.tipo, 19)}${col(w.x, 5)}${col(w.y, 5)}${col(w.w, 6)}${col(w.h, 5)}`);
+    }
+    /* Las lineas inclinadas: la Nextion no tiene un componente para eso,
+       pero si la orden line, que se escribe en el evento de la pagina */
+    const inclinadas = p.pagina.widgets.filter(w => w.tipo === 'line' && w.diag);
+    if (inclinadas.length){
+      L.push('');
+      L.push('  Lineas inclinadas: la Nextion no tiene componente para ellas. En el');
+      L.push('  evento Postinitialize de la pagina escribe (salen de 1 px de grosor):');
+      for (const w of inclinadas){
+        const Lp = puntosLinea(w);
+        L.push(`    line ${w.x + Lp.x1},${w.y + Lp.y1},${w.x + Lp.x2},${w.y + Lp.y2},${nx565(est(w).acento)}`);
+      }
     }
     L.push('');
     L.push('  Y dentro de cada uno:');

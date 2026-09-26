@@ -82,7 +82,7 @@ document.head.insertAdjacentHTML('beforeend', `<style id="lg-estilo">
 .lg-cab:has(.lg-estado.ok){border-bottom-color:color-mix(in srgb,var(--ok) 70%,var(--borde))}
 .lg-cab:has(.lg-estado.mal){border-bottom-color:var(--error)}
 .lg-cab .lg-estado{margin:0 0 10px;font:600 12px var(--mono)}
-.lg-cab-botones{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.lg-cab-botones{display:grid;grid-template-columns:1fr;gap:6px}
 .lg-cab-botones .btn{padding:7px 6px;font-size:12px}
 details.sec > summary .cuenta.mal{color:var(--error);font-weight:700}
 /* el indice */
@@ -807,12 +807,11 @@ async function nuevoBloque(){
 /* ------------------------------------------------------------- panel */
 function panelLogica(){
   const R = L().RECIPES;
-  /* Arriba y fijo, el estado y las dos acciones. Debajo, secciones que se
+  /* Arriba y fijo, el estado y el bloque nuevo. Debajo, secciones que se
      pliegan; las recetas empiezan plegadas (se usan al principio). */
   return `<div class="lg-cab">
     <div class="lg-estado" id="lgEstado"></div>
     <div class="lg-cab-botones">
-      <button class="btn" id="lgDocs" title="${esc(t('Abrir la documentación'))}">${t('Documentación')}</button>
       <button class="btn" id="lgBloque" title="${esc(t('Otra función (bloque nuevo)'))}">+ ${t('Bloque nuevo')}</button>
     </div>
   </div>
@@ -826,8 +825,8 @@ function panelLogica(){
 }
 
 function conectarLogica(){
-  /* la documentación se abre en el idioma del editor */
-  $('lgDocs').addEventListener('click', () => window.open('docs/logica.html?lang=' + encodeURIComponent(IDIOMA.actual), '_blank'));  $('lgBloque').addEventListener('click', nuevoBloque);
+  /* la documentación está arriba, en la barra, en cualquier pestaña */
+  $('lgBloque').addEventListener('click', nuevoBloque);
   document.querySelectorAll('[data-receta]').forEach(b => b.addEventListener('click', () => aplicarReceta(b.dataset.receta)));
   pintarEstado(); pintarErrores(); pintarIndice();
   ayudaPalabra(LG.palabra); sugerencias();

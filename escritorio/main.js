@@ -183,6 +183,7 @@ else {
     leerAjustes();
     Menu.setApplicationMenu(menu());
     crearVentana();
+    require('./actualizaciones')(T);          /* avisa si hay una version nueva en GitHub */
     app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) crearVentana(); });
   });
   app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });

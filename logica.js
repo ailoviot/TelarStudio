@@ -1230,7 +1230,7 @@ function isFlat(text){
  * DICCIONARIO — lo leen la ayuda del editor y la documentación
  * ================================================================== */
 const HELP = {
-  variables: { cat: 'sección', txt: 'Aquí nacen los números que la lógica necesita y no vienen del hardware: los <b>setting</b> (un valor que el usuario ajusta) y los <b>timer</b> (un tiempo que cuenta). Las salidas y entradas —un relé, un sensor— no se declaran aquí: nacen en la pestaña Hardware y aquí se usan por su nombre.', ej: 'variables:\n  duration: { type: setting, unit: s, range: [5, 600], step: 5, start: 15 }\n  time:     { type: timer, from: duration, counts: down }' },
+  variables: { cat: 'sección', txt: 'Aquí nacen los números que la lógica necesita y no vienen del hardware: los <b>setting</b> (un valor que el usuario ajusta), los <b>timer</b> (un tiempo que cuenta), los <b>flag</b> (un sí o un no) y los <b>counter</b> (un número que se cuenta de uno en uno). Las salidas y entradas —un relé, un sensor— no se declaran aquí: nacen en la pestaña Hardware y aquí se usan por su nombre.', ej: 'variables:\n  duration: { type: setting, unit: s, range: [5, 600], step: 5, start: 15 }\n  time:     { type: timer, from: duration, counts: down }' },
   start_in:  { cat: 'sección', txt: 'El estado en el que arranca el aparato al encenderse.', ej: 'start_in: READY' },
   click:     { cat: 'sección', txt: 'Un pitido de confirmación: cada vez que se pulsa un botón que hace algo, esta salida se enciende un momento (0,05 s, o lo que digas con <b>for</b>). Va una sola vez, arriba, junto a <b>start_in</b>. No pisa nada: si esa salida ya está sonando (un aviso, un <b>hold</b> o un <b>pulse</b> del mismo botón), se queda como está. Para que suene <b>un solo</b> botón, en vez de click pon el pitido en su acción: <b>always: [increase clock, pulse bip for 0.05]</b>.', ej: 'click: bip\nclick: bip for 0.08' },
   after:     { cat: 'dentro de un estado', txt: 'Lo que se hace <b>una vez</b>, cuando el estado lleva ese tiempo (en segundos, o un setting). Sin timers ni condiciones: <b>after 3: [go to NEXT]</b> espera 3 segundos y sigue. Si se sale antes del estado, no pasa.', ej: 'after 3: [go to NEXT]\nafter wait: [turn off relay, go to IDLE]' },
@@ -1295,7 +1295,7 @@ const HELP = {
 /* El diccionario en inglés: [categoría, explicación]. Los ejemplos (ej)
    son sintaxis y valen para los dos idiomas: se toman de HELP. */
 const HELP_EN_TXT = {
-  variables: ['section', 'This is where the numbers the logic needs, and that do not come from the hardware, are created: <b>setting</b> (a value the user adjusts) and <b>timer</b> (a time that counts). Outputs and inputs — a relay, a sensor — are not declared here: they are created in the Hardware tab and used here by name.'],
+  variables: ['section', 'This is where the numbers the logic needs, and that do not come from the hardware, are created: <b>setting</b> (a value the user adjusts), <b>timer</b> (a time that counts), <b>flag</b> (a yes or a no) and <b>counter</b> (a number counted one by one). Outputs and inputs — a relay, a sensor — are not declared here: they are created in the Hardware tab and used here by name.'],
   start_in:  ['section', 'The state the device starts in when powered on.'],
   click:     ['section', 'A confirmation beep: every time a button that does something is pressed, this output turns on for a moment (0.05 s, or what you say with <b>for</b>). It goes once, at the top, next to <b>start_in</b>. It never overrides anything: if that output is already sounding (a warning, a <b>hold</b> or a <b>pulse</b> from the same button), it is left as it is. To make <b>only one</b> button beep, instead of click put the beep in its action: <b>always: [increase clock, pulse bip for 0.05]</b>.'],
   after:     ['inside a state', 'What is done <b>once</b>, when the state has lasted that long (in seconds, or a setting). No timers or conditions: <b>after 3: [go to NEXT]</b> waits 3 seconds and moves on. If the state is left earlier, it does not happen.'],
@@ -1385,8 +1385,8 @@ const RECIPES = {
       { clave: 'temperature', tipo: 'adc-in', que: 'sensor analógico de temperatura (LM35 o termistor)', params: { unidad: '°C', escala_min: 0, escala_max: 100 } },
     ],
     widgets: [
-      { nombre: 'clock',     tipo: 'timer',  x: 24,  y: 96,  w: 440, h: 200, bind: 'time', fuente: 48 },
-      { nombre: 'dial',      tipo: 'value',  x: 500, y: 96,  w: 276, h: 90,  bind: 'duration', fuente: 32 },
+      { nombre: 'clock',     tipo: 'tiempo', x: 24,  y: 96,  w: 440, h: 200, bind: 'time', fuente: 48 },
+      { nombre: 'dial',      tipo: 'lectura', x: 500, y: 96,  w: 276, h: 90,  bind: 'duration', fuente: 32 },
       { nombre: 'btn_minus', tipo: 'button', x: 500, y: 210, w: 130, h: 86,  texto: '-', fuente: 32 },
       { nombre: 'btn_plus',  tipo: 'button', x: 646, y: 210, w: 130, h: 86,  texto: '+', fuente: 32 },
       { nombre: 'btn_reset', tipo: 'button', x: 24,  y: 360, w: 220, h: 90,  texto: 'RESET', fuente: 32 },
@@ -1450,8 +1450,8 @@ looks:
       { clave: 'temperature', tipo: 'adc-in', que: 'sensor analógico de temperatura', params: { unidad: '°C', escala_min: 0, escala_max: 100 } },
     ],
     widgets: [
-      { nombre: 'reading',   tipo: 'value',  x: 24,  y: 96,  w: 440, h: 200, bind: 'temperature', fuente: 48 },
-      { nombre: 'dial',      tipo: 'value',  x: 500, y: 96,  w: 276, h: 90,  bind: 'setpoint', fuente: 32 },
+      { nombre: 'reading',   tipo: 'lectura', x: 24,  y: 96,  w: 440, h: 200, bind: 'temperature', fuente: 48 },
+      { nombre: 'dial',      tipo: 'lectura', x: 500, y: 96,  w: 276, h: 90,  bind: 'setpoint', fuente: 32 },
       { nombre: 'btn_minus', tipo: 'button', x: 500, y: 210, w: 130, h: 86,  texto: '-', fuente: 32 },
       { nombre: 'btn_plus',  tipo: 'button', x: 646, y: 210, w: 130, h: 86,  texto: '+', fuente: 32 },
       { nombre: 'btn_off',   tipo: 'button', x: 24,  y: 360, w: 220, h: 90,  texto: 'OFF', fuente: 32 },

@@ -49,11 +49,14 @@ jobs:
         with:
           name: TelarStudio-${{ matrix.nombre }}
           if-no-files-found: error
+          # latest*.yml y .blockmap: los lee la app instalada para actualizarse sola
           path: |
             escritorio/dist/*.exe
             escritorio/dist/*.dmg
             escritorio/dist/*.AppImage
             escritorio/dist/*.deb
+            escritorio/dist/latest*.yml
+            escritorio/dist/*.blockmap
 
   publicar:
     name: Publicar en Releases

@@ -55,6 +55,7 @@ document.head.insertAdjacentHTML('beforeend', `<style id="sim-estilo">
 .sim-pantalla{position:relative;transform-origin:top left;overflow:hidden;touch-action:none;user-select:none}
 .sim-w{position:absolute}
 .sim-w.pulsable{cursor:pointer}
+.sim-w.sim-led .w-int{overflow:visible}
 .sim-w.apagado{opacity:.4;pointer-events:none}
 /* Caja ceñida al texto = LV_SIZE_CONTENT en la placa: crece con el texto
    desde su esquina, no se recorta a la caja que midió el editor. */
@@ -488,6 +489,24 @@ function vivoDe(w){
     V.frac = SIM.arrastrando && SIM.arrastrando.id === w.id ? SIM.arrastrando.f : frac(); break;
   case 'toggle':
     V.on = v ? !!num(S[v.nombre]) : false; break;
+  /* los de entrada: lo que dice su variable */
+  case 'checkbox':
+    V.on = v ? !!num(S[v.nombre]) : true; break;
+  case 'dropdown': case 'roller': {
+    const n = Math.max(1, elementosDe(w).length);
+    V.idx = v ? acota(Math.round(num(S[v.nombre])), 0, n - 1) : 0; break;
+  }
+  case 'spinbox':
+    V.texto = conComa(num(v ? S[v.nombre] : 12).toFixed(geoContador(w).dec)); break;
+  case 'list':
+    if (v) V.idx = Math.round(num(S[v.nombre])); break;
+  /* el aviso: se ve en sus estados (o al arrancar) hasta que se cierra */
+  case 'msgbox': {
+    const est = SIM.M ? SIM.st[clave(SIM.M.blocks[0])] : '', enEst = estadosAviso(w);
+    if (AVISOS.visto[w.id] !== est){ AVISOS.visto[w.id] = est; if (enEst) delete AVISOS.cerrado[w.id]; }
+    V.oculto = enEst ? (!enEst.includes(est) || AVISOS.cerrado[w.id] === est) : AVISOS.cerrado[w.id] === '*';
+    break;
+  }
   case 'led':
     V.on = v && !caida(v) ? !!num(S[v.nombre]) : false; break;
   case 'chart':
@@ -551,7 +570,8 @@ function pararRepeticion(){ clearTimeout(SIM.repetir); SIM.repetir = null; }
 function esPulsable(w){
   if (w.tipo === 'button') return true;
   const v = varDe(w.bind);
-  return (w.tipo === 'slider' || w.tipo === 'toggle') && !!v;
+  if (w.tipo === 'msgbox') return true;
+  return ['slider', 'toggle', 'checkbox', 'dropdown', 'roller', 'spinbox', 'list'].includes(w.tipo) && !!v;
 }
 
 function conectarWidget(d, w){
@@ -605,7 +625,45 @@ function conectarWidget(d, w){
   if (w.tipo === 'toggle' && v){
     d.addEventListener('pointerup', () => { SIM.cola.push({ tipo: 'set', n: v.nombre, v: !num(SIM.S[v.nombre]), w }); });
   }
+  /* la casilla: como el interruptor (1 o 0) */
+  if (w.tipo === 'checkbox' && v)
+    d.addEventListener('pointerup', () => { SIM.cola.push({ tipo: 'set', n: v.nombre, v: num(SIM.S[v.nombre]) ? (v.booleano ? false : 0) : (v.booleano ? true : 1), w }); refrescar(); });
+  /* el desplegable pasa a la opcion siguiente; la rueda, a la de arriba o
+     a la de abajo segun donde se toque */
+  if ((w.tipo === 'dropdown' || w.tipo === 'roller') && v)
+    d.addEventListener('pointerup', e => {
+      const n = Math.max(1, elementosDe(w).length), r = d.getBoundingClientRect();
+      const i = acota(Math.round(num(SIM.S[v.nombre])), 0, n - 1);
+      const sube = w.tipo === 'roller' && e.clientY < r.top + r.height / 2;
+      const nuevo = (i + (sube ? n - 1 : 1)) % n;
+      SIM.cola.push({ tipo: 'set', n: v.nombre, v: v.booleano ? !!nuevo : nuevo, w }); refrescar();
+    });
+  /* la lista: el elemento tocado */
+  if (w.tipo === 'list' && v)
+    d.addEventListener('pointerup', e => {
+      const f = e.target.closest('[data-i]'); if (!f) return;
+      const i = +f.dataset.i;
+      SIM.cola.push({ tipo: 'set', n: v.nombre, v: v.booleano ? !!i : i, w }); refrescar();
+    });
+  /* el aviso: la X o su boton lo cierran */
+  if (w.tipo === 'msgbox')
+    d.addEventListener('pointerup', e => {
+      if (!e.target.closest('[data-cerrar]')) return;
+      AVISOS.cerrado[w.id] = estadosAviso(w) ? (SIM.M ? SIM.st[clave(SIM.M.blocks[0])] : '') : '*';
+      anotar(`<b>${esc(w.nombre)}</b> ${t('cerrado')}`); refrescar();
+    });
+  /* el contador: - a la izquierda, + a la derecha */
+  if (w.tipo === 'spinbox' && v && !v.booleano)
+    d.addEventListener('pointerup', e => {
+      const lado = e.target.closest('[data-lado]'); if (!lado) return;
+      const G2 = geoContador(w), r = rango(v.nombre) || [v.min ?? 0, v.max ?? 100];
+      const x = acota(num(SIM.S[v.nombre]) + (lado.dataset.lado === 'mas' ? G2.paso : -G2.paso), r[0], r[1]);
+      SIM.cola.push({ tipo: 'set', n: v.nombre, v: +x.toFixed(G2.dec), w }); refrescar();
+    });
 }
+
+/* los avisos cerrados en el simulador, y el estado en que se vio cada uno */
+const AVISOS = { cerrado: {}, visto: {} };
 
 function construirPantalla(){
   const P = placa(), pant = $('simPant'); if (!pant) return;
@@ -615,7 +673,7 @@ function construirPantalla(){
   pant.style.background = E.tema.fondo;
   for (const w of pantallaSim().widgets){
     const d = document.createElement('div');
-    d.className = 'sim-w' + (esPulsable(w) ? ' pulsable' : '') + (w.auto && AUTOAJUSTABLES.has(w.tipo) ? ' sim-auto' : '');
+    d.className = 'sim-w' + (w.tipo === 'led' ? ' sim-led' : '') + (esPulsable(w) ? ' pulsable' : '') + (w.auto && AUTOAJUSTABLES.has(w.tipo) ? ' sim-auto' : '');
     d.dataset.id = w.id;
     d.style.cssText = `left:${w.x}px;top:${w.y}px;width:${w.w}px;height:${w.h}px`;
     d.innerHTML = '<div class="w-int"></div>';

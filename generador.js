@@ -260,6 +260,10 @@ function genLogicaCpp(){
   }).join('');
   /* save/load: la clave de la NVS es el nombre (el editor lo limita a 15) */
   const usaMemoria = BL.some(b => /"(save|load)\s/.test(JSON.stringify(b)));
+  /* La Pico no tiene NVS ni Preferences: su memoria es la EEPROM que el
+     core emula en la flash, con un hueco fijo por clave */
+  const memEeprom = usaMemoria && familiaDe(placa()) !== 'esp32';
+  const clavesMem = [...new Set(BL.flatMap(b => [...JSON.stringify(b).matchAll(/"(?:save|load)\s+([A-Za-z_]\w*)/g)].map(m => cid(m[1]))))];
 
   const TZ = new Set(salidasTemporizadas());
   /* un tiempo en C: un numero, o lo que valga el setting */
@@ -459,11 +463,54 @@ La logica tiene ${BL.length} bloques y corren a la vez: en cada ciclo se
 mira uno detras de otro. Cada uno tiene su propio estado:
 ${BL.map(b => `  ${b.name}: s->${b.campo}`).join('\n')}` : ''}`) +
 `#include "logica.h"
-${usaMemoria ? '#include <Preferences.h>\n' : ''}
+${usaMemoria ? (memEeprom ? '#include <EEPROM.h>\n#include <string.h>\n' : '#include <Preferences.h>\n') : ''}
 static inline float acota(float v, float lo, float hi) { return v < lo ? lo : (v > hi ? hi : v); }
 ${usaDivision ? `/* Dividir entre cero da 0: un setting a cero no deja la salida en un valor sin sentido */
 static inline float divide_o_cero(float a, float b) { return b == 0.0f ? 0.0f : a / b; }
-` : ''}${largasDecl}${usaMemoria ? `
+` : ''}${largasDecl}${memEeprom ? `
+/* La memoria que no se borra al apagar. Esta placa no tiene la NVS del
+   ESP32: se usa la EEPROM que el core emula en la flash. Cada clave tiene
+   su hueco fijo de 5 bytes, una marca (0xA5 = hay algo) y el float.
+   commit() es lo que la escribe de verdad en la flash. */
+static const char *const MEMORIA_CLAVES[] = { ${clavesMem.map(k => `"${k}"`).join(', ')} };
+static const int MEMORIA_N = ${clavesMem.length};
+static bool memoria_lista = false;
+
+static int memoria_hueco(const char *clave)
+{
+    for (int i = 0; i < MEMORIA_N; i++) if (strcmp(MEMORIA_CLAVES[i], clave) == 0) return i * 5;
+    return -1;
+}
+
+static void memoria_abrir(void)
+{
+    if (!memoria_lista) { EEPROM.begin(256); memoria_lista = true; }
+}
+
+static void memoria_guardar(const char *clave, float valor)
+{
+    const int h = memoria_hueco(clave);
+    if (h < 0) return;
+    memoria_abrir();
+    EEPROM.write(h, 0xA5);
+    EEPROM.put(h + 1, valor);
+    EEPROM.commit();
+}
+
+/* true si habia algo guardado con esa clave; si no, *valor no se toca */
+static bool memoria_cargar(const char *clave, float *valor)
+{
+    const int h = memoria_hueco(clave);
+    if (h < 0) return false;
+    memoria_abrir();
+    if (EEPROM.read(h) != 0xA5) return false;
+    float v;
+    EEPROM.get(h + 1, v);
+    if (v != v) return false;          /* NaN: el hueco no tiene un numero */
+    *valor = v;
+    return true;
+}
+` : usaMemoria ? `
 /* La memoria que no se borra al apagar: la NVS del ESP32, con Preferences.
    Todo va en el espacio "telar". Se abre y se cierra en cada uso: guardar
    es cosa de un boton, no de cada ciclo, y asi nada queda a medias. */
@@ -692,12 +739,23 @@ ${cuerpo}
 `;
 }
 
+/* Los ajustes de la logica (setting) que se escriben desde la pantalla:
+   los que guarda un Campo de texto. Solo esos llevan su EV_SET_, asi un
+   proyecto que no los usa genera lo mismo que antes. */
+/* Los widgets que escriben la variable a la que estan enlazados */
+const ESCRIBEN = new Set(['slider', 'toggle', 'checkbox', 'dropdown', 'roller', 'spinbox', 'textarea', 'list']);
+function ajustesDesdePantalla(){
+  const nombres = new Set(E.pantallas.flatMap(s => s.widgets).filter(w => ESCRIBEN.has(w.tipo) && w.bind).map(w => w.bind));
+  return variables().filter(v => v.tipoLogica === 'setting' && nombres.has(v.nombre));
+}
+
 function genEstado(){
   const vs = variables();
   const estados = estadosProyecto();
   const eventos = [];
   for (const v of vs) if (v.dir === 'escritura' || v.dir === 'ajuste')
     eventos.push({ nombre: 'EV_SET_' + MAY(v.nombre), var: v });
+  for (const v of ajustesDesdePantalla()) eventos.push({ nombre: 'EV_SET_' + MAY(v.nombre), var: v });
   for (const s of E.pantallas) for (const w of s.widgets)
     if (w.evento) eventos.push({ nombre: MAY(w.evento), libre:true });
   for (const b of botonesLogica()) eventos.push({ nombre: 'EV_L_' + MAY(b), libre:true });
@@ -844,7 +902,7 @@ ${lee.map((v,i) => {
 function genControl(){
   const vs = variables();
   const lee = vs.filter(v => v.dir === 'lectura');
-  const esc = vs.filter(v => v.dir === 'escritura' || v.dir === 'ajuste');
+  const esc = vs.filter(v => v.dir === 'escritura' || v.dir === 'ajuste').concat(ajustesDesdePantalla());
   const estados = estadosProyecto();
 
   return cabecera('control.cpp — la tarea de control',
@@ -1149,6 +1207,22 @@ function estiloTextoC(w, obj, ind = ''){
 /* Un componente en automatico ya trae su caja calculada por el editor:
    aqui solo se usa, igual que en los widgets clasicos. */
 
+/* monoTinta() vive en telar-studio.html; fuera de la pagina no hay OLED */
+const monoGen = () => typeof monoTinta === 'function' ? monoTinta() : null;
+
+/* El canal de una barra o un deslizador en una OLED: el fondo con un
+   contorno de 1 px, y lo lleno en tinta. El relleno se pinta encima del
+   contorno (LVGL dibuja el borde del canal antes que el indicador), igual
+   que en el lienzo. */
+function canalMono(id, pon){
+  const M = monoGen();
+  pon(`lv_obj_set_style_bg_color(${id}, lv_color_hex(${colorC(M.vacio)}), LV_PART_MAIN);`);
+  pon(`lv_obj_set_style_bg_opa(${id}, LV_OPA_COVER, LV_PART_MAIN);`);
+  pon(`lv_obj_set_style_border_width(${id}, 1, LV_PART_MAIN);`);
+  pon(`lv_obj_set_style_border_color(${id}, lv_color_hex(${colorC(M.tinta)}), LV_PART_MAIN);`);
+  pon(`lv_obj_set_style_bg_color(${id}, lv_color_hex(${colorC(M.tinta)}), LV_PART_INDICATOR);`);
+}
+
 /* Traduce un widget del manifiesto a llamadas de LVGL 9 */
 function genWidget(w){
   const S = est(w), id = cid(w.nombre), L = [];
@@ -1172,6 +1246,23 @@ function genWidget(w){
   if (COMPONENTES[w.tipo]){
     pon(`/* ${w.nombre} — ${WIDGETS[w.tipo].nombre} */`);
     COMPONENTES[w.tipo].crear(w, id, pon);
+    return L.join('\n') + '\n';
+  }
+
+  /* La linea inclinada es un lv_line entre dos puntos. Los puntos salen
+     de puntosLinea(), lo mismo que dibuja el lienzo; static porque LVGL
+     guarda el puntero al array, no una copia. La recta sigue abajo, como
+     siempre: un rectangulo de color. */
+  if (w.tipo === 'line' && w.diag){
+    const Lp = puntosLinea(w);
+    pon(`/* ${w.nombre} — ${WIDGETS[w.tipo].nombre} inclinada */`);
+    pon(`static lv_point_precise_t ${id}_puntos[] = { {${Lp.x1}, ${Lp.y1}}, {${Lp.x2}, ${Lp.y2}} };`);
+    pon(`${id} = lv_line_create(p);`);
+    pon(`lv_line_set_points(${id}, ${id}_puntos, 2);`);
+    pon(`lv_obj_set_pos(${id}, ${w.x}, ${w.y});`);
+    pon(`lv_obj_set_size(${id}, ${w.w}, ${w.h});`);
+    pon(`lv_obj_set_style_line_width(${id}, ${Lp.g}, LV_PART_MAIN);`);
+    pon(`lv_obj_set_style_line_color(${id}, lv_color_hex(${colorC(S.acento)}), LV_PART_MAIN);`);
     return L.join('\n') + '\n';
   }
 
@@ -1284,6 +1375,8 @@ function genWidget(w){
   }
   case 'bar':
     pon(`lv_bar_set_range(${id}, ${Math.round(v?.min ?? 0)}, ${Math.round(v?.max ?? 100)});`);
+    /* En una OLED: el canal con contorno (ver monoTinta) */
+    if (monoGen()){ canalMono(id, pon); break; }
     /* EL CANAL, OPACO.
        El tema por defecto le pone a esta parte el estilo
        bg_color_primary_muted, que trae bg_opa = LV_OPA_20: el color sale
@@ -1337,10 +1430,15 @@ function genWidget(w){
        porque van por arc_color, que si es opaco, y por eso el mismo
        color se veia en un sitio y en el otro no. Sin esta linea el
        diseno y la placa no coinciden. */
+    if (monoGen()){
+      canalMono(id, pon);
+      pon(`lv_obj_set_style_bg_color(${id}, lv_color_hex(${colorC(monoGen().tinta)}), LV_PART_KNOB);`);
+    } else {
     pon(`lv_obj_set_style_bg_color(${id}, lv_color_hex(${colorC(S.sup)}), LV_PART_MAIN);`);
     pon(`lv_obj_set_style_bg_opa(${id}, LV_OPA_COVER, LV_PART_MAIN);`);
     pon(`lv_obj_set_style_bg_color(${id}, lv_color_hex(${colorC(S.acento)}), LV_PART_INDICATOR);`);
     pon(`lv_obj_set_style_bg_color(${id}, lv_color_hex(${colorC(S.acento)}), LV_PART_KNOB);`);
+    }
     /* El mango. LVGL lo dibuja del alto del objeto MAS su relleno, asi
        que el relleno es la mitad de lo que le falta al trazo para llegar
        al diametro que pinta el lienzo. */
@@ -1351,13 +1449,36 @@ function genWidget(w){
     if (v) pon(`lv_obj_add_event_cb(${id}, cb_${id}, LV_EVENT_VALUE_CHANGED, NULL);`);
     break;
   case 'toggle':
+    if (monoGen()){
+      /* OLED: apagado, contorno y mando de tinta; encendido, lleno de
+         tinta y el mando hueco (del color del fondo) */
+      const M = monoGen();
+      pon(`lv_obj_set_style_bg_color(${id}, lv_color_hex(${colorC(M.vacio)}), LV_PART_MAIN);`);
+      pon(`lv_obj_set_style_bg_opa(${id}, LV_OPA_COVER, LV_PART_MAIN);`);
+      pon(`lv_obj_set_style_border_width(${id}, 1, LV_PART_MAIN);`);
+      pon(`lv_obj_set_style_border_color(${id}, lv_color_hex(${colorC(M.tinta)}), LV_PART_MAIN);`);
+      pon(`lv_obj_set_style_bg_color(${id}, lv_color_hex(${colorC(M.tinta)}), LV_PART_INDICATOR | LV_STATE_CHECKED);`);
+      pon(`lv_obj_set_style_bg_color(${id}, lv_color_hex(${colorC(M.tinta)}), LV_PART_KNOB);`);
+      pon(`lv_obj_set_style_bg_color(${id}, lv_color_hex(${colorC(M.vacio)}), LV_PART_KNOB | LV_STATE_CHECKED);`);
+    } else {
     pon(`lv_obj_set_style_bg_color(${id}, lv_color_hex(${colorC(S.sup)}), LV_PART_MAIN);`);
     pon(`lv_obj_set_style_bg_color(${id}, lv_color_hex(${colorC(S.acento)}), LV_PART_INDICATOR | LV_STATE_CHECKED);`);
+    }
     /* Igual que el deslizador: la pastilla es mas pequena que la caja,
        pero el dedo apunta a la caja. */
     if (G.toque > 0) pon(`lv_obj_set_ext_click_area(${id}, ${G.toque});`);
     if (v) pon(`lv_obj_add_event_cb(${id}, cb_${id}, LV_EVENT_VALUE_CHANGED, NULL);`);
     break;
+  case 'spinner': {
+    /* el mismo grosor y la misma pista que el lienzo (geoSpinner); sin
+       esto salia con los del tema de LVGL: 12 px, gris y azul */
+    const g = geoSpinner(w);
+    pon(`lv_obj_set_style_arc_width(${id}, ${g.grosor}, LV_PART_MAIN);`);
+    pon(`lv_obj_set_style_arc_width(${id}, ${g.grosor}, LV_PART_INDICATOR);`);
+    pon(`lv_obj_set_style_arc_color(${id}, lv_color_hex(${colorC(g.pista)}), LV_PART_MAIN);`);
+    pon(`lv_obj_set_style_arc_color(${id}, lv_color_hex(${colorC(S.acento)}), LV_PART_INDICATOR);`);
+    break;
+  }
   case 'led':
     pon(`lv_led_set_color(${id}, lv_color_hex(${colorC(S.acento)}));`);
     pon(`lv_led_off(${id});`);
@@ -1367,25 +1488,106 @@ function genWidget(w){
     pon(`lv_obj_set_style_text_font(${id}, &${simboloFuente(fuente, variante)}, LV_PART_MAIN);`);
     pon(`lv_obj_set_style_text_color(${id}, lv_color_hex(${colorC(S.texto)}), LV_PART_MAIN);`);
     estiloTextoC(w, id).forEach(pon);
+    if (monoGen()){
+      /* OLED: el cuadro con contorno; marcada, lleno de tinta con la
+         marca (su color es el text_color del indicador) en el del fondo */
+      const M = monoGen();
+      pon(`lv_obj_set_style_bg_color(${id}, lv_color_hex(${colorC(M.vacio)}), LV_PART_INDICATOR);`);
+      pon(`lv_obj_set_style_bg_opa(${id}, LV_OPA_COVER, LV_PART_INDICATOR);`);
+      pon(`lv_obj_set_style_border_width(${id}, 1, LV_PART_INDICATOR);`);
+      pon(`lv_obj_set_style_border_color(${id}, lv_color_hex(${colorC(M.tinta)}), LV_PART_INDICATOR);`);
+      pon(`lv_obj_set_style_bg_color(${id}, lv_color_hex(${colorC(M.tinta)}), LV_PART_INDICATOR | LV_STATE_CHECKED);`);
+      pon(`lv_obj_set_style_text_color(${id}, lv_color_hex(${colorC(M.vacio)}), LV_PART_INDICATOR | LV_STATE_CHECKED);`);
+    }
+    if (v) pon(`lv_obj_add_event_cb(${id}, cb_${id}, LV_EVENT_VALUE_CHANGED, NULL);`);
     break;
   case 'dropdown':
     pon(`lv_dropdown_set_options(${id}, "${elementosDe(w).map(txtC).join('\\n')}");`);
     pon(`lv_obj_set_style_text_font(${id}, &${simboloFuente(fuente, variante)}, LV_PART_MAIN);`);
+    /* la opcion elegida (0, 1, 2...) va a la variable */
+    if (v) pon(`lv_obj_add_event_cb(${id}, cb_${id}, LV_EVENT_VALUE_CHANGED, NULL);`);
     break;
-  case 'spinbox':
-    pon(`lv_spinbox_set_range(${id}, ${Math.round(v?.min ?? 0)}, ${Math.round(v?.max ?? 100)});`);
+  case 'spinbox': {
+    /* El numero entre sus botones - y +, como en el lienzo (geoContador).
+       Los valores del lv_spinbox son enteros: con decimales se cuentan en
+       decimas o centesimas, y lv_spinbox_set_digit_format pone la coma. */
+    const G2 = geoContador(w), pot = 10 ** G2.dec;
+    const lo = Math.round((v?.min ?? 0) * pot), hi = Math.round((v?.max ?? 100) * pot);
+    const enteras = Math.max(1, String(Math.max(Math.abs(Math.trunc(v?.min ?? 0)), Math.abs(Math.trunc(v?.max ?? 100)))).length);
+    pon(`lv_obj_set_pos(${id}, ${w.x + G2.bw + G2.gap}, ${w.y});`);
+    pon(`lv_obj_set_size(${id}, ${G2.anchoNumero}, ${w.h});`);
+    pon(`lv_spinbox_set_range(${id}, ${lo}, ${hi});`);
+    pon(`lv_spinbox_set_digit_format(${id}, ${enteras + G2.dec}, ${G2.dec ? enteras : 0});`);
+    pon(`lv_spinbox_set_step(${id}, ${Math.max(1, Math.round(G2.paso * pot))});`);
     pon(`lv_obj_set_style_text_font(${id}, &${simboloFuente(fuente, variante)}, LV_PART_MAIN);`);
+    pon(`lv_obj_set_style_text_align(${id}, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);`);
+    pon(`lv_obj_set_style_bg_color(${id}, lv_color_hex(${colorC(S.sup)}), LV_PART_MAIN);`);
+    pon(`lv_obj_set_style_border_color(${id}, lv_color_hex(${colorC(S.borde)}), LV_PART_MAIN);`);
+    pon(`lv_obj_set_style_text_color(${id}, lv_color_hex(${colorC(S.texto)}), LV_PART_MAIN);`);
+    /* sin el cursor de digito: se cambia con - y + */
+    pon(`lv_obj_set_style_bg_opa(${id}, LV_OPA_TRANSP, LV_PART_CURSOR);`);
+    pon(`lv_obj_set_style_text_color(${id}, lv_color_hex(${colorC(S.texto)}), LV_PART_CURSOR);`);
+    const boton = (x, simbolo, fondo, letra, cb) => {
+      pon(`{ lv_obj_t *b = lv_button_create(p);`);
+      pon(`  lv_obj_set_pos(b, ${x}, ${w.y});`);
+      pon(`  lv_obj_set_size(b, ${G2.bw}, ${w.h});`);
+      pon(`  lv_obj_set_style_bg_color(b, lv_color_hex(${colorC(fondo)}), LV_PART_MAIN);`);
+      pon(`  lv_obj_set_style_shadow_width(b, 0, LV_PART_MAIN);`);
+      pon(`  lv_obj_t *l = lv_label_create(b);`);
+      pon(`  lv_label_set_text(l, ${simbolo});`);
+      pon(`  lv_obj_set_style_text_color(l, lv_color_hex(${colorC(letra)}), LV_PART_MAIN);`);
+      pon(`  lv_obj_center(l);`);
+      pon(`  lv_obj_add_event_cb(b, ${cb}, LV_EVENT_CLICKED, ${id});`);
+      pon(`  lv_obj_add_event_cb(b, ${cb}, LV_EVENT_LONG_PRESSED_REPEAT, ${id}); }`);
+    };
+    boton(w.x, 'LV_SYMBOL_MINUS', S.sup, S.texto, 'contador_menos');
+    boton(w.x + w.w - G2.bw, 'LV_SYMBOL_PLUS', S.acento, colorBotonSobre(S), 'contador_mas');
+    if (v && !v.booleano) pon(`lv_obj_add_event_cb(${id}, cb_${id}, LV_EVENT_VALUE_CHANGED, NULL);`);
     break;
+  }
   case 'textarea':
     pon(`lv_textarea_set_placeholder_text(${id}, "${txtC(w.texto)}");`);
     pon(`lv_obj_set_style_text_font(${id}, &${simboloFuente(fuente, variante)}, LV_PART_MAIN);`);
+    /* guarda el numero en una variable: una linea, solo cifras, y al
+       pulsar OK en el teclado (LV_EVENT_READY) lo manda */
+    if (v && !v.booleano){
+      pon(`lv_textarea_set_one_line(${id}, true);`);
+      pon(`lv_textarea_set_accepted_chars(${id}, "0123456789.,-");`);
+      pon(`lv_obj_add_event_cb(${id}, cb_${id}, LV_EVENT_READY, NULL);`);
+    }
     break;
-  case 'scale':
-    pon(`lv_scale_set_mode(${id}, LV_SCALE_MODE_HORIZONTAL_BOTTOM);`);
-    pon(`lv_scale_set_range(${id}, ${Math.round(v?.min ?? 0)}, ${Math.round(v?.max ?? 100)});`);
+  case 'scale': {
+    /* La misma regla que el lienzo (geoEscala): rango, marcas, numeros,
+       longitudes, colores y el margen de los extremos. Las marcas menores
+       son ITEMS; las mayores y sus numeros, INDICATOR; la linea, MAIN. */
+    const G3 = geoEscala(w);
+    pon(`lv_scale_set_mode(${id}, LV_SCALE_MODE_${MODO_ESCALA[G3.orient]});`);
+    pon(`lv_scale_set_range(${id}, ${G3.lo}, ${G3.hi});`);
+    pon(`lv_scale_set_total_tick_count(${id}, ${G3.n});`);
+    pon(`lv_scale_set_major_tick_every(${id}, ${G3.cada});`);
+    pon(`lv_scale_set_label_show(${id}, true);`);
     /* los numeros de la escala son la parte INDICATOR */
     pon(`lv_obj_set_style_text_font(${id}, &${simboloFuente(fuente, variante)}, LV_PART_INDICATOR);`);
+    pon(`lv_obj_set_style_text_color(${id}, lv_color_hex(${colorC(E.tema.tenue)}), LV_PART_INDICATOR);`);
+    pon(`lv_obj_set_style_length(${id}, ${G3.mayor}, LV_PART_INDICATOR);`);
+    pon(`lv_obj_set_style_length(${id}, ${G3.menor}, LV_PART_ITEMS);`);
+    pon(`lv_obj_set_style_line_color(${id}, lv_color_hex(${colorC(S.acento)}), LV_PART_MAIN);`);
+    pon(`lv_obj_set_style_line_color(${id}, lv_color_hex(${colorC(S.acento)}), LV_PART_INDICATOR);`);
+    pon(`lv_obj_set_style_line_color(${id}, lv_color_hex(${colorC(E.tema.tenue)}), LV_PART_ITEMS);`);
+    pon(`lv_obj_set_style_line_width(${id}, 2, LV_PART_MAIN);`);
+    pon(`lv_obj_set_style_line_width(${id}, 2, LV_PART_INDICATOR);`);
+    pon(`lv_obj_set_style_line_width(${id}, 1, LV_PART_ITEMS);`);
+    pon(`lv_obj_set_style_bg_opa(${id}, LV_OPA_TRANSP, LV_PART_MAIN);`);
+    pon(`lv_obj_set_style_pad_all(${id}, 0, LV_PART_MAIN);`);
+    if (G3.horiz){
+      pon(`lv_obj_set_style_pad_left(${id}, ${G3.margen}, LV_PART_MAIN);`);
+      pon(`lv_obj_set_style_pad_right(${id}, ${G3.margen}, LV_PART_MAIN);`);
+    } else {
+      pon(`lv_obj_set_style_pad_top(${id}, ${G3.margen}, LV_PART_MAIN);`);
+      pon(`lv_obj_set_style_pad_bottom(${id}, ${G3.margen}, LV_PART_MAIN);`);
+    }
     break;
+  }
   case 'state-strip':
     pon(`lv_obj_set_flex_flow(${id}, LV_FLEX_FLOW_ROW);`);
     pon(`lv_obj_set_style_text_font(${id}, &${simboloFuente(fuente, variante)}, LV_PART_MAIN);`);
@@ -1407,7 +1609,15 @@ function genWidget(w){
   case 'list':
     pon(`lv_obj_set_style_bg_color(${id}, lv_color_hex(${colorC(S.sup)}), LV_PART_MAIN);`);
     pon(`lv_obj_set_style_text_font(${id}, &${simboloFuente(fuente, variante)}, LV_PART_MAIN);`);
-    elementosDe(w).forEach(x => pon(`lv_list_add_button(${id}, NULL, "${txtC(x)}");`));
+    if (v){
+      /* enlazada: cada elemento avisa con su numero y el elegido queda marcado */
+      elementosDe(w).forEach((x, i) => {
+        pon(`{ lv_obj_t *b = lv_list_add_button(${id}, NULL, "${txtC(x)}");`);
+        pon(`  lv_obj_set_style_bg_color(b, lv_color_hex(${colorC(S.acento)}), LV_PART_MAIN | LV_STATE_CHECKED);`);
+        pon(`  lv_obj_set_style_text_color(b, lv_color_hex(${colorC(colorBotonSobre(S))}), LV_PART_MAIN | LV_STATE_CHECKED);`);
+        pon(`  lv_obj_add_event_cb(b, cb_${id}, LV_EVENT_CLICKED, (void *)(intptr_t)${i}); }`);
+      });
+    } else elementosDe(w).forEach(x => pon(`lv_list_add_button(${id}, NULL, "${txtC(x)}");`));
     break;
   case 'table': {
     const filas = elementosDe(w).map(l => l.split(';').map(c => c.trim()));
@@ -1427,6 +1637,8 @@ function genWidget(w){
     pon(`lv_obj_set_style_text_font(${id}, &${simboloFuente(fuente, variante)}, LV_PART_MAIN);`);
     pon(`lv_obj_set_style_bg_color(${id}, lv_color_hex(${colorC(S.sup)}), LV_PART_MAIN);`);
     pon(`lv_obj_set_style_bg_color(${id}, lv_color_hex(${colorC(S.acento)}), LV_PART_SELECTED);`);
+    /* la opcion elegida (0, 1, 2...) va a la variable */
+    if (v) pon(`lv_obj_add_event_cb(${id}, cb_${id}, LV_EVENT_VALUE_CHANGED, NULL);`);
     break;
   case 'tabview': {
     pon(`lv_tabview_set_tab_bar_size(${id}, ${Math.max(28, Math.round(w.h * 0.18))});`);
@@ -1455,13 +1667,28 @@ function genWidget(w){
     const ta = antes.find(x => x.tipo === 'textarea' && (!w.campo || x.nombre === w.campo));
     if (ta) pon(`lv_keyboard_set_textarea(${id}, ${cid(ta.nombre)});`);
     else pon(`/* sin campo de texto delante al que engancharse: pon un Campo de texto antes que el teclado */`);
+    if (w.modo === 'numeros') pon(`lv_keyboard_set_mode(${id}, LV_KEYBOARD_MODE_NUMBER);`);
     pon(`lv_obj_set_style_text_font(${id}, &${simboloFuente(fuente, variante)}, LV_PART_ITEMS);`);
+    /* los colores del lienzo (coloresTeclado): las teclas de control son
+       las CHECKED de LVGL (cambiar de modo, borrar, OK...) */
+    const K = coloresTeclado(w);
+    pon(`lv_obj_set_style_bg_color(${id}, lv_color_hex(${colorC(K.fondo)}), LV_PART_MAIN);`);
+    pon(`lv_obj_set_style_bg_color(${id}, lv_color_hex(${colorC(K.tecla)}), LV_PART_ITEMS);`);
+    pon(`lv_obj_set_style_text_color(${id}, lv_color_hex(${colorC(K.letra)}), LV_PART_ITEMS);`);
+    pon(`lv_obj_set_style_bg_color(${id}, lv_color_hex(${colorC(K.control)}), LV_PART_ITEMS | LV_STATE_CHECKED);`);
+    pon(`lv_obj_set_style_text_color(${id}, lv_color_hex(${colorC(K.sobre)}), LV_PART_ITEMS | LV_STATE_CHECKED);`);
     break;
   }
   case 'msgbox': {
     const [tit, ...resto] = elementosDe(w);
     pon(`lv_msgbox_add_title(${id}, "${txtC(tit || 'Aviso')}");`);
     if (resto.length) pon(`lv_msgbox_add_text(${id}, "${txtC(resto.join(' '))}");`);
+    if (estadosAviso(w)){
+      /* sale en unos estados: su boton lo oculta (la X de LVGL lo destruiria) */
+      pon(`{ lv_obj_t *b = lv_msgbox_add_footer_button(${id}, "${txtC(w.botonAviso || 'Aceptar')}");`);
+      pon(`  lv_obj_add_event_cb(b, aviso_ocultar, LV_EVENT_CLICKED, ${id}); }`);
+      pon(`lv_obj_add_flag(${id}, LV_OBJ_FLAG_HIDDEN);   /* aparece al entrar en sus estados */`);
+    } else
     pon(`lv_msgbox_add_close_button(${id});`);
     pon(`lv_obj_set_style_text_font(${id}, &${simboloFuente(fuente, variante)}, LV_PART_MAIN);`);
     /* Nace visible, como en el lienzo. Para esconderlo y sacarlo cuando
@@ -1598,6 +1825,66 @@ function genRefresco(w){
     return (w.series||[]).slice(0,2)
       .map((sn,i) => `    lv_chart_set_next_value(${id}, ${id}_s${i}, (int32_t)s->${cid(sn)});`).join('\n') + '\n';
 
+  /* el aviso que sale en unos estados: aparece al entrar y se va al salir */
+  const enEst = estadosAviso(w);
+  if (enEst){
+    const cond = enEst.length ? enEst.map(x => `s->st == ST_${MAY(x)}`).join(' || ') : 'false';
+    return `    {   /* ${w.nombre}: sale en ${enEst.join(', ') || 'ningun estado'} */
+        static int visto_${id} = -1;
+        if ((int)s->st != visto_${id}) {
+            visto_${id} = (int)s->st;
+            if (${cond}) lv_obj_remove_flag(${id}, LV_OBJ_FLAG_HIDDEN);
+            else lv_obj_add_flag(${id}, LV_OBJ_FLAG_HIDDEN);
+        }
+    }\n`;
+  }
+  /* la lista: el elemento de la variable, marcado */
+  if (w.tipo === 'list' && v)
+    return `    {   /* ${w.nombre}: el elemento que dice la variable */
+        static int32_t visto_${id} = -1;
+        int32_t i = (int32_t)lroundf((float)s->${cid(v.nombre)});
+        if (i != visto_${id}) {
+            visto_${id} = i;
+            for (uint32_t k = 0; k < lv_obj_get_child_count(${id}); k++) {
+                lv_obj_t *b = lv_obj_get_child(${id}, (int32_t)k);
+                if ((int32_t)k == i) lv_obj_add_state(b, LV_STATE_CHECKED);
+                else lv_obj_remove_state(b, LV_STATE_CHECKED);
+            }
+        }
+    }\n`;
+
+  /* Los de entrada siguen a la variable si otro la cambia (la logica, un
+     boton...), salvo mientras el dedo esta encima */
+  if (w.tipo === 'checkbox' && v)
+    return `    if (!lv_obj_has_state(${id}, LV_STATE_PRESSED))\n`
+         + `        s->${cid(v.nombre)} ? lv_obj_add_state(${id}, LV_STATE_CHECKED)\n`
+         + `                            : lv_obj_remove_state(${id}, LV_STATE_CHECKED);\n`;
+  if ((w.tipo === 'dropdown' || w.tipo === 'roller') && v){
+    const n = Math.max(1, elementosDe(w).length);
+    return `    {   /* ${w.nombre}: la opcion que dice la variable */
+        int32_t i = (int32_t)lroundf((float)s->${cid(v.nombre)});
+        if (i < 0) i = 0;
+        if (i > ${n - 1}) i = ${n - 1};
+        if (${w.tipo === 'dropdown' ? `!lv_dropdown_is_open(${id})` : `!lv_obj_has_state(${id}, LV_STATE_PRESSED)`} && (int32_t)lv_${w.tipo}_get_selected(${id}) != i)
+            lv_${w.tipo}_set_selected(${id}, (uint32_t)i${w.tipo === 'roller' ? ', LV_ANIM_OFF' : ''});
+    }\n`;
+  }
+  if (w.tipo === 'spinbox' && v && !v.booleano)
+    return `    {   /* ${w.nombre}: el valor de la variable */
+        int32_t r = (int32_t)lroundf(s->${cid(v.nombre)} * ${flt(10 ** geoContador(w).dec)});
+        if (lv_spinbox_get_value(${id}) != r) lv_spinbox_set_value(${id}, r);
+    }\n`;
+
+  /* el campo que guarda un numero ensena el valor de la variable, salvo
+     mientras se esta escribiendo en el (enfocado) */
+  if (w.tipo === 'textarea' && v && !v.booleano)
+    return `    if (!lv_obj_has_state(${id}, LV_STATE_FOCUSED)) {
+        snprintf(buf, sizeof(buf), "%.${w.decimales ?? 1}f", s->${cid(v.nombre)});
+${E.tema.coma ? `        for (char *q = buf; *q; q++) if (*q == '.') { *q = ','; break; }
+` : ''}        if (strcmp(lv_textarea_get_text(${id}), buf) != 0) lv_textarea_set_text(${id}, buf);
+    }
+`;
+
   if (!v || !PINTA.has(w.tipo)) return '';
 
   switch (w.tipo){
@@ -1634,6 +1921,22 @@ function genRefresco(w){
 /* Los callbacks: encolan un evento y nada mas. La interfaz no decide. */
 function genCallbacks(){
   const L = [];
+  /* el boton de un aviso que sale en unos estados: lo oculta */
+  if (E.pantallas.some(s => s.widgets.some(w => estadosAviso(w))))
+    L.push(`static void aviso_ocultar(lv_event_t *e) {
+    lv_obj_add_flag((lv_obj_t *)lv_event_get_user_data(e), LV_OBJ_FLAG_HIDDEN);
+}`);
+  /* los botones - y + de los contadores: suben o bajan un paso y avisan
+     (lv_spinbox_increment no manda VALUE_CHANGED por su cuenta) */
+  if (E.pantallas.some(s => s.widgets.some(w => w.tipo === 'spinbox')))
+    L.push(`static void contador_menos(lv_event_t *e) {
+    lv_obj_t *c = (lv_obj_t *)lv_event_get_user_data(e);
+    lv_spinbox_decrement(c); lv_obj_send_event(c, LV_EVENT_VALUE_CHANGED, NULL);
+}
+static void contador_mas(lv_event_t *e) {
+    lv_obj_t *c = (lv_obj_t *)lv_event_get_user_data(e);
+    lv_spinbox_increment(c); lv_obj_send_event(c, LV_EVENT_VALUE_CHANGED, NULL);
+}`);
   const vistos = new Set();
   for (const s of E.pantallas){
     if (!vistos.has('ir_'+s.nombre)){
@@ -1676,10 +1979,44 @@ static void cb_${id}(lv_event_t *e)
       L.push(`static void cb_${id}(lv_event_t *e) {\n`
            + `    int32_t v = lv_slider_get_value(lv_event_get_target_obj(e));\n`
            + `    event_send(EV_SET_${MAY(v.nombre)}, v * 10);   /* en decimas */\n    ui_pronto();\n}`);
-    if (w.tipo === 'toggle' && v)
+    if (w.tipo === 'textarea' && v && !v.booleano)
+      L.push(`/* ${w.nombre}: al pulsar OK en el teclado, el numero escrito pasa a ${v.nombre},
+   sin salirse de su rango; y el campo vuelve a ensenar el valor */
+static void cb_${id}(lv_event_t *e) {
+    lv_obj_t *ta = lv_event_get_target_obj(e);
+    char txt[24];
+    snprintf(txt, sizeof(txt), "%s", lv_textarea_get_text(ta));
+    for (char *q = txt; *q; q++) if (*q == ',') *q = '.';   /* la coma tambien vale */
+    float x;
+    if (sscanf(txt, "%f", &x) == 1) {
+${v.min !== undefined && v.min !== '' ? `        if (x < ${flt(v.min)}) x = ${flt(v.min)};
+` : ''}${v.max !== undefined && v.max !== '' ? `        if (x > ${flt(v.max)}) x = ${flt(v.max)};
+` : ''}        event_send(EV_SET_${MAY(v.nombre)}, (int32_t)lroundf(x * 10.0f));   /* en decimas */
+    }
+    lv_obj_remove_state(ta, LV_STATE_FOCUSED);
+    ui_pronto();
+}`);
+    /* el interruptor y la casilla: 1 o 0. El evento va en decimas, salvo
+       en las de si/no: a una variable con valor le llega 10 (= 1,0) */
+    if ((w.tipo === 'toggle' || w.tipo === 'checkbox') && v)
       L.push(`static void cb_${id}(lv_event_t *e) {\n`
            + `    bool on = lv_obj_has_state(lv_event_get_target_obj(e), LV_STATE_CHECKED);\n`
-           + `    event_send(EV_SET_${MAY(v.nombre)}, on ? 1 : 0);\n    ui_pronto();\n}`);
+           + `    event_send(EV_SET_${MAY(v.nombre)}, on ? ${v.booleano ? 1 : 10} : 0);\n    ui_pronto();\n}`);
+    /* el desplegable y la rueda: el numero de la opcion (0, 1, 2...) */
+    if ((w.tipo === 'dropdown' || w.tipo === 'roller') && v)
+      L.push(`static void cb_${id}(lv_event_t *e) {\n`
+           + `    uint32_t i = lv_${w.tipo}_get_selected(lv_event_get_target_obj(e));\n`
+           + `    event_send(EV_SET_${MAY(v.nombre)}, ${v.booleano ? '(int32_t)i' : '(int32_t)i * 10'});\n    ui_pronto();\n}`);
+    /* la lista: el numero del elemento tocado, que viaja en su user_data */
+    if (w.tipo === 'list' && v)
+      L.push(`static void cb_${id}(lv_event_t *e) {\n`
+           + `    int32_t i = (int32_t)(intptr_t)lv_event_get_user_data(e);\n`
+           + `    event_send(EV_SET_${MAY(v.nombre)}, ${v.booleano ? 'i' : 'i * 10'});\n    ui_pronto();\n}`);
+    /* el contador: su valor, que va en enteros de su ultimo decimal */
+    if (w.tipo === 'spinbox' && v && !v.booleano)
+      L.push(`static void cb_${id}(lv_event_t *e) {\n`
+           + `    int32_t r = lv_spinbox_get_value(lv_event_get_target_obj(e));\n`
+           + `    event_send(EV_SET_${MAY(v.nombre)}, (int32_t)lroundf(r * 10.0f / ${flt(10 ** geoContador(w).dec)}));   /* en decimas */\n    ui_pronto();\n}`);
   }
   return L.join('\n');
 }
@@ -1869,8 +2206,54 @@ function guardasDeFuente(texto){
   return fuentesCompiladasDe(texto).map(px =>
 `#if !defined(LV_FONT_MONTSERRAT_${px}) || !LV_FONT_MONTSERRAT_${px}
 #error "Falta la fuente de ${px} px. Abre Documentos/Arduino/libraries/lv_conf.h y pon a 1 el LV_FONT_MONTSERRAT_${px}."
-#endif`).join('\n');
+#endif`).concat([
+/* La memoria de LVGL. Si lv_conf.h la saca de la PSRAM, la placa tiene que
+   tenerla (y «PSRAM: Enabled» en Herramientas): sin ella compila, pero
+   LVGL arranca sin memoria y la placa se cuelga. Mejor pararse aqui. */
+`#if defined(LV_MEM_POOL_ALLOC) && !defined(BOARD_HAS_PSRAM)
+#error "Tu lv_conf.h saca la memoria de LVGL de la PSRAM y esta placa no tiene PSRAM (o esta apagada en Herramientas > PSRAM). Se colgaria al arrancar. El LEEME, en LA MEMORIA DE LVGL, trae el bloque que vale para todas las placas."
+#endif`]).join('\n');
 }
+
+/* rtos_pico.h: el programa de pantalla de Telar llama a dos cosas que
+   son nombres del ESP32. En la Pico (arduino-pico con FreeRTOS SMP) hay
+   lo mismo con otro nombre. Solo va en los proyectos de la Pico. */
+const RTOS_PICO = cabecera('rtos_pico.h — la Pico con los nombres del ESP32',
+`El programa de pantalla es el mismo que en un ESP32. Aqui se traducen las
+dos cosas que tienen otro nombre en la Pico: crear una tarea en un nucleo
+y pedir memoria. Hace falta el nucleo arduino-pico (Earle Philhower) con
+"Operating System: FreeRTOS SMP" en Herramientas.`) +
+`#ifndef TELAR_RTOS_PICO_H
+#define TELAR_RTOS_PICO_H
+
+#if !defined(ARDUINO_ARCH_RP2040)
+#error "Este proyecto es para la Raspberry Pi Pico: elige su placa en Herramientas."
+#endif
+#if !defined(__FREERTOS)
+#error "Falta FreeRTOS: en Herramientas, Operating System: FreeRTOS SMP (nucleo arduino-pico, de Earle Philhower)."
+#endif
+
+#include <stdlib.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
+/* En el ESP32 la pila se da en bytes; en FreeRTOS, en palabras. El nucleo
+   se pide con una mascara: el 0 es 1 << 0 y el 1 es 1 << 1. */
+static inline BaseType_t xTaskCreatePinnedToCore(TaskFunction_t funcion, const char *nombre,
+                                                 uint32_t pila_bytes, void *param, UBaseType_t prioridad,
+                                                 TaskHandle_t *tarea, BaseType_t nucleo)
+{
+    return xTaskCreateAffinitySet(funcion, nombre, pila_bytes / sizeof(StackType_t), param,
+                                  prioridad, (UBaseType_t)(1u << nucleo), tarea);
+}
+
+/* La Pico no tiene memoria de varias clases: toda es la misma */
+#define MALLOC_CAP_DMA       0
+#define MALLOC_CAP_INTERNAL  0
+#define heap_caps_malloc(bytes, clase)  malloc(bytes)
+
+#endif /* TELAR_RTOS_PICO_H */
+`;
 
 /* =====================================================================
  * pantalla.h — la ficha de la pantalla, para el puerto de LovyanGFX
@@ -1891,6 +2274,8 @@ function genPantallaH(){
   const T = tac ? (TACTILES[tac.controlador] || null) : null;
   const num = (v, def) => (v === undefined || v === null ? def : v);
   const bool = v => (v ? 'true' : 'false');
+  /* la Pico: LovyanGFX quiere el numero de bus y no tiene los campos del ESP32 */
+  const pico = !!placaBase(nodoHMI()).rp2040;
 
   return cabecera('pantalla.h — como es tu pantalla',
 `Esto es lo unico que cambia entre una pantalla SPI y otra. Si el dibujo
@@ -1915,13 +2300,13 @@ public:
     {
         {   /* el bus por el que van los pixeles */
             auto cfg = _bus.config();
-            cfg.spi_host    = ${spi.host || 'SPI2_HOST'};
+            cfg.spi_host    = ${pico ? `${num(C.spi_host_num, 0)};   /* el SPI${num(C.spi_host_num, 0)} de la Pico: sale de los pines */` : `${spi.host || 'SPI2_HOST'};`}
             cfg.spi_mode    = ${num(spi.modo, 0)};
             cfg.freq_write  = ${num(spi.freq, pan.freq)};
-            cfg.freq_read   = ${num(spi.freq_lectura, pan.freq_lectura)};
+            cfg.freq_read   = ${num(spi.freq_lectura, pan.freq_lectura)};${pico ? '' : `
             cfg.spi_3wire   = false;
             cfg.use_lock    = true;
-            cfg.dma_channel = SPI_DMA_CH_AUTO;
+            cfg.dma_channel = SPI_DMA_CH_AUTO;`}
             cfg.pin_sclk    = ${num(spi.sck, -1)};
             cfg.pin_mosi    = ${num(spi.mosi, -1)};
             cfg.pin_miso    = ${num(spi.miso, -1)};
@@ -1966,7 +2351,7 @@ public:
             cfg.pin_int         = ${num(tac.irq, -1)};
             cfg.bus_shared      = ${bool(num(tac.bus_compartido, false))};
             cfg.offset_rotation = ${num(tac.rotacion, 0)};
-            cfg.spi_host        = ${tac.host || 'SPI3_HOST'};
+            cfg.spi_host        = ${pico ? num(C.spi_host_num, 0) : (tac.host || 'SPI3_HOST')};
             cfg.freq            = ${num(tac.freq, 1000000)};
             cfg.pin_sclk        = ${num(tac.sck, -1)};
             cfg.pin_mosi        = ${num(tac.mosi, -1)};
@@ -1985,7 +2370,7 @@ public:
             cfg.pin_rst    = ${num(tac.rst, -1)};
             cfg.bus_shared = true;
             cfg.offset_rotation = ${num(tac.rotacion, 0)};
-            cfg.i2c_port   = ${num(tac.puerto_i2c, 0)};
+            cfg.i2c_port   = ${pico ? num(busFijo(placaBase(nodoHMI()), 'i2c', { sda: tac.sda, scl: tac.scl }), 0) : num(tac.puerto_i2c, 0)};
             cfg.i2c_addr   = ${tac.direccion || '0x38'};
             cfg.pin_sda    = ${num(tac.sda, -1)};
             cfg.pin_scl    = ${num(tac.scl, -1)};
@@ -2528,7 +2913,33 @@ function genConfPlaca(){
 
 /* La seccion de fuentes del LEEME, tal como estaba: solo tiene sentido con LVGL */
 function seccionFuentesLeeme(usadas, propias){
-  return `ANTES DE COMPILAR: LAS FUENTES
+  return `ANTES DE COMPILAR: LA MEMORIA DE LVGL
+-------------------------------------
+LVGL reserva su memoria como diga Documentos\\Arduino\\libraries\\lv_conf.h,
+que es uno solo para todos tus proyectos. Si alli la saca de la PSRAM
+(LV_MEM_POOL_ALLOC con MALLOC_CAP_SPIRAM), solo vale en placas CON PSRAM
+y con "PSRAM: Enabled" en Herramientas. En una sin ella (un DevKit v1, una
+C3...) el sketch se para al compilar con un aviso que lo dice.
+
+Para que valga en todas, deja la memoria asi en lv_conf.h:
+
+     #if defined(BOARD_HAS_PSRAM)
+         #define LV_MEM_SIZE (512 * 1024U)
+     #else
+         #define LV_MEM_SIZE (96 * 1024U)
+     #endif
+         #define LV_MEM_POOL_EXPAND_SIZE 0
+         #define LV_MEM_ADR 0
+     #if defined(BOARD_HAS_PSRAM)
+         #define LV_MEM_POOL_INCLUDE <esp_heap_caps.h>
+         #define LV_MEM_POOL_ALLOC(size) heap_caps_malloc((size), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT)
+     #endif
+
+Con PSRAM, 512 kB sacados de ella; sin PSRAM, 96 kB de la memoria normal:
+una OLED o una TFT pequena con unas pocas pantallas van sobradas. Un
+proyecto grande (muchas pantallas de 800x480) necesita una placa con PSRAM.
+
+ANTES DE COMPILAR: LAS FUENTES
 ------------------------------
 Hay dos clases de fuente, y se tratan distinto. Confundirlas es la causa
 numero uno de perder una tarde.
@@ -4457,8 +4868,9 @@ ESP32: la pantalla no nota la diferencia.
 
 Hace falta, una vez:
 
-    sudo apt install python3-pip
-    pip3 install python-periphery pyserial
+    sudo apt install -y python3-venv
+    python3 -m venv ~/telar-env
+    ~/telar-env/bin/pip install python-periphery pyserial
 
 Y que tu usuario pueda abrir los pines y el puerto:
 
@@ -4663,7 +5075,7 @@ function genLeemeLinux(nodo){
   const A = asignarPines(nodo);
   const L = ENLACES[E.enlace.tipo];
   const pin = clave => A.filas.find(x => x.clave === clave)?.pin || '(sin asignar)';
-  const carpeta = carpetaNodo(nodo);
+  const carpeta = cid(E.proyecto) + '/' + carpetaNodo(nodo);
   return `NODO DE CONTROL (LINUX) — ${E.proyecto}
 ${'='.repeat(56)}
 
@@ -4673,20 +5085,36 @@ PLACA: ${P.nombre}
 
 QUE HACE FALTA, UNA VEZ
 -----------------------
-    sudo apt install python3-pip
-    pip3 install python-periphery pyserial
+    sudo apt install -y python3-venv
+    python3 -m venv ~/telar-env
+    ~/telar-env/bin/pip install python-periphery pyserial
     sudo usermod -aG gpio,dialout $USER      # y vuelve a entrar
 
 COMO SE ARRANCA
 ---------------
-    cd ${carpeta}
-    python3 control.py
+    cd ~/${carpeta}
+    ~/telar-env/bin/python control.py
 
-Sale por pantalla lo que manda y lo que recibe. Cuando funcione, para
-que arranque solo al encender:
+Sale por pantalla lo que manda y lo que recibe. Ctrl+C para parar.
+Cuando funcione, para que arranque solo al encender:
 
-    sudo cp telar.service /etc/systemd/system/
-    sudo systemctl enable --now telar
+    mkdir -p ~/.config/systemd/user
+    cp telar.service ~/.config/systemd/user/
+    systemctl --user daemon-reload
+    systemctl --user enable --now telar
+    sudo loginctl enable-linger $USER
+
+Es un servicio de tu usuario, no de root: asi tiene los permisos de los
+grupos gpio y dialout de arriba. El "enable-linger" hace que arranque al
+encender aunque nadie entre en la placa. Para ver si esta en marcha:
+
+    systemctl --user status telar
+
+El servicio supone que la carpeta esta en
+
+    ~/${carpeta}
+
+Si no, cambia las dos rutas del fichero antes de copiarlo.
 
 QUE CONECTAR
 ------------
@@ -4718,22 +5146,33 @@ QUE FICHERO ES DE QUIEN
 `;
 }
 
+/* Servicio DE USUARIO, como el de la pantalla (genServicioPantallaLinux):
+   copiado a /etc/systemd/system corria como root, %h era /root y las
+   rutas no llevaban a la carpeta del alumno. Sin After=: con
+   WantedBy=default.target, After=default.target hace un ciclo. */
 function genServicioLinux(nodo){
-  const carpeta = carpetaNodo(nodo);
-  return `[Unit]
-Description=Telar — ${E.proyecto} (nodo de control)
-After=multi-user.target
+  const carpeta = cid(E.proyecto) + '/' + carpetaNodo(nodo);
+  return `# Telar Studio: arrancar el nodo de control solo al encender la placa.
+# Es un servicio DE USUARIO: corre con tu usuario, no como root. Se
+# instala asi (lo explica el LEEME):
+#   mkdir -p ~/.config/systemd/user
+#   cp telar.service ~/.config/systemd/user/
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now telar
+#   sudo loginctl enable-linger $USER
+# Si copiaste la carpeta a otro sitio, cambia las dos rutas de abajo.
+[Unit]
+Description=Telar - ${E.proyecto} (nodo de control)
 
 [Service]
 Type=simple
-# Cambia la ruta si copiaste la carpeta a otro sitio
 WorkingDirectory=%h/${carpeta}
-ExecStart=/usr/bin/python3 %h/${carpeta}/control.py
+ExecStart=%h/telar-env/bin/python %h/${carpeta}/control.py
 Restart=on-failure
 RestartSec=3
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
 `;
 }
 

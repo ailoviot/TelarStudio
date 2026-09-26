@@ -60,10 +60,12 @@ const COLORES_COMPONENTE = {
   tiempo:           [['texto', 'Número'], ['rotulo_c', 'Rótulo', 'tenue']],
   dato:             [['superficie', 'Fondo'], ['tenue', 'Rótulo'], ['texto', 'Valor']],
   pildora:          [],
-  pasos:            [['superficie', 'Casillas'], ['tinta3', 'Texto de los pasos']],
+  pasos:            [['superficie', 'Casillas'], ['tinta3', 'Texto de los pasos'],
+                     ['act_fondo', 'Paso actual: fondo', 'seleccion.fondo'], ['act_borde', 'Paso actual: borde', 'seleccion.borde'],
+                     ['act_texto', 'Paso actual: texto', 'seleccion.texto']],
   'barra-consigna': [['pista', 'Pista'], ['acento', 'Relleno'], ['ok', 'Marca de consigna'], ['tenue', 'Escala']],
   curva:            [['acento', 'Curva'], ['tinta3', 'Referencia'], ['ok', 'Línea de consigna'], ['rejilla', 'Rejilla'], ['tenue', 'Ejes']],
-  aguja:            [['pista', 'Pista'], ['acento', 'Arco'], ['ok', 'Marca de consigna'], ['texto', 'Número'], ['tenue', 'Escala y unidad']],
+  aguja:            [['pista', 'Pista'], ['acento', 'Arco'], ['ok', 'Marca de consigna'], ['cons_c', 'Texto de la consigna', 'ok'], ['texto', 'Número'], ['tenue', 'Escala y unidad']],
 };
 /* Los que marcan una consigna (la raya de la barra, la linea discontinua
    de la curva, la marca del reloj). Sin consigna elegida esa marca no se
@@ -134,7 +136,7 @@ function temaDe(w){
   for (const [k] of L) if (e[k]) tm[k] = e[k];
   /* los que salen de otro: el suyo, o el de su base (el propio del
      elemento si lo tenia, como los proyectos de antes con "tenue") */
-  for (const [k, , base] of L) if (base && !e[k]) tm[k] = e[base] || E.tema[base];
+  for (const [k, , base] of L) if (base && !e[k]) tm[k] = e[base] || valorTema(base);
   /* Y los derivados que ESTE componente no ofrece en su panel siguen
      existiendo: el Tiempo hereda del Numero el codigo de la unidad
      (aunque la oculte), y sin esto el C salia con lv_color_hex(0xundefined)
@@ -145,6 +147,9 @@ function temaDe(w){
 }
 /* Colores que no estan en el tema: salen de otro color del tema */
 const COLOR_DERIVADO = { rotulo_c: 'tenue', unidad_c: 'tenue' };
+/* Un color del tema por su nombre; con punto, dentro de un grupo
+   ('seleccion.fondo': el fondo de lo Seleccionado) */
+const valorTema = k => String(k).includes('.') ? String(k).split('.').reduce((o, p) => (o || {})[p], E.tema) : E.tema[k];
 
 /* El rotulo: pequeno, en mayusculas, espaciado y apagado */
 const ROTULO_PX = 11, ROTULO_ESPACIO = 2;
@@ -562,20 +567,24 @@ ${xUni ? `            if (uw > 0 && ${xUni} + uw > der) der = ${xUni} + uw;
   /* --------------------------------------------- PILDORA DE ESTADO */
   pildora: {
     catalogo: { grupo:'Visualización', nombre:'Estado actual', icono:'⬭', acepta:'ninguno', w:168, h:28,
-                ayuda:'El estado del aparato en una píldora de color. El texto y el color de cada estado salen de looks en la Lógica; sin looks, el nombre del estado en gris.' },
+                ayuda:'Enseña en qué estado está la máquina, con un texto y un color para cada uno. Se eligen en su panel, estado por estado.' },
     papel(){ return 'titulo'; },
     /* variac: 168x28, radio 14, Chivo 700 a 13 con 1 px de espacio */
     partes(w){ const e = w.estilo || {}; return { txt: letraParte(w, 'titulo', e.fuente || Math.max(9, w.h * 0.46)) }; },
-    fuentes(w){ const P = this.partes(w); return [{ px: P.txt.px, variante: P.txt.v, texto: estadosDe().map(s => (lookDe(w, s).text ?? s)).join('') + 'SIN ENLACE' }]; },
-    /* texto y color de un estado */
+    fuentes(w){ const P = this.partes(w); return [{ px: P.txt.px, variante: P.txt.v, texto: estadosDe().map(s => this.deEstado(w, s).texto).join('') + 'SIN ENLACE' }]; },
+    /* Texto y color de un estado. Manda lo elegido en su panel (por
+       estado: w.textosEstado, w.coloresEstado); si no, lo que diga looks en
+       la Logica; si tampoco, el nombre del estado en gris. */
     deEstado(w, s){
-      const l = lookDe(w, s);
-      return { texto: l.text !== undefined ? String(l.text) : s, color: colorLook(l.color) || E.tema.tenue };
+      const l = lookDe(w, s), tx = (w.textosEstado || {})[s], co = (w.coloresEstado || {})[s];
+      return { texto: tx ? String(tx) : l.text !== undefined ? String(l.text) : s, color: co || colorLook(l.color) || E.tema.tenue };
     },
     dibujo(w, V){
       const P = this.partes(w), tm = temaDe(w);
       const st = estadosDe();
-      const d = V && V.texto !== undefined ? { texto: V.texto, color: V.color || tm.tenue } : this.deEstado(w, st[0] || 'ESTADO');
+      /* en el editor, el estado de arranque */
+      const M0 = typeof logicaModelo === 'function' ? logicaModelo() : null, ini = M0 && M0.blocks[0] ? M0.blocks[0].start_in : '';
+      const d = V && V.texto !== undefined ? { texto: V.texto, color: V.color || tm.tenue } : this.deEstado(w, st.includes(ini) ? ini : (st[0] || 'ESTADO'));
       const plano = w.plano === true;   /* solo el texto, como la tira de estado de antes */
       return `<div style="width:100%;height:100%;border-radius:${Math.round(w.h / 2)}px;${plano ? '' : `background:${tinteEstado(d.color, tm)};border:1px solid ${d.color};`}
         display:flex;align-items:center;justify-content:center;font:${cssParte(P.txt)};letter-spacing:1px;color:${d.color};white-space:nowrap;overflow:hidden">${verParte(d.texto, P.txt)}</div>`;
@@ -629,13 +638,17 @@ ${enlace ? `        case -1: pildora_poner(${id}, ${id}_txt, "SIN ENLACE", ${col
   /* -------------------------------------------- PASOS DEL PROCESO */
   pasos: {
     catalogo: { grupo:'Visualización', nombre:'Pasos del proceso', icono:'▭▭', acepta:'ninguno', w:768, h:28,
-                ayuda:'Una casilla por estado, en orden; se ilumina la del estado actual. Escribe en Elementos el texto de cada casilla, uno por línea, en el orden de los estados.' },
+                ayuda:'Una casilla por estado de la lógica, en orden; se ilumina la del estado actual. El texto de cada casilla y sus colores (uno por paso) se cambian en su panel.' },
     partes(w){ const e = w.estilo || {}; return { txt: letraParte(w, 'rotulo', e.fuente || Math.max(8, w.h * 0.36)) }; },
     papel(){ return 'rotulo'; },
+    /* El texto de cada casilla va CON SU ESTADO (w.textosPaso): asi, al
+       anadir o quitar estados en la Logica, cada uno conserva el suyo. Los
+       proyectos de antes lo tenian por orden de lineas (w.elementos), y se
+       siguen leyendo igual hasta que se toque un texto. */
     textos(w){
-      const st = estadosDe();
+      const st = estadosDe(), por = w.textosPaso || {};
       const el = String(w.elementos || '').split('\n').map(x => x.trim());
-      return st.map((s, i) => el[i] || s);
+      return st.map((s, i) => (por[s] ? por[s] : el[i]) || s);
     },
     fuentes(w){ const P = this.partes(w); return [{ px: P.txt.px, variante: P.txt.v, texto: this.textos(w).join('') }]; },
     /* En fila mientras quepan; si a cada paso le tocan menos de 64 px, se
@@ -647,16 +660,44 @@ ${enlace ? `        case -1: pildora_poner(${id}, ${id}_txt, "SIN ENLACE", ${col
         ? { gap, columna, cw: w.w, ch: Math.floor((w.h - gap * (n - 1)) / n) }
         : { gap, columna: false, cw: n ? Math.floor((w.w - gap * (n - 1)) / n) : w.w, ch: w.h };
     },
-    dibujo(w, V){
-      const P = this.partes(w), tm = temaDe(w), tx = this.textos(w), n = tx.length || 1, g = this.geometria(w, n);
-      const act = V && V.idx !== undefined ? V.idx : 1;
-      return `<div style="display:flex;flex-direction:${g.columna ? 'column' : 'row'};gap:${g.gap}px;width:100%;height:100%">${(tx.length ? tx : ['ESTADO']).map((s, i) => {
-        const on = i === act;
-        return `<div style="flex:1;min-width:0;border-radius:4px;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;
-          background:${on ? tm.seleccion.fondo : tm.superficie};box-shadow:${on ? 'inset 0 0 0 2px ' + tm.seleccion.borde : 'none'};
-          font:${cssParte(P.txt)};color:${on ? tm.seleccion.texto : tm.tinta3}">${verParte(s, P.txt)}</div>`; }).join('')}</div>`;
+    /* Los colores: los de la pestana Estilo (o, sin tocar, los del tema) y,
+       si se ha elegido, uno por estado para el paso actual: su borde y su
+       texto de ese color y el fondo un tono apagado, como la pildora. */
+    colores(w){
+      const tm = temaDe(w), por = w.coloresPaso || {}, st = estadosDe();
+      const on = s => por[s] ? { fondo: tinteEstado(por[s], tm), borde: por[s], texto: por[s] }
+                             : { fondo: tm.act_fondo, borde: tm.act_borde, texto: tm.act_texto };
+      return { off: { fondo: tm.superficie, texto: tm.tinta3 }, on: (st.length ? st : ['ESTADO']).map(on) };
     },
-    decl(w, id){ const n = Math.max(1, estadosDe().length); return `static lv_obj_t *${id}_chip[${n}], *${id}_lbl[${n}];\n`; },
+    /* Si tiene algo propio. Sin nada, el C es exactamente el de siempre
+       (pasos_poner, con los colores del tema) */
+    propio(w){
+      const e = w.estilo || {}, por = w.coloresPaso || {};
+      return !!(e.superficie || e.tinta3 || e.act_fondo || e.act_borde || e.act_texto || estadosDe().some(s => por[s]));
+    },
+    dibujo(w, V){
+      const P = this.partes(w), tx = this.textos(w), n = tx.length || 1, g = this.geometria(w, n), C = this.colores(w);
+      /* en el editor se ilumina el paso de arranque: es donde empieza la
+         maquina (antes, siempre el segundo, y parecia un boton pulsado) */
+      const M0 = typeof logicaModelo === 'function' ? logicaModelo() : null;
+      const act = V && V.idx !== undefined ? V.idx : Math.max(0, estadosDe().indexOf(M0 && M0.blocks[0] ? M0.blocks[0].start_in : ''));
+      return `<div style="display:flex;flex-direction:${g.columna ? 'column' : 'row'};gap:${g.gap}px;width:100%;height:100%">${(tx.length ? tx : ['ESTADO']).map((s, i) => {
+        const on = i === act, c = C.on[i] || C.on[0];
+        return `<div style="flex:1;min-width:0;border-radius:4px;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;
+          background:${on ? c.fondo : C.off.fondo};box-shadow:${on ? 'inset 0 0 0 2px ' + c.borde : 'none'};
+          font:${cssParte(P.txt)};color:${on ? c.texto : C.off.texto}">${verParte(s, P.txt)}</div>`; }).join('')}</div>`;
+    },
+    decl(w, id){
+      const n = Math.max(1, estadosDe().length);
+      let d = `static lv_obj_t *${id}_chip[${n}], *${id}_lbl[${n}];\n`;
+      /* colores propios: apagado (fondo, texto) y, por paso, el actual (fondo, borde, texto) */
+      if (this.propio(w)){
+        const C = this.colores(w);
+        d += `static const uint32_t ${id}_col[] = { ${colorC(C.off.fondo)}, ${colorC(C.off.texto)},\n${C.on.map((c, i) =>
+          `    ${colorC(c.fondo)}, ${colorC(c.borde)}, ${colorC(c.texto)}${i < C.on.length - 1 ? ',' : ''}   /* ${estadosDe()[i] || ''} */`).join('\n')} };\n`;
+      }
+      return d;
+    },
     crear(w, id, pon){
       const P = this.partes(w), tm = temaDe(w), tx = this.textos(w), n = tx.length, g = this.geometria(w, n);
       if (!n) return;
@@ -679,14 +720,15 @@ ${enlace ? `        case -1: pildora_poner(${id}, ${id}_txt, "SIN ENLACE", ${col
         pon(`lv_obj_set_style_text_font(${id}_lbl[${i}], &${simboloFuente(P.txt.px, P.txt.v)}, LV_PART_MAIN);`);
         pon(`lv_obj_center(${id}_lbl[${i}]);`);
       });
-      pon(`pasos_poner(${id}_chip, ${id}_lbl, ${n}, -1);`);
+      pon(this.propio(w) ? `pasos_colores(${id}_chip, ${id}_lbl, ${n}, -1, ${id}_col);` : `pasos_poner(${id}_chip, ${id}_lbl, ${n}, -1);`);
     },
     refresco(w, id){
       const n = estadosDe().length;
       if (!n) return '';
+      const poner = this.propio(w) ? `pasos_colores(${id}_chip, ${id}_lbl, ${n}, visto_${id}, ${id}_col)` : `pasos_poner(${id}_chip, ${id}_lbl, ${n}, visto_${id})`;
       return `    {   /* ${w.nombre}: los pasos, solo cuando cambia el estado */
         static int visto_${id} = -2;
-        if ((int)s->st != visto_${id}) { visto_${id} = (int)s->st; pasos_poner(${id}_chip, ${id}_lbl, ${n}, visto_${id}); }
+        if ((int)s->st != visto_${id}) { visto_${id} = (int)s->st; ${poner}; }
     }
 `;
     },
@@ -803,7 +845,24 @@ static void pildora_poner(lv_obj_t *o, lv_obj_t *t, const char *txt, uint32_t co
     lv_obj_center(t);
 }
 `);
-  if (tipos.has('pasos')) L.push(`/* Los pasos: el activo con el color de lo seleccionado y su borde */
+  /* Los Pasos sin nada propio, con los colores del tema (pasos_poner, el
+     de siempre); los que tienen colores propios, con su tabla (pasos_colores) */
+  const pasosW = E.pantallas.flatMap(p => p.widgets).filter(w => w.tipo === 'pasos');
+  if (pasosW.some(w => COMPONENTES.pasos.propio(w))) L.push(`/* Los pasos con colores propios. col: el fondo y el texto apagados, y
+   luego, por cada paso, el fondo, el borde y el texto cuando es el actual */
+static void pasos_colores(lv_obj_t **chip, lv_obj_t **lbl, int n, int activo, const uint32_t *col)
+{
+    for (int i = 0; i < n; i++) {
+        bool on = (i == activo);
+        const uint32_t *c = col + 2 + 3 * i;
+        lv_obj_set_style_bg_color(chip[i], lv_color_hex(on ? c[0] : col[0]), LV_PART_MAIN);
+        lv_obj_set_style_border_color(chip[i], lv_color_hex(c[1]), LV_PART_MAIN);
+        lv_obj_set_style_border_width(chip[i], on ? 2 : 0, LV_PART_MAIN);
+        lv_obj_set_style_text_color(lbl[i], lv_color_hex(on ? c[2] : col[1]), LV_PART_MAIN);
+    }
+}
+`);
+  if (tipos.has('pasos') && pasosW.some(w => !COMPONENTES.pasos.propio(w))) L.push(`/* Los pasos: el activo con el color de lo seleccionado y su borde */
 static void pasos_poner(lv_obj_t **chip, lv_obj_t **lbl, int n, int activo)
 {
     for (int i = 0; i < n; i++) {
@@ -968,8 +1027,10 @@ ${sp ? `        float g = (s->${cid(sp.nombre)} - (${flt(r.min)})) / (${flt(r.ma
         ? `<polyline fill="none" stroke="${col}" stroke-width="3" stroke-linejoin="round" points="${pts.map((v, i) => `${(g.L + cw * (i + this.N - pts.length) / (this.N - 1)).toFixed(1)},${y(v).toFixed(1)}`).join(' ')}"/>` : '';
       const ejemplo = V ? null : Array.from({ length: 90 }, (_, i) => Math.min(30, i * 0.5) + (i > 60 ? 0 : 0));
       const sp = V ? V.sp : spFijo(w);
+      /* por debajo de 39 px de ancho cw sale negativo y el navegador se
+         queja del <rect>; con 0 tampoco se dibuja, pero sin error */
       return `<svg width="${w.w}" height="${w.h}" style="display:block;overflow:visible">
-        ${[0, 1, 2].map(i => `<rect x="${g.L}" y="${Math.round(g.B - ch * i / 2)}" width="${cw}" height="1" fill="${tm.rejilla}"/>`).join('')}
+        ${[0, 1, 2].map(i => `<rect x="${g.L}" y="${Math.round(g.B - ch * i / 2)}" width="${Math.max(0, cw)}" height="1" fill="${tm.rejilla}"/>`).join('')}
         ${[0, 1, 2].map(i => `<text x="${g.L - 5}" y="${Math.round(g.B - ch * i / 2) + 4}" text-anchor="end" fill="${tm.tenue}" style="font:${cssParte(P.lab)}">${esc(numEje(vmax * i / 2))}</text>`).join('')}
         ${this.etiquetasX(w).map((t, i) => `<text x="${g.L + cw * i / 3}" y="${g.B + 13}" text-anchor="${i === 3 ? 'end' : 'middle'}" fill="${tm.tenue}" style="font:${cssParte(P.lab)}">${esc(t)}</text>`).join('')}
         ${marcaVisible(w) && sp !== undefined ? `<line x1="${g.L}" x2="${g.R}" y1="${y(sp)}" y2="${y(sp)}" stroke="${tm.ok}" stroke-width="2" stroke-dasharray="8 7"/>` : ''}
@@ -1115,11 +1176,19 @@ ${marcaVisible(w) ? `        if (cons != sp_ant_${id}) {
       return { s, medio, cx: Math.round(w.w / 2), cy: Math.round(medio ? w.h - 32 * s : w.h / 2),
                R: Math.round(95 * s), LW: Math.max(3, Math.round(Number(w.grosor) || 22 * s)) };
     },
-    partes(w){ const G = this.geo(w);
-      return { num: letraParte(w, 'numero', (w.estilo || {}).fuente || Math.max(16, 48 * G.s)), uni: letraParte(w, 'titulo', Math.max(11, 15 * G.s)), cons: letraParte(w, 'rotulo', Math.max(10, 11 * G.s)) }; },
+    partes(w){ const G = this.geo(w), e = w.estilo || {};
+      /* el texto de la consigna puede llevar su letra y tamano (tipo_cons / fuente_cons) */
+      const conTipo = e.tipo_cons ? { ...w, estilo: { ...e, tipo_rotulo: e.tipo_cons } } : w;
+      return { num: letraParte(w, 'numero', e.fuente || Math.max(16, 48 * G.s)), uni: letraParte(w, 'titulo', Math.max(11, 15 * G.s)),
+               cons: letraParte(conTipo, 'rotulo', Math.min(360, e.fuente_cons || Math.max(10, 11 * G.s))) }; },
+    /* Lo que va delante del valor de la consigna: «consigna» si nadie lo
+       ha cambiado; vacio, solo el numero */
+    prefijo(w){ return w.textoCons === undefined ? 'consigna' : String(w.textoCons); },
+    conPrefijo(w, valor){ const p = this.prefijo(w); return p ? p + ' ' + valor : String(valor); },
     fuentes(w){ const P = this.partes(w);
+      /* las letras del texto que se escriba tienen que estar en la fuente */
       return [{ px: P.num.px, variante: P.num.v, texto: '-' }, { px: P.uni.px, variante: P.uni.v, texto: unidadDe(w) },
-              { px: P.cons.px, variante: P.cons.v, texto: 'consigna 0123456789,.-' }]; },
+              { px: P.cons.px, variante: P.cons.v, texto: this.conPrefijo(w, '0123456789,.-') }]; },
     papel(){ return 'numero'; },
     ang(w, f){ const g = this.grados(w); return ((g === 180 ? 180 : 135) + g * Math.min(1, Math.max(0, f))) * Math.PI / 180; },
     /* Donde empieza cada linea del centro, en px respecto al centro. Se
@@ -1161,7 +1230,7 @@ ${marcaVisible(w) ? `        if (cons != sp_ant_${id}) {
       </svg>
         ${linea(C.num, P.num, tm.texto, esc(val))}
         ${linea(C.uni, P.uni, tm.tenue, verParte(unidadDe(w), P.uni))}
-        ${marcaVisible(w) ? linea(C.cons, P.cons, tm.ok, 'consigna ' + esc(V && V.cons !== undefined ? V.cons : formatoNumero(ejSp, w.decimales))) : ''}
+        ${marcaVisible(w) ? `<div style="position:absolute;left:${Number(w.consDx) || 0}px;width:100%;top:${Math.round(G.cy + C.cons + (Number(w.consDy) || 0))}px;text-align:center;white-space:nowrap;pointer-events:none;font:${cssParte(P.cons)};line-height:${altoLineaDe(P.cons.px, P.cons.v)}px;color:${tm.cons_c}"><span data-parte="cons" title="${esc(t('Arrástralo para moverlo'))}">${verParte(this.conPrefijo(w, V && V.cons !== undefined ? V.cons : formatoNumero(ejSp, w.decimales)), P.cons)}</span></div>` : ''}
       </div>`;
     },
     decl(w, id){
@@ -1211,10 +1280,10 @@ ${marcaVisible(w) ? `        if (cons != sp_ant_${id}) {
         pon(`lv_obj_set_pos(${id}_spd, ${xd}, ${yd});`);
       } else pon(`${id}_sp = NULL; ${id}_spd = NULL;`);
       punto(pon, `${id}_punta`, id, Math.round(11 * G.s), mezclaColor(tm.acento, '#ffffff', 0.7));
-      const centro = (nom, dy, L, color, texto) => {
+      const centro = (nom, dy, L, color, texto, dx = 0) => {
         pon(`${nom} = lv_label_create(${id});`);
         pon(`lv_obj_set_width(${nom}, ${w.w});`);
-        pon(`lv_obj_set_pos(${nom}, 0, ${Math.round(G.cy + dy)});`);
+        pon(`lv_obj_set_pos(${nom}, ${dx}, ${Math.round(G.cy + dy)});`);
         pon(`lv_label_set_text(${nom}, "${txtParte(texto, L)}");`);
         pon(`lv_obj_set_style_text_align(${nom}, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);`);
         pon(`lv_obj_set_style_text_font(${nom}, &${simboloFuente(L.px, L.v)}, LV_PART_MAIN);`);
@@ -1222,7 +1291,8 @@ ${marcaVisible(w) ? `        if (cons != sp_ant_${id}) {
       };
       centro(`${id}_val`, C.num, P.num, tm.texto, '--');
       pon(`{ lv_obj_t *u;`); centro('u', C.uni, P.uni, tm.tenue, unidadDe(w)); pon(`}`);
-      if (marcaVisible(w)) centro(`${id}_cons`, C.cons, P.cons, tm.ok, 'consigna ' + (spVar(w) ? '' : formatoNumero(spFijo(w), w.decimales)));
+      if (marcaVisible(w)) centro(`${id}_cons`, C.cons + (Number(w.consDy) || 0), P.cons, tm.cons_c,
+        spVar(w) ? this.conPrefijo(w, '') : this.conPrefijo(w, formatoNumero(spFijo(w), w.decimales)), Number(w.consDx) || 0);
       else pon(`${id}_cons = NULL;`);
     },
     refresco(w, id){
@@ -1245,7 +1315,7 @@ ${marcaVisible(w) ? `        static float sp_ant = -1e9f;
             ${id}_pts[1].x = ${G.cx} + lroundf(cosf(b) * ${flt(G.R + G.LW / 2 + 7 * G.s)}); ${id}_pts[1].y = ${G.cy} + lroundf(sinf(b) * ${flt(G.R + G.LW / 2 + 7 * G.s)});
             lv_line_set_points(${id}_sp, ${id}_pts, 2);
             lv_obj_set_pos(${id}_spd, ${G.cx} + lroundf(cosf(b) * ${flt(G.R + G.LW / 2 + 11 * G.s)}) - ${Math.round(3 * G.s)}, ${G.cy} + lroundf(sinf(b) * ${flt(G.R + G.LW / 2 + 11 * G.s)}) - ${Math.round(3 * G.s)});
-            snprintf(buf, sizeof(buf), "consigna %.${w.decimales ?? 1}f", sp_ant);
+            snprintf(buf, sizeof(buf), "${this.prefijo(w) ? txtParte(this.prefijo(w), this.partes(w).cons).replace(/%/g, '%%') + ' ' : ''}%.${w.decimales ?? 1}f", sp_ant);
 ${E.tema.coma && !sinComa(w) ? `            for (char *q = buf; *q; q++) if (*q == '.') { *q = ','; break; }\n` : ''}            poner_texto(${id}_cons, buf);
         }
 ` : ''}    }

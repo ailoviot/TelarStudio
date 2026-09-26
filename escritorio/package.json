@@ -2,20 +2,23 @@
   "name": "telar-studio",
   "productName": "Telar Studio",
   "version": "1.0.0",
-  "description": "Diseñador de pantallas y lógica para ESP32, con exportación a Arduino",
+  "description": "Diseñador de pantallas y lógica para ESP32, Raspberry Pi Pico y Linux, con exportación a Arduino y Python",
   "author": "Telar Studio",
   "license": "MIT",
   "private": true,
   "homepage": "https://github.com/ailoviot/TelarStudio",
-  "repository": { "type": "git", "url": "https://github.com/ailoviot/TelarStudio.git" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ailoviot/TelarStudio.git"
+  },
   "main": "main.js",
   "scripts": {
     "web": "node copiar-web.js",
     "start": "node copiar-web.js && electron .",
-    "dist": "node copiar-web.js && electron-builder",
-    "dist:win": "node copiar-web.js && electron-builder --win",
-    "dist:mac": "node copiar-web.js && electron-builder --mac",
-    "dist:linux": "node copiar-web.js && electron-builder --linux"
+    "dist": "node copiar-web.js && electron-builder --publish never",
+    "dist:win": "node copiar-web.js && electron-builder --win --publish never",
+    "dist:mac": "node copiar-web.js && electron-builder --mac --publish never",
+    "dist:linux": "node copiar-web.js && electron-builder --linux --publish never"
   },
   "devDependencies": {
     "electron": "44.4.5",
@@ -25,11 +28,34 @@
     "appId": "com.telarstudio.escritorio",
     "productName": "Telar Studio",
     "artifactName": "TelarStudio-${version}-${os}-${arch}.${ext}",
-    "files": ["main.js", "preload.js", "package.json", "web/**/*", "recursos/icono.png"],
-    "directories": { "output": "dist", "buildResources": "recursos" },
-    "publish": null,
+    "files": [
+      "main.js",
+      "preload.js",
+      "actualizaciones.js",
+      "package.json",
+      "web/**/*",
+      "recursos/icono.png"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "recursos"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "ailoviot",
+        "repo": "TelarStudio"
+      }
+    ],
     "win": {
-      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "icon": "recursos/icono.png"
     },
     "nsis": {
@@ -40,16 +66,29 @@
       "shortcutName": "Telar Studio"
     },
     "mac": {
-      "target": [{ "target": "dmg", "arch": ["universal"] }],
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "universal"
+          ]
+        }
+      ],
       "category": "public.app-category.developer-tools",
       "icon": "recursos/icono.png"
     },
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": [
+        "AppImage",
+        "deb"
+      ],
       "category": "Development",
       "icon": "recursos/icono.png",
       "maintainer": "Telar Studio",
       "synopsis": "Diseñador de pantallas y lógica para ESP32"
     }
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
   }
 }

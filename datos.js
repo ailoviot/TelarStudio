@@ -51,7 +51,7 @@ const PLACAS = {
       7:'panel RGB', 10:'panel RGB', 14:'panel RGB', 17:'panel RGB', 18:'panel RGB',
       21:'panel RGB', 38:'panel RGB', 39:'panel RGB', 40:'panel RGB', 41:'panel RGB',
       42:'panel RGB', 45:'panel RGB', 46:'panel RGB', 47:'panel RGB', 48:'panel RGB',
-      8:'I2C SDA (tactil, expansor, reloj)', 9:'I2C SCL (tactil, expansor, reloj)',
+      8:'I2C SDA (táctil, expansor, reloj)', 9:'I2C SCL (táctil, expansor, reloj)',
       11:'microSD MOSI', 12:'microSD SCK', 13:'microSD MISO',
       15:'CAN TX', 16:'CAN RX',
       19:'USB D-', 20:'USB D+',
@@ -59,7 +59,7 @@ const PLACAS = {
       26:'flash/PSRAM', 27:'flash/PSRAM', 28:'flash/PSRAM', 29:'flash/PSRAM',
       30:'flash/PSRAM', 31:'flash/PSRAM', 32:'flash/PSRAM', 33:'flash/PSRAM',
       34:'flash/PSRAM', 35:'flash/PSRAM', 36:'flash/PSRAM', 37:'flash/PSRAM',
-      4:'interrupcion del tactil'
+      4:'interrupción del táctil'
     },
     /* MEDIDO EN PLACA (2026-09-12) con seis franjas de 000000 a 808080:
      *
@@ -115,7 +115,7 @@ const PLACAS = {
     nombre: 'Elecrow CrowPanel 7" (ESP32-S3)',
     corto: 'CrowPanel 7"',
     procedencia: 'comunidad',
-    nota_procedencia: 'Los pines salen del fichero de placa de ESP32_Display_Panel (BOARD_ELECROW_CROWPANEL_7_0.h), que es donde los pone el fabricante de la libreria. Los que quedan libres NO estan verificados en banco: mira el esquematico de Elecrow antes de soldar.',
+    nota_procedencia: 'Los pines salen del fichero de placa de ESP32_Display_Panel (BOARD_ELECROW_CROWPANEL_7_0.h), que es donde los pone el fabricante de la librería. Los que quedan libres NO están verificados en banco: mira el esquemático de Elecrow antes de soldar.',
     mcu: 'ESP32-S3-WROOM-1 N4R8 · 4 MB flash · 8 MB PSRAM octal',
     ancho: 800, alto: 480,
     panel: 'RGB de 800x480, 16 bits de datos',
@@ -126,7 +126,7 @@ const PLACAS = {
     opciones_ide: { 'PSRAM': 'OPI PSRAM', 'Flash Size': '4MB (32Mb)', 'Partition Scheme': 'Huge APP (3MB No OTA/1MB SPIFFS)' },
     nota_ide: 'La PSRAM es OBLIGATORIA: un panel RGB de 800x480 necesita 768 KB de bufer y en la RAM interna no cabe. Si el IDE la trae en Disabled, la placa se reinicia sin parar.',
     librerias: ['ESP32_Display_Panel 1.0.x', 'lvgl 9.x'],
-    puerto: 'ESP32_Display_Panel: la placa viene descrita dentro de la libreria',
+    puerto: 'ESP32_Display_Panel: la placa viene descrita dentro de la librería',
     lv_mem: 49152,
     pila_loop: 8192,
 
@@ -141,8 +141,8 @@ const PLACAS = {
       15:'panel RGB', 16:'panel RGB', 21:'panel RGB', 39:'panel RGB (HSYNC)',
       40:'panel RGB (VSYNC)', 41:'panel RGB (DE)', 45:'panel RGB', 46:'panel RGB',
       47:'panel RGB', 48:'panel RGB',
-      2:'retroiluminacion',
-      19:'I2C SDA (tactil y expansor)', 20:'I2C SCL (tactil y expansor)', 38:'interrupcion del tactil',
+      2:'retroiluminación',
+      19:'I2C SDA (táctil y expansor)', 20:'I2C SCL (táctil y expansor)', 38:'interrupción del táctil',
       10:'microSD CS', 11:'microSD MOSI', 12:'microSD SCK', 13:'microSD MISO',
       26:'flash/PSRAM', 27:'flash/PSRAM', 28:'flash/PSRAM', 29:'flash/PSRAM',
       30:'flash/PSRAM', 31:'flash/PSRAM', 32:'flash/PSRAM', 33:'PSRAM octal',
@@ -151,17 +151,17 @@ const PLACAS = {
     },
     trampas: {
       0:  'Pin de arranque Y reloj del panel. No lo toques.',
-      38: 'Parece libre y no lo esta: es la interrupcion del tactil.',
-      42: 'Sale al conector, pero tambien es una linea de JTAG. Vale como GPIO si no depuras por JTAG.'
+      38: 'Parece libre y no lo está: es la interrupción del táctil.',
+      42: 'Sale al conector, pero también es una línea de JTAG. Vale como GPIO si no depuras por JTAG.'
     },
     libres: [17, 18, 42],
-    nota_libres: 'Tres pines, y salen por los conectores de expansion. Los cuatro de la microSD (10..13) se recuperan si no usas la tarjeta.',
+    nota_libres: 'Tres pines, y salen por los conectores de expansión. Los cuatro de la microSD (10..13) se recuperan si no usas la tarjeta.',
     recuperables: { 10:'microSD (CS)', 11:'microSD (MOSI)', 12:'microSD (SCK)', 13:'microSD (MISO)' },
 
     bus_i2c: { sda: 19, scl: 20, existe: true,
-               nota: 'El bus ya existe para el tactil y el expansor. Un sensor I2C no cuesta ningun pin.' },
+               nota: 'El bus ya existe para el táctil y el expansor. Un sensor I2C no cuesta ningún pin.' },
     uart2: { rx: 18, tx: 17, puerto: 'Serial1',
-             nota: 'El S3 remapea las UART: se usan los dos pines de expansion para no tocar la consola.' },
+             nota: 'El S3 remapea las UART: se usan los dos pines de expansión para no tocar la consola.' },
     expansor: null,
     rutas_escape: [
       'Un sensor I2C sobre el bus que ya existe (GPIO19/20): no cuesta pines.',
@@ -169,8 +169,8 @@ const PLACAS = {
       'Un segundo nodo por UART o por ESP-NOW.'
     ],
     quirks: [
-      'Panel RGB: el bufer vive en la PSRAM. Sin PSRAM no arranca.',
-      'El tactil y el expansor comparten el I2C con lo que tu anadas: usa Wire con cuidado y no reinicies el bus.',
+      'Panel RGB: el búfer vive en la PSRAM. Sin PSRAM no arranca.',
+      'El táctil y el expansor comparten el I2C con lo que tu añadas: usa Wire con cuidado y no reinicies el bus.',
       'Quedan pocos GPIO sueltos. Si el proyecto necesita entradas, cuenta con un segundo nodo o con un expansor.'
     ]
   },
@@ -309,7 +309,7 @@ PLACAS['esp32-devkit-v1'] = {
      todos los esquemas usan estos dos: si el alumno busca ayuda fuera,
      lo que encuentre va a coincidir con lo que tiene delante. */
   uart2: { rx: 16, tx: 17, puerto: 'Serial2',
-           nota: 'Los pines de fabrica del Serial2 del ESP32.' },
+           nota: 'Los pines de fábrica del Serial2 del ESP32.' },
   expansor: null,
   rutas_escape: ['Con veinte pines libres, difícilmente los necesites.'],
   quirks: ['Los pines 34 a 39 son sólo entrada: nunca valen para una salida.']
@@ -326,7 +326,7 @@ PLACAS['esp32-wrover'] = {
   nombre: 'ESP32-WROVER (DevKit con PSRAM)',
   corto: 'WROVER',
   procedencia: 'comunidad',
-  nota_procedencia: 'Igual que la DevKit v1 salvo por la PSRAM, que se come dos pines. Confirma el 16 y el 17 en tu placa: en los modulos WROVER van a la PSRAM.',
+  nota_procedencia: 'Igual que la DevKit v1 salvo por la PSRAM, que se come dos pines. Confirma el 16 y el 17 en tu placa: en los módulos WROVER van a la PSRAM.',
   mcu: 'ESP32-WROVER-E · 4 MB flash · 8 MB PSRAM',
   sin_pantalla: true,
   ancho: 0, alto: 0,
@@ -349,7 +349,7 @@ PLACAS['esp32-wrover'] = {
     16:'PSRAM', 17:'PSRAM'
   },
   trampas: {
-    16: 'En la WROVER va a la PSRAM. Parece libre porque en la DevKit v1 lo esta, y es el fallo clasico al cambiar de placa: el programa arranca y la PSRAM deja de responder.',
+    16: 'En la WROVER va a la PSRAM. Parece libre porque en la DevKit v1 lo está, y es el fallo clásico al cambiar de placa: el programa arranca y la PSRAM deja de responder.',
     17: 'Lo mismo que el 16: PSRAM.',
     0:  'Pin de arranque. A masa al encender, la placa entra en modo carga y no arranca el programa.',
     12: 'Pin de arranque. Nivel alto al arrancar y la placa no enciende.',
@@ -368,9 +368,9 @@ PLACAS['esp32-wrover'] = {
   /* Los 16/17 de fabrica del Serial2 aqui los tiene la PSRAM, asi que el
      UART2 se remapea. El ESP32 deja ponerlo donde quieras. */
   uart2: { rx: 25, tx: 26, puerto: 'Serial2',
-           nota: 'Remapeado: los 16/17 de fabrica los usa la PSRAM en esta placa.' },
+           nota: 'Remapeado: los 16/17 de fábrica los usa la PSRAM en esta placa.' },
   expansor: null,
-  rutas_escape: ['Un expansor I2C (PCF8574) sobre 21/22: ocho E/S mas por dos pines.'],
+  rutas_escape: ['Un expansor I2C (PCF8574) sobre 21/22: ocho E/S más por dos pines.'],
   quirks: [
     'La PSRAM usa el 16 y el 17. Si vienes de una DevKit v1, ese es el cambio que hay que recordar.',
     'Los pines 34 a 39 son solo entrada: nunca valen para una salida.'
@@ -381,7 +381,7 @@ PLACAS['seeed-xiao-esp32s3'] = {
   nombre: 'Seeed XIAO ESP32-S3',
   corto: 'XIAO S3',
   procedencia: 'comunidad',
-  nota_procedencia: 'Pines segun la wiki de Seeed. Del tamano de un pulgar: once pines en total, asi que el reparto aprieta.',
+  nota_procedencia: 'Pines según la wiki de Seeed. Del tamaño de un pulgar: once pines en total, así que el reparto aprieta.',
   mcu: 'ESP32-S3R8 · 8 MB flash · 8 MB PSRAM',
   sin_pantalla: true,
   ancho: 0, alto: 0,
@@ -409,22 +409,22 @@ PLACAS['seeed-xiao-esp32s3'] = {
   trampas: {
     43: 'Sale al pad D6, pero es el TX de la consola. Si lo usas para otra cosa, pierdes el monitor serie.',
     44: 'Sale al pad D7 y es el RX de la consola. Lo mismo que el 43.',
-    21: 'Es el LED de la placa y va al reves: nivel BAJO enciende.'
+    21: 'Es el LED de la placa y va al revés: nivel BAJO enciende.'
   },
   libres: [1,2,3,4,5,6,7,8,9],
-  nota_libres: 'Nueve pines comodos (D0..D5, D8..D10). Los D6 y D7 (43/44) valen si renuncias al monitor serie.',
+  nota_libres: 'Nueve pines cómodos (D0..D5, D8..D10). Los D6 y D7 (43/44) valen si renuncias al monitor serie.',
 
   bus_i2c: { sda: 5, scl: 6, existe: false,
              nota: 'Los D4 y D5, que es lo que usan todos los ejemplos de Seeed. Gastan dos de los nueve.' },
   uart2: { rx: 44, tx: 43, puerto: 'Serial0',
-           nota: 'La unica UART que sale a los pads es la de la consola. Para un enlace serie, cuenta con quedarte sin monitor.' },
+           nota: 'La única UART que sale a los pads es la de la consola. Para un enlace serie, cuenta con quedarte sin monitor.' },
   expansor: null,
   rutas_escape: [
-    'Un expansor I2C sobre D4/D5: ocho E/S mas por dos pines.',
+    'Un expansor I2C sobre D4/D5: ocho E/S más por dos pines.',
     'Renunciar al monitor serie y recuperar D6 y D7.'
   ],
   quirks: [
-    'Todo el analogico esta en ADC1 (GPIO1..9), que es justo lo que sale a los pads: con WiFi encendido sigue leyendo.',
+    'Todo el analógico está en ADC1 (GPIO1..9), que es justo lo que sale a los pads: con WiFi encendido sigue leyendo.',
     'El LED de la placa (GPIO21) enciende con nivel bajo.'
   ]
 };
@@ -433,7 +433,7 @@ PLACAS['esp32-s3-devkitc-1'] = {
   nombre: 'ESP32-S3-DevKitC-1',
   corto: 'S3-DevKitC',
   procedencia: 'comunidad',
-  nota_procedencia: 'Pines segun la documentacion de Espressif. Mira la version de tu placa: el LED RGB cambio de pin entre la v1.0 y la v1.1.',
+  nota_procedencia: 'Pines según la documentación de Espressif. Mira la versión de tu placa: el LED RGB cambió de pin entre la v1.0 y la v1.1.',
   mcu: 'ESP32-S3-WROOM-1 · 8 o 16 MB flash · 8 MB PSRAM en las N8R8/N16R8',
   sin_pantalla: true,
   ancho: 0, alto: 0,
@@ -453,22 +453,22 @@ PLACAS['esp32-s3-devkitc-1'] = {
     19:'USB D-', 20:'USB D+',
     26:'flash/PSRAM', 27:'flash/PSRAM', 28:'flash/PSRAM', 29:'flash/PSRAM',
     30:'flash/PSRAM', 31:'flash/PSRAM', 32:'flash/PSRAM',
-    33:'flash/PSRAM (modulos con PSRAM octal)', 34:'flash/PSRAM (octal)',
+    33:'flash/PSRAM (módulos con PSRAM octal)', 34:'flash/PSRAM (octal)',
     35:'flash/PSRAM (octal)', 36:'flash/PSRAM (octal)', 37:'flash/PSRAM (octal)',
     43:'UART0 TX (consola)', 44:'UART0 RX (consola)',
     48:'LED RGB de la placa (v1.1; en la v1.0 es el 38)'
   },
   trampas: {
-    0:  'Boton BOOT. A masa al encender, la placa entra en modo carga.',
-    45: 'Pin de arranque: fija la tension de la flash. Nivel alto al encender y el modulo no arranca.',
-    46: 'Pin de arranque, y ademas solo se lee bien en el arranque.',
-    3:  'Pin de arranque (modo JTAG). Suele funcionar, pero evitalo si puedes.',
-    35: 'En los modulos N8R8/N16R8 va a la PSRAM octal, aunque el pin salga al conector.',
+    0:  'Botón BOOT. A masa al encender, la placa entra en modo carga.',
+    45: 'Pin de arranque: fija la tensión de la flash. Nivel alto al encender y el módulo no arranca.',
+    46: 'Pin de arranque, y además solo se lee bien en el arranque.',
+    3:  'Pin de arranque (modo JTAG). Suele funcionar, pero evítalo si puedes.',
+    35: 'En los módulos N8R8/N16R8 va a la PSRAM octal, aunque el pin salga al conector.',
     36: 'Igual que el 35: PSRAM octal.',
     37: 'Igual que el 35: PSRAM octal.'
   },
   libres: [1,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,21,38,39,40,41,42,47],
-  nota_libres: 'Veinticuatro pines. Con WiFi encendido, el analogico tiene que ir a GPIO1..10 (ADC1).',
+  nota_libres: 'Veinticuatro pines. Con WiFi encendido, el analógico tiene que ir a GPIO1..10 (ADC1).',
 
   bus_i2c: { sda: 8, scl: 9, existe: false,
              nota: 'Los que usa el core por defecto en el S3. Cualquier par vale.' },
@@ -477,11 +477,11 @@ PLACAS['esp32-s3-devkitc-1'] = {
   expansor: null,
   rutas_escape: [
     'Un expansor I2C sobre 8/9.',
-    'Los pines 38..42 y 47 estan libres en casi todas las versiones: mira la serigrafia.'
+    'Los pines 38..42 y 47 están libres en casi todas las versiones: mira la serigrafía.'
   ],
   quirks: [
     'ADC2 (GPIO11..20) deja de leer en cuanto se enciende la radio.',
-    'El LED RGB es un WS2812: en la v1.0 esta en el 38 y en la v1.1 en el 48.'
+    'El LED RGB es un WS2812: en la v1.0 está en el 38 y en la v1.1 en el 48.'
   ]
 };
 
@@ -489,8 +489,8 @@ PLACAS['esp32-c3-supermini'] = {
   nombre: 'ESP32-C3 SuperMini',
   corto: 'C3 SuperMini',
   procedencia: 'comunidad',
-  nota_procedencia: 'Placa de clon, sin documentacion oficial. Los pines vienen de la serigrafia y de la comunidad: confirmalos con un multimetro antes de soldar.',
-  mcu: 'ESP32-C3 (RISC-V, un nucleo) · 4 MB flash · sin PSRAM',
+  nota_procedencia: 'Placa de clon, sin documentación oficial. Los pines vienen de la serigrafía y de la comunidad: confírmalos con un multímetro antes de soldar.',
+  mcu: 'ESP32-C3 (RISC-V, un núcleo) · 4 MB flash · sin PSRAM',
   i2c_controladores: 1,
   sin_pantalla: true,
   ancho: 0, alto: 0,
@@ -513,12 +513,12 @@ PLACAS['esp32-c3-supermini'] = {
   },
   trampas: {
     8: 'Es el LED de la placa Y pin de arranque. Si lo dejas a masa al encender, la placa no arranca.',
-    9: 'Boton BOOT. A masa al encender, entra en modo carga.',
+    9: 'Botón BOOT. A masa al encender, entra en modo carga.',
     2: 'Pin de arranque: tiene que estar alto al encender.',
     5: 'Es ADC2: con WiFi encendido deja de leer, en silencio.'
   },
   libres: [0,1,2,3,4,5,6,7,10],
-  nota_libres: 'Nueve pines. El analogico fiable es GPIO0..4 (ADC1); el 5 solo sin radio.',
+  nota_libres: 'Nueve pines. El analógico fiable es GPIO0..4 (ADC1); el 5 solo sin radio.',
 
   bus_i2c: { sda: 8, scl: 9, existe: false,
              nota: 'Los del core por defecto, pero los dos son pines de arranque: si puedes, monta el bus en 6/7 y evita sorpresas al encender.' },
@@ -526,11 +526,11 @@ PLACAS['esp32-c3-supermini'] = {
            nota: 'La UART que sale a los pines es la de la consola: para un enlace serie, cuentas con perder el monitor.' },
   expansor: null,
   rutas_escape: [
-    'Un expansor I2C: ocho E/S mas por dos pines.',
+    'Un expansor I2C: ocho E/S más por dos pines.',
     'Un segundo nodo por UART si te quedas corto.'
   ],
   quirks: [
-    'Un solo nucleo: la tarea de control y la radio se turnan. No la cargues de trabajo fino.',
+    'Un solo núcleo: la tarea de control y la radio se turnan. No la cargues de trabajo fino.',
     'La antena de estas placas es floja: con el WiFi lejos del router, el enlace se cae antes que en una WROOM.'
   ]
 };
@@ -570,8 +570,8 @@ PLACAS['esp32-s3-supermini'] = {
   nombre: 'ESP32-S3 SuperMini',
   corto: 'S3 SuperMini',
   procedencia: 'comunidad',
-  nota_procedencia: 'Placa de clon, sin documentacion oficial. El modulo suele ser un ESP32-S3FH4R2. Las revisiones cambian: hay unas que sacan hasta el GPIO18 y otras que llevan almohadillas por detras (21, 33..42, 45..48). Aqui solo se dan por buenos los que estan en TODAS: GPIO1 a GPIO13, mas TX y RX. Si la tuya saca mas, anadelos con "Placa a medida".',
-  mcu: 'ESP32-S3FH4R2 (Xtensa, dos nucleos) · 4 MB flash · 2 MB PSRAM',
+  nota_procedencia: 'Placa de clon, sin documentación oficial. El módulo suele ser un ESP32-S3FH4R2. Las revisiones cambian: hay unas que sacan hasta el GPIO18 y otras que llevan almohadillas por detrás (21, 33..42, 45..48). Aquí solo se dan por buenos los que están en TODAS: GPIO1 a GPIO13, más TX y RX. Si la tuya saca más, añádelos con "Placa a medida".',
+  mcu: 'ESP32-S3FH4R2 (Xtensa, dos núcleos) · 4 MB flash · 2 MB PSRAM',
   sin_pantalla: true,
   ancho: 0, alto: 0,
   fqbn: 'esp32:esp32:esp32s3',
@@ -587,7 +587,7 @@ PLACAS['esp32-s3-supermini'] = {
   arranque: [0,3,45,46],
 
   pines: {
-    0:'boton BOOT (no sale al conector)',
+    0:'botón BOOT (no sale al conector)',
     19:'USB D-', 20:'USB D+',
     26:'flash/PSRAM', 27:'flash/PSRAM', 28:'flash/PSRAM', 29:'flash/PSRAM',
     30:'flash/PSRAM', 31:'flash/PSRAM', 32:'flash/PSRAM',
@@ -595,32 +595,32 @@ PLACAS['esp32-s3-supermini'] = {
     48:'LED RGB de la placa (WS2812)'
   },
   trampas: {
-    0:  'Boton BOOT. A masa al encender, la placa entra en modo carga.',
+    0:  'Botón BOOT. A masa al encender, la placa entra en modo carga.',
     3:  'Pin de arranque (modo JTAG). Suele funcionar, pero si puedes elegir, elige otro.',
-    45: 'Pin de arranque: fija la tension de la flash. Alto al encender y el modulo no arranca.',
-    46: 'Pin de arranque, y ademas solo se lee bien en el arranque.',
+    45: 'Pin de arranque: fija la tensión de la flash. Alto al encender y el módulo no arranca.',
+    46: 'Pin de arranque, y además solo se lee bien en el arranque.',
     11: 'Es ADC2: con WiFi encendido deja de leer, en silencio.',
     12: 'Es ADC2: con WiFi encendido deja de leer, en silencio.',
     13: 'Es ADC2: con WiFi encendido deja de leer, en silencio.',
     19: 'Va al USB-C de la placa: no sale al conector.',
     20: 'Va al USB-C de la placa: no sale al conector.',
-    48: 'Es el LED RGB de la placa. En algunas revisiones esta en otro pin: miralo antes de contar con el.'
+    48: 'Es el LED RGB de la placa. En algunas revisiones está en otro pin: míralo antes de contar con él.'
   },
   libres: [1,2,3,4,5,6,7,8,9,10,11,12,13],
-  nota_libres: 'Trece pines en los laterales. Con la radio encendida, lo analogico tiene que ir a GPIO1..10 (ADC1): el 11, 12 y 13 son ADC2 y se apagan con el WiFi.',
+  nota_libres: 'Trece pines en los laterales. Con la radio encendida, lo analógico tiene que ir a GPIO1..10 (ADC1): el 11, 12 y 13 son ADC2 y se apagan con el WiFi.',
 
   bus_i2c: { sda: 8, scl: 9, existe: false,
-             nota: 'Los que usa el core por defecto en el S3. Aqui cualquier par de los laterales vale.' },
+             nota: 'Los que usa el core por defecto en el S3. Aquí cualquier par de los laterales vale.' },
   uart2: { rx: 13, tx: 12, puerto: 'Serial1',
            nota: 'El S3 remapea las UART a casi cualquier pin. Se usan dos de los laterales para no tocar la consola, que va por GPIO43/44.' },
   expansor: null,
   rutas_escape: [
-    'Un expansor I2C sobre 8/9: ocho E/S mas por dos pines.',
-    'Las almohadillas de detras (21, 33..42, 45..48), si tu revision las trae: anadelas con "Placa a medida".'
+    'Un expansor I2C sobre 8/9: ocho E/S más por dos pines.',
+    'Las almohadillas de detrás (21, 33..42, 45..48), si tu revisión las trae: añádelas con "Placa a medida".'
   ],
   quirks: [
-    'Dos nucleos, como una WROOM: la tarea de control no se pelea con la radio.',
-    'ADC2 (GPIO11..13 aqui) deja de leer en cuanto se enciende el WiFi.',
+    'Dos núcleos, como una WROOM: la tarea de control no se pelea con la radio.',
+    'ADC2 (GPIO11..13 aquí) deja de leer en cuanto se enciende el WiFi.',
     'La PSRAM es QSPI. Con OPI puesto en el IDE, la placa no arranca y el mensaje no lo dice.',
     'La antena es de pista: con el router lejos, el enlace se cae antes que en una WROOM.'
   ]
@@ -641,19 +641,19 @@ PLACAS['arduino-uno'] = {
     13: 'LED de la placa'
   },
   trampas: {
-    0:  'Es el RX del USB. Si cuelgas algo aqui, no puedes programar la placa sin desconectarlo.',
+    0:  'Es el RX del USB. Si cuelgas algo aquí, no puedes programar la placa sin desconectarlo.',
     1:  'Es el TX del USB. Lo mismo que el 0.',
     13: 'Va al LED de la placa y lleva una resistencia. Vale como salida, pero no para leer nada.',
     18: 'Es el SDA del I2C. En AVR el bus es fijo: si usas I2C, este pin deja de estar libre.',
-    19: 'Es el SCL del I2C, fijo tambien.'
+    19: 'Es el SCL del I2C, fijo también.'
   },
   libres: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
-  nota_libres: 'Dieciocho pines: D2..D13 y A0..A5. Las A valen tambien como digitales.',
+  nota_libres: 'Dieciocho pines: D2..D13 y A0..A5. Las A valen también como digitales.',
   bus_i2c: { sda: 18, scl: 19, existe: false,
              nota: 'En AVR el I2C no se mueve: A4 y A5, y solo esos.' },
   rutas_escape: [
-    'Un expansor I2C (PCF8574) en A4/A5: ocho E/S mas por dos pines.',
-    'Si te faltan pines analogicos, un multiplexor CD4051 sobre una sola entrada.'
+    'Un expansor I2C (PCF8574) en A4/A5: ocho E/S más por dos pines.',
+    'Si te faltan pines analógicos, un multiplexor CD4051 sobre una sola entrada.'
   ],
   quirks: [
     'El PWM solo existe en D3, D5, D6, D9, D10 y D11, y es de 8 bits a frecuencia fija.',
@@ -666,10 +666,10 @@ PLACAS['arduino-nano'] = {
   ...AVR_COMUN,
   nombre: 'Arduino Nano (ATmega328P)',
   corto: 'Nano',
-  nota_procedencia: 'La misma UNO en formato pequeno. Ojo con el gestor de arranque: las clonicas suelen necesitar el "viejo".',
+  nota_procedencia: 'La misma UNO en formato pequeño. Ojo con el gestor de arranque: las clónicas suelen necesitar el "viejo".',
   mcu: 'ATmega328P · 32 KB flash · 2 KB RAM · 16 MHz',
   fqbn: 'arduino:avr:nano',
-  opciones_ide: { 'Placa': 'Arduino Nano', 'Processor': 'ATmega328P (o "Old Bootloader" en las clonicas)' },
+  opciones_ide: { 'Placa': 'Arduino Nano', 'Processor': 'ATmega328P (o "Old Bootloader" en las clónicas)' },
   nota_ide: 'Si al subir sale "programmer is not responding", cambia Processor a ATmega328P (Old Bootloader): es lo que llevan casi todas las clonicas.',
   /* La Nano saca dos entradas mas, A6 y A7, que SOLO valen para leer */
   adc1: [14, 15, 16, 17, 18, 19, 20, 21],
@@ -679,21 +679,21 @@ PLACAS['arduino-nano'] = {
     13: 'LED de la placa'
   },
   trampas: {
-    0:  'Es el RX del USB. Si cuelgas algo aqui, no puedes programar la placa sin desconectarlo.',
+    0:  'Es el RX del USB. Si cuelgas algo aquí, no puedes programar la placa sin desconectarlo.',
     1:  'Es el TX del USB. Lo mismo que el 0.',
     13: 'Va al LED de la placa y lleva una resistencia. Vale como salida, pero no para leer nada.',
     18: 'Es el SDA del I2C. En AVR el bus es fijo.',
-    19: 'Es el SCL del I2C, fijo tambien.',
-    20: 'A6: SOLO entrada analogica. No es un pin digital, no vale ni para leer un boton.',
-    21: 'A7: igual que el A6, solo entrada analogica.'
+    19: 'Es el SCL del I2C, fijo también.',
+    20: 'A6: SOLO entrada analógica. No es un pin digital, no vale ni para leer un botón.',
+    21: 'A7: igual que el A6, solo entrada analógica.'
   },
   libres: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
-  nota_libres: 'Veinte pines: D2..D13, A0..A5 y las dos analogicas A6/A7, que solo leen.',
+  nota_libres: 'Veinte pines: D2..D13, A0..A5 y las dos analógicas A6/A7, que solo leen.',
   bus_i2c: { sda: 18, scl: 19, existe: false,
              nota: 'En AVR el I2C no se mueve: A4 y A5, y solo esos.' },
   rutas_escape: [
-    'Un expansor I2C (PCF8574) en A4/A5: ocho E/S mas por dos pines.',
-    'A6 y A7 para dos sensores analogicos mas.'
+    'Un expansor I2C (PCF8574) en A4/A5: ocho E/S más por dos pines.',
+    'A6 y A7 para dos sensores analógicos más.'
   ],
   quirks: [
     'El PWM solo existe en D3, D5, D6, D9, D10 y D11, y es de 8 bits a frecuencia fija.',
@@ -717,7 +717,7 @@ PLACAS['raspberry-pi-pico'] = {
   corto: 'Pico',
   familia: 'arduino',
   procedencia: 'comunidad',
-  nota_procedencia: 'Pines segun la documentacion de Raspberry. Con el core arduino-pico de Earle Philhower.',
+  nota_procedencia: 'Pines según la documentación de Raspberry. Con el core arduino-pico de Earle Philhower.',
   mcu: 'RP2040 · 2 MB flash · 264 KB RAM',
   sin_pantalla: true, ancho: 0, alto: 0,
   fqbn: 'rp2040:rp2040:rpipico',
@@ -736,25 +736,65 @@ PLACAS['raspberry-pi-pico'] = {
   pines: {
     0: 'UART0 TX (el del enlace)', 1: 'UART0 RX (el del enlace)',
     23: 'control del regulador de la placa', 24: 'detecta si hay USB',
-    25: 'LED de la placa', 29: 'mide la alimentacion (ADC3)'
+    25: 'LED de la placa', 29: 'mide la alimentación (ADC3)'
   },
   trampas: {
-    23: 'Parece libre en el diagrama y no lo esta: cambia el modo del regulador y con el, el ruido de la alimentacion.',
+    23: 'Parece libre en el diagrama y no lo está: cambia el modo del regulador y, con él, el ruido de la alimentación.',
     24: 'Va al detector de USB. Leerlo vale; escribirlo no sirve de nada.',
     29: 'Es el ADC3, cableado al divisor de VSYS: no es una entrada libre.'
   },
   libres: [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,26,27,28],
-  nota_libres: 'Veinticuatro pines. Lo analogico, solo en GP26, GP27 y GP28.',
+  nota_libres: 'Veinticuatro pines. Lo analógico, solo en GP26, GP27 y GP28.',
   bus_i2c: { sda: 4, scl: 5, existe: false, nota: 'El I2C0 de los ejemplos. La Pico lo deja en casi cualquier par.' },
-  uart2: { rx: 1, tx: 0, puerto: 'Serial1', nota: 'El UART0 tal como sale de fabrica: GP0 es TX y GP1 es RX. La consola va por el USB, asi que estos dos quedan para el enlace. El core no los remapea solo: si los mueves, hay que decirselo con Serial1.setTX()/setRX().' },
+  uart2: { rx: 1, tx: 0, puerto: 'Serial1', nota: 'El UART0 tal como sale de fábrica: GP0 es TX y GP1 es RX. La consola va por el USB, así que estos dos quedan para el enlace. El core no los remapea solo: si los mueves, hay que decírselo con Serial1.setTX()/setRX().' },
   expansor: null,
-  rutas_escape: ['Un expansor I2C sobre GP4/GP5.', 'Un multiplexor analogico si te faltan entradas: solo hay tres.'],
+  rutas_escape: ['Un expansor I2C sobre GP4/GP5.', 'Un multiplexor analógico si te faltan entradas: solo hay tres.'],
   quirks: [
-    'El ADC son tres pines y nada mas: GP26, GP27 y GP28.',
-    'El PWM esta en todos los pines, pero van por parejas: dos pines que comparten "slice" comparten frecuencia.',
+    'El ADC son tres pines y nada más: GP26, GP27 y GP28.',
+    'El PWM está en todos los pines, pero van por parejas: dos pines que comparten "slice" comparten frecuencia.',
     'No lleva radio: para hablar con la pantalla, cable.'
   ]
 };
+
+/* La Pico como PANTALLA. Con el nucleo arduino-pico y FreeRTOS SMP corre
+   el mismo LVGL que un ESP32 (ver rtos_pico.h en generador.js). Su I2C y
+   su SPI no van en cualquier pin: cada bus tiene sus pines fijos. */
+Object.assign(PLACAS['raspberry-pi-pico'], {
+  rp2040: true,
+  os_pantalla: 'FreeRTOS SMP',
+  nota_ide_pantalla: 'Con pantalla hace falta el core "Raspberry Pi Pico/RP2040" (arduino-pico, de Earle Philhower) y, en Herramientas, Operating System: FreeRTOS SMP. El de Arduino Mbed no sirve para la pantalla.',
+  buses_fijos: {
+    i2c: [ { n: 0, sda: [0, 4, 8, 12, 16, 20], scl: [1, 5, 9, 13, 17, 21] },
+           { n: 1, sda: [2, 6, 10, 14, 18, 26], scl: [3, 7, 11, 15, 19, 27] } ],
+    spi: [ { n: 0, sck: [2, 6, 18], mosi: [3, 7, 19], miso: [0, 4, 16] },
+           { n: 1, sck: [10, 14, 26], mosi: [11, 15, 27], miso: [8, 12, 28] } ]
+  },
+  /* Los de la pantalla: el SPI0 de los ejemplos, y la OLED en el I2C1
+     (GP6/GP7), para dejar el I2C0 (GP4/GP5) a los sensores */
+  pantalla_por_defecto: {
+    spi: { sck: 18, mosi: 19, miso: 16, cs: 17, dc: 20, rst: 21, bl: 22 },
+    i2c: { sda: 6, scl: 7 }
+  }
+});
+
+/* El bus al que pertenecen unos pines, en una placa con los buses en
+   pines fijos. undefined: la placa no tiene esa restriccion (el ESP32
+   lleva cualquier bus por casi cualquier pin); null: no valen juntos. */
+function busFijo(P, tipo, pines){
+  const B = P && P.buses_fijos && P.buses_fijos[tipo];
+  if (!B) return undefined;
+  const usa = v => v !== undefined && v !== null && v >= 0;
+  for (const b of B)
+    if (Object.entries(pines).every(([k, v]) => !usa(v) || (b[k] || []).includes(v))) return b.n;
+  return null;
+}
+/* Los pines de un bus de la Pico (o de una Linux), para decirselos al
+   alumno: GP6 en la Pico, GPIO2 (BCM) en una Raspberry */
+function textoBusesFijos(P, tipo){
+  const pre = P.rp2040 ? 'GP' : 'GPIO';
+  return ((P.buses_fijos || {})[tipo] || []).map(b =>
+    `${tipo.toUpperCase()}${b.n}: ${Object.entries(b).filter(([k]) => k !== 'n').map(([k, v]) => k.toUpperCase() + ' ' + v.map(x => pre + x).join('/')).join(' · ')}`).join('; ');
+}
 
 const LINUX_COMUN = {
   familia: 'linux',
@@ -773,11 +813,11 @@ PLACAS['raspberry-pi'] = {
   ...LINUX_COMUN,
   nombre: 'Raspberry Pi (cabecera de 40 pines)',
   corto: 'Raspberry Pi',
-  nota_procedencia: 'Numeracion BCM, la de pinout.xyz. Comprueba con "gpioinfo" antes de cablear: la Pi 5 cambio el chip a /dev/gpiochip4.',
+  nota_procedencia: 'Numeración BCM, la de pinout.xyz. Comprueba con "gpioinfo" antes de cablear: la Pi 5 cambió el chip a /dev/gpiochip4.',
   mcu: 'Broadcom · Linux',
   fqbn: 'python3 control.py',
   opciones_ide: {},
-  nota_ide: 'No hay IDE: se copia la carpeta a la placa y se ejecuta con python3.',
+  nota_ide: 'No hay IDE: se copia la carpeta a la placa y se ejecuta con el Python de ~/telar-env. Los pasos van en el LEEME.txt.',
   gpiochip: '/dev/gpiochip0',
   pines: {
     0: 'EEPROM del HAT (ID_SD)', 1: 'EEPROM del HAT (ID_SC)',
@@ -785,18 +825,18 @@ PLACAS['raspberry-pi'] = {
     14: 'UART TX (consola)', 15: 'UART RX (consola)'
   },
   trampas: {
-    0:  'Reservado para la EEPROM de los HAT. Usarlo rompe la deteccion de sombreros.',
+    0:  'Reservado para la EEPROM de los HAT. Usarlo rompe la detección de sombreros.',
     1:  'Lo mismo que el 0.',
-    14: 'Es la consola serie de fabrica. Para usarlo como enlace hay que quitar la consola con raspi-config.',
+    14: 'Es la consola serie de fábrica. Para usarlo como enlace hay que quitar la consola con raspi-config.',
     15: 'Lo mismo que el 14.'
   },
   libres: [4,5,6,7,8,9,10,11,12,13,16,17,18,19,20,21,22,23,24,25,26,27],
-  nota_libres: 'Veintidos lineas. Son numeros BCM, no los del conector: el 7 fisico es el BCM 4.',
+  nota_libres: 'Veintidós líneas. Son números BCM, no los del conector: el 7 físico es el BCM 4.',
   bus_i2c: { sda: 2, scl: 3, existe: true, nota: 'El I2C de la cabecera, ya montado.' },
   uart2: { rx: 15, tx: 14, puerto: '/dev/ttyS0', nota: 'La UART de la cabecera. En algunos modelos es /dev/ttyAMA0.' },
-  rutas_escape: ['Un expansor I2C sobre la cabecera.', 'Un ADC por I2C (ADS1115) si hace falta medir algo analogico.'],
+  rutas_escape: ['Un expansor I2C sobre la cabecera.', 'Un ADC por I2C (ADS1115) si hace falta medir algo analógico.'],
   quirks: [
-    'No tiene convertidor analogico: para medir tension hace falta un ADC externo.',
+    'No tiene convertidor analógico: para medir tensión hace falta un ADC externo.',
     'En la Pi 5 el chip pasa a ser /dev/gpiochip4; el programa lo dice si falla.',
     'El puerto serie de la cabecera lo ocupa la consola hasta que la quitas con raspi-config.'
   ]
@@ -806,30 +846,30 @@ PLACAS['jetson-nano'] = {
   ...LINUX_COMUN,
   nombre: 'NVIDIA Jetson Nano (cabecera de 40 pines)',
   corto: 'Jetson Nano',
-  procedencia: 'unverified',
-  nota_procedencia: 'La cabecera es compatible con la de Raspberry en forma, pero las lineas del chip no coinciden siempre. Comprueba cada una con "gpioinfo" antes de cablear.',
+  procedencia: 'comunidad',
+  nota_procedencia: 'La cabecera es compatible con la de Raspberry en forma, pero las líneas del chip no coinciden siempre. Comprueba cada una con "gpioinfo" antes de cablear.',
   mcu: 'Tegra X1 · Linux',
   fqbn: 'python3 control.py',
   opciones_ide: {},
-  nota_ide: 'No hay IDE. Si prefieres la libreria de NVIDIA (Jetson.GPIO), el programa generado se adapta cambiando las dos lineas de GPIO.',
+  nota_ide: 'No hay IDE: se copia la carpeta a la placa y se ejecuta con el Python de ~/telar-env (los pasos, en el LEEME.txt). Si prefieres Jetson.GPIO, la de NVIDIA, el programa se adapta cambiando sus dos importaciones de GPIO.',
   gpiochip: '/dev/gpiochip0',
   pines: {
     2: 'I2C SDA', 3: 'I2C SCL',
     14: 'UART TX (consola)', 15: 'UART RX (consola)'
   },
   trampas: {
-    14: 'Consola serie de fabrica: hay que liberarla antes de usarla como enlace.',
+    14: 'Consola serie de fábrica: hay que liberarla antes de usarla como enlace.',
     15: 'Lo mismo que el 14.'
   },
   libres: [4,5,6,7,8,9,10,11,12,13,16,17,18,19,20,21,22,23,24,25,26,27],
-  nota_libres: 'Los mismos numeros que la Raspberry, por compatibilidad de la cabecera. Confirmalos con gpioinfo.',
+  nota_libres: 'Los mismos números que la Raspberry, por compatibilidad de la cabecera. Confírmalos con gpioinfo.',
   bus_i2c: { sda: 2, scl: 3, existe: true, nota: 'El I2C de la cabecera.' },
   uart2: { rx: 15, tx: 14, puerto: '/dev/ttyTHS1', nota: 'La UART de la cabecera en la Jetson suele ser ttyTHS1.' },
-  rutas_escape: ['ADC por I2C (ADS1115).', 'Un micro (ESP32, Pico) como tercer nodo si hace falta analogico rapido.'],
+  rutas_escape: ['ADC por I2C (ADS1115).', 'Un micro (ESP32, Pico) como tercer nodo si hace falta analógico rápido.'],
   quirks: [
-    'Sin convertidor analogico, como todas las de Linux.',
+    'Sin convertidor analógico, como todas las de Linux.',
     'Los pines salen a 3,3 V pero la placa NO tolera 5 V en las entradas.',
-    'Las lineas de /dev/gpiochip0 cambian entre imagenes: gpioinfo manda.'
+    'Las líneas de /dev/gpiochip0 cambian entre imágenes: gpioinfo manda.'
   ]
 };
 
@@ -837,27 +877,27 @@ PLACAS['orange-pi'] = {
   ...LINUX_COMUN,
   nombre: 'Orange Pi (cabecera de 40 pines)',
   corto: 'Orange Pi',
-  procedencia: 'unverified',
-  nota_procedencia: 'Cada modelo de Orange Pi numera distinto. Esta ficha es un punto de partida: comprueba con "gpioinfo" y corrigela en Placa a medida.',
+  procedencia: 'comunidad',
+  nota_procedencia: 'Cada modelo de Orange Pi numera distinto. Esta ficha es un punto de partida: comprueba con "gpioinfo" y corrígela en Placa a medida.',
   mcu: 'Allwinner / Rockchip · Linux',
   fqbn: 'python3 control.py',
   opciones_ide: {},
-  nota_ide: 'No hay IDE: se copia la carpeta y se ejecuta con python3.',
+  nota_ide: 'No hay IDE: se copia la carpeta a la placa y se ejecuta con el Python de ~/telar-env. Los pasos van en el LEEME.txt.',
   gpiochip: '/dev/gpiochip0',
   pines: { 14: 'UART TX (consola)', 15: 'UART RX (consola)' },
   trampas: {
-    14: 'Consola serie de fabrica en casi todas las imagenes.',
+    14: 'Consola serie de fábrica en casi todas las imágenes.',
     15: 'Lo mismo que el 14.'
   },
   libres: [2,3,4,5,6,7,8,9,10,11,12,13,16,17,18,19,20,21,22,23,24,25,26,27],
-  nota_libres: 'Orientativo: en Orange Pi los numeros dependen del modelo. Verifica con gpioinfo.',
+  nota_libres: 'Orientativo: en Orange Pi los números dependen del modelo. Verifica con gpioinfo.',
   bus_i2c: { sda: 2, scl: 3, existe: false, nota: 'Depende del modelo y del overlay activado.' },
-  uart2: { rx: 15, tx: 14, puerto: '/dev/ttyS1', nota: 'Varia por modelo: ttyS1, ttyS3... mira "ls /dev/ttyS*".' },
+  uart2: { rx: 15, tx: 14, puerto: '/dev/ttyS1', nota: 'Varía por modelo: ttyS1, ttyS3... mira "ls /dev/ttyS*".' },
   rutas_escape: ['ADC por I2C (ADS1115).', 'Un micro como nodo de medida.'],
   quirks: [
-    'Sin convertidor analogico.',
-    'La numeracion de los pines cambia entre modelos: es el fallo numero uno con estas placas.',
-    'Muchas imagenes traen el puerto serie ocupado por la consola.'
+    'Sin convertidor analógico.',
+    'La numeración de los pines cambia entre modelos: es el fallo número uno con estas placas.',
+    'Muchas imágenes traen el puerto serie ocupado por la consola.'
   ]
 };
 
@@ -880,6 +920,47 @@ const AVR_ENLACES = new Set(['uart', 'rs485']);
    PWM depende del overlay de cada placa: ninguno de los dos se inventa. */
 const LINUX_PIEZAS = new Set(['gpio-in', 'gpio-out']);
 const LINUX_ENLACES = new Set(['uart', 'rs485']);
+/* Y si la placa Linux es la de la PANTALLA (una OLED por I2C, dibujada
+   con Python), tambien los botones para moverse por la interfaz */
+const LINUX_PIEZAS_PANTALLA = new Set([...LINUX_PIEZAS, 'boton-nav']);
+
+/* La OLED en una placa Linux: el I2C de la cabecera (pines 3 y 5 del
+   conector, BCM 2 y 3), que el sistema llama /dev/i2c-1. En la Orange
+   Pi el numero del bus cambia de un modelo a otro: se propone el mismo
+   par de pines y el LEEME dice como mirar el bus (i2cdetect -l). */
+for (const k of ['raspberry-pi', 'jetson-nano'])
+  Object.assign(PLACAS[k], { pantalla_por_defecto: { i2c: { sda: 2, scl: 3 } },
+                             buses_fijos: { i2c: [{ n: 1, sda: [2], scl: [3] }] } });
+Object.assign(PLACAS['orange-pi'], { pantalla_por_defecto: { i2c: { sda: 2, scl: 3 } } });
+
+/* La Pico y el resto de la familia «arduino»: pines sueltos, como una
+   AVR. Los buses que escribe Telar (I2C, SPI, serie, OneWire) usan las
+   llamadas del ESP32 —Wire.begin(sda, scl), SPI.begin(pines)— y la
+   radio y el CAN son del chip del ESP32: aqui no compilarian. */
+const ARDUINO_PIEZAS = new Set(['adc-in', 'gpio-in', 'gpio-out', 'pwm-out']);
+
+/* LO QUE PUEDE LLEVAR CADA PLACA. null: todo el catalogo (la familia
+   ESP32). esPantalla: si es el nodo de la pantalla, que es el unico que
+   lleva botones de navegacion. */
+function piezasDe(P, esPantalla){
+  const f = (P && P.familia) || 'esp32';
+  const s = f === 'avr' ? AVR_PIEZAS : f === 'linux' ? LINUX_PIEZAS : f === 'arduino' ? ARDUINO_PIEZAS : null;
+  return s && esPantalla ? new Set([...s, 'boton-nav']) : s;
+}
+/* Por que una placa no puede llevar una pieza, en pocas palabras (para la
+   lista de anadir), o null si puede */
+function porQueNoPieza(P, tipo, esPantalla){
+  const cat = CONEXIONES[tipo] || {};
+  if (cat.solo_pantalla && !esPantalla) return 'solo en el nodo de la pantalla';
+  if (cat.necesita && cat.necesita.expansor && !(P && P.expansor)) return 'esta placa no trae salidas en sus bornes';
+  const s = piezasDe(P, esPantalla);
+  if (!s || s.has(tipo)) return null;
+  if (cat.grupo === 'Radio') return 'no tiene radio: es del ESP32';
+  if (tipo === 'can') return 'no tiene controlador CAN: es del ESP32';
+  if (tipo === 'adc-in') return 'no tiene convertidor analógico';
+  if (tipo === 'pwm-out') return 'Telar no genera su PWM (depende de cada modelo)';
+  return 'Telar todavía no escribe este bus para esta placa';
+}
 
 /* Los enlaces que sabe hacer cada placa. ESP-NOW necesita la radio de un
    ESP32 y CAN su controlador TWAI; las demas familias (AVR, la Pico y el
@@ -890,6 +971,27 @@ function enlacesDe(P){
   if (P && Array.isArray(P.enlaces)) return new Set(P.enlaces);
   const f = (P && P.familia) || 'esp32';
   return f === 'esp32' ? new Set(Object.keys(ENLACES)) : ENLACES_SERIE;
+}
+
+/* El nombre que hay que elegir en el IDE de Arduino (Herramientas > Placa),
+   tal cual lo escribe el boards.txt de cada nucleo. Va el primero de los
+   ajustes de Herramientas de cada placa. La CrowPanel, la S3-DevKitC y la
+   S3 SuperMini comparten fqbn: las tres son «ESP32S3 Dev Module». */
+const PLACA_IDE = {
+  'esp32:esp32:esp32': 'ESP32 Dev Module',
+  'esp32:esp32:esp32wrover': 'ESP32 Wrover Module',
+  'esp32:esp32:XIAO_ESP32S3': 'XIAO_ESP32S3',
+  'esp32:esp32:esp32s3': 'ESP32S3 Dev Module',
+  'esp32:esp32:esp32c3': 'ESP32C3 Dev Module',
+  'esp32:esp32:waveshare_esp32_s3_touch_lcd_43B': 'Waveshare ESP32-S3-Touch-LCD-4.3B',
+  'esp32:esp32:jczn_2432s028r': 'ESP32-2432S028R CYD',
+  'arduino:avr:uno': 'Arduino UNO',
+  'arduino:avr:nano': 'Arduino Nano',
+  'rp2040:rp2040:rpipico': 'Raspberry Pi Pico',
+};
+for (const P of Object.values(PLACAS)){
+  const ide = PLACA_IDE[String(P.fqbn || '').split(':').slice(0, 3).join(':')];
+  if (ide && !(P.opciones_ide && P.opciones_ide.Placa)) P.opciones_ide = { Placa: ide, ...(P.opciones_ide || {}) };
 }
 
 /* ---------------------------------------------------------------------
@@ -910,7 +1012,7 @@ const FAMILIAS = {
   esp32:   { et: 'ESP32 (cualquier variante)', ayuda: 'PWM por LEDC, ADC configurable, Serial.printf.' },
   arduino: { et: 'Arduino genérica (Pico, STM32, SAMD…)', ayuda: 'PWM con analogWrite, un puerto serie por hardware, sin printf.' },
   avr:     { et: 'AVR (UNO, Nano, Mega…)', ayuda: 'PWM de 8 bits en pines fijos, ADC de 10 bits, un solo UART.' },
-  linux:   { et: 'Linux (Raspberry, Jetson, Orange Pi…)', ayuda: 'No hay sketch: se genera un programa en Python que habla por el puerto serie.' },
+  linux:   { et: 'Linux (Raspberry, Jetson, Orange Pi…)', ayuda: 'No hay sketch: se genera un programa en Python que habla por el puerto serie o que dibuja una OLED por I2C.' },
 };
 
 function plantillaPlaca(){
@@ -1117,6 +1219,17 @@ const CONEXIONES = {
                          ayuda:'Cambia lo que el número SIGNIFICA, no lo que al pin le llega. '
                              + 'Para medir de verdad por encima de 3,3 V hace falta un divisor '
                              + 'resistivo delante: está en Dispositivos.'} },
+                /* En AVR y la Pico no hay atenuacion (es de Espressif) y las cifras son otras */
+                segun_familia:{
+                  avr:{ quitar:['atenuacion'],
+                        ayudas:{ muestras:'El último dígito del convertidor baila solo. Promediar lo calma. Más de 64 ya no se nota y ralentiza la lectura.',
+                                 escala_max:'Cambia lo que el número SIGNIFICA, no lo que al pin le llega. Para medir de verdad por encima de 5 V hace falta un divisor resistivo delante.' },
+                        trampas:['Máximo 5 V: por encima se rompe el pin.',
+                                 'Lee de 0 a 1023, con los 5 V de la placa como referencia. Si necesitas medir más, usa un divisor resistivo y ajusta la escala.'] },
+                  arduino:{ quitar:['atenuacion'],
+                        ayudas:{ muestras:'El último dígito del convertidor baila solo. Promediar lo calma. Más de 64 ya no se nota y ralentiza la lectura.' },
+                        trampas:['No le metas más tensión que la de la placa (3,3 V en la Pico): por encima se rompe el pin.',
+                                 'Si necesitas medir más, usa un divisor resistivo delante y ajusta la escala.'] } },
                 trampas:['Máximo 3,6 V absolutos: por encima se rompe el pin.',
                          'Por encima del rango fiable sigue dando números, pero cada vez más aplastados, y sobre 3,1 V se queda clavado en 4095. Si necesitas medir más, usa un divisor resistivo y ajusta la escala.'] },
   'pwm-out':  { nombre:'Salida PWM', grupo:'Pines sueltos', icono:'◐',
@@ -1128,8 +1241,23 @@ const CONEXIONES = {
                                 ayuda:'En qué unidades se da el valor: en tanto por ciento, de 0 a 255 como analogWrite, o de 0 a 1023. Telar lo convierte a la resolución elegida.'},
                          inicial:{et:'Valor al arrancar', val:0,
                                   ayuda:'Con qué valor sale al encender, en las unidades del rango. Después lo cambian un widget enlazado o tu código.'} },
+                /* la frecuencia y la resolucion son de LEDC: con analogWrite no se usan */
+                segun_familia:{ avr:{ quitar:['frecuencia', 'resolucion'] }, arduino:{ quitar:['frecuencia', 'resolucion'] } },
                 trampas:['Para mover un motor o una válvula hace falta un driver: el pin no puede con la carga.'] }
 };
+
+/* Una pieza vista desde su placa: lo que solo existe en el ESP32 (la
+   atenuacion del ADC, la frecuencia y la resolucion de LEDC) no se ofrece
+   en las demas, y sus ayudas y trampas dicen las cifras de esa placa. El
+   generador ya lo ignoraba; ahora el panel tampoco lo promete. */
+function piezaEnPlaca(cat, P){
+  const S = cat && cat.segun_familia && cat.segun_familia[(P && P.familia) || 'esp32'];
+  if (!S) return cat;
+  const campos = Object.fromEntries(Object.entries(cat.campos || {})
+    .filter(([k]) => !(S.quitar || []).includes(k))
+    .map(([k, c]) => [k, S.ayudas && S.ayudas[k] ? { ...c, ayuda: S.ayudas[k] } : c]));
+  return { ...cat, campos, trampas: S.trampas || cat.trampas };
+}
 
 /* Los rangos de la Salida PWM: lo que vale su variable en el proyecto. El
    paso a la resolución de LEDC lo hace hal_escribir, sea cual sea. */
@@ -1393,7 +1521,7 @@ const PUERTOS = {
   'esp_panel': {
     nombre: 'ESP32_Display_Panel',
     librerias: ['ESP32_Display_Panel 1.0.x', 'esp-lib-utils', 'lvgl 9.x'],
-    nota: 'La placa entera esta descrita dentro de la libreria: basta con nombrarla y ella pone los pines.'
+    nota: 'La placa entera está descrita dentro de la librería: basta con nombrarla y ella pone los pines.'
   },
   'serie': {
     nombre: 'Pantalla por puerto serie',
@@ -1403,7 +1531,7 @@ const PUERTOS = {
   'lovyan': {
     nombre: 'LovyanGFX',
     librerias: ['LovyanGFX 1.2.x', 'lvgl 9.x'],
-    nota: 'La pantalla se describe en pantalla.h, DENTRO del proyecto: controlador, pines, rotacion y tactil. '
+    nota: 'La pantalla se describe en pantalla.h, DENTRO del proyecto: controlador, pines, rotación y táctil. '
         + 'Por eso vale para cualquier panel SPI, y por eso dos proyectos con pantallas distintas no se estorban.'
   }
 };
@@ -1444,7 +1572,7 @@ const PANELES_SERIE = {
   /* Cualquier otra cosa que sepa leer lineas de texto: otra pantalla con
      su propio micro, un segundo Arduino, un programa en el PC. El
      protocolo esta escrito en el LEEME para que el otro lado lo copie. */
-  'UART-LINEAS': { nombre:'Otra pantalla o micro: texto por lineas', ancho:480, alto:320, protocolo:'lineas', baudios:115200 }
+  'UART-LINEAS': { nombre:'Otra pantalla o micro: texto por líneas', ancho:480, alto:320, protocolo:'lineas', baudios:115200 }
 };
 for (const [k, v] of Object.entries(PANELES_SERIE)) PANELES[k] = { ...v, bus:'uart' };
 
@@ -1458,6 +1586,71 @@ const WIDGETS_SERIE = new Set(['label', 'value', 'timer', 'bar', 'button', 'togg
    grafica de varias series, una imagen) o no cabe. */
 const WIDGETS_MONO = new Set(['label', 'value', 'timer', 'bar', 'panel', 'line', 'led',
                               'button', 'toggle', 'checkbox', 'state-strip', 'slider', 'spinner']);
+
+/* Cuando usar cada widget y como se conecta: lo ensena su panel. Una
+   sola lista, en los dos idiomas. */
+const USO = {
+  "label": { cuando: { es: "Títulos, nombres de zonas, unidades o una instrucción corta.", en: "Titles, area names, units or a short instruction." },
+    como: { es: "Escribe el texto. Si la lógica tiene <b>looks</b> para él, cambia de texto y color según el estado.", en: "Type the text. If the logic has <b>looks</b> for it, its text and colour change with the state." } },
+  "button": { cuando: { es: "Arrancar, parar, cambiar de pantalla o subir y bajar un valor.", en: "Start, stop, change screen or raise and lower a value." },
+    como: { es: "En su panel, <b>Al pulsar, ir a</b> otra pantalla o una orden sobre una salida; o dale lógica en <code>buttons:</code> con su nombre.", en: "In its panel, <b>On tap, go to</b> another screen or a command for an output; or give it logic under <code>buttons:</code> by its name." } },
+  "image": { cuando: { es: "Un logotipo o el esquema de la máquina.", en: "A logo or a diagram of the machine." },
+    como: { es: "Carga un PNG pequeño: cada píxel ocupa memoria de la placa.", en: "Load a small PNG: every pixel takes board memory." } },
+  "line": { cuando: { es: "Separar zonas de la pantalla o marcar una guía.", en: "Split areas of the screen or mark a guide." },
+    como: { es: "Arrastra un extremo para girarla (con Mayús, de 15 en 15°); el grosor y el ángulo, en su panel.", en: "Drag an end to turn it (with Shift, in 15° steps); thickness and angle in its panel." } },
+  "list": { cuando: { es: "Un menú de opciones, o varias líneas para leer.", en: "A menu of options, or several lines to read." },
+    como: { es: "Un elemento por línea. Enlazada a una variable, tocar un elemento guarda su número (el primero es 0) y lo deja marcado.", en: "One item per line. Linked to a variable, tapping an item saves its number (the first is 0) and leaves it marked." } },
+  "table": { cuando: { es: "Datos fijos en filas y columnas: una tabla de referencia.", en: "Fixed data in rows and columns: a reference table." },
+    como: { es: "Una fila por línea y las columnas separadas con <code>;</code>. No cambia sola: lo que escribes es lo que se ve.", en: "One row per line and columns separated with <code>;</code>. It does not change by itself: what you type is what shows." } },
+  "msgbox": { cuando: { es: "Una alarma, el fin de un ciclo o algo que hay que confirmar.", en: "An alarm, the end of a cycle or something to confirm." },
+    como: { es: "Título en la primera línea y el mensaje debajo. En <b>Cuándo aparece</b>, al arrancar o solo en unos estados de la lógica.", en: "Title on the first line and the message below. In <b>When it shows</b>, at start-up or only in some logic states." } },
+  "tabview": { cuando: { es: "Varias vistas en el mismo sitio cuando la pantalla es pequeña.", en: "Several views in the same place when the screen is small." },
+    como: { es: "Una pestaña por línea. Nacen vacías: el editor aún no mete widgets dentro, y lo de cada pestaña se añade a mano en el código.", en: "One tab per line. They start empty: the editor does not put widgets inside yet, so each tab is filled by hand in the code." } },
+  "slider": { cuando: { es: "Fijar un valor que va de un extremo a otro: velocidad, brillo, una consigna.", en: "Set a value from one end to the other: speed, brightness, a setpoint." },
+    como: { es: "Enlázalo a una salida o a un ajuste de la lógica: al arrastrar, la variable toma su valor.", en: "Link it to an output or a logic setting: dragging sets the variable." } },
+  "toggle": { cuando: { es: "Encender o apagar algo: una luz, una bomba, un modo.", en: "Turn something on or off: a light, a pump, a mode." },
+    como: { es: "Enlázalo a una salida de sí/no (o a un ajuste: 1 encendido, 0 apagado).", en: "Link it to an on/off output (or to a setting: 1 on, 0 off)." } },
+  "checkbox": { cuando: { es: "Activar una opción: modo automático, alarma sonora.", en: "Enable an option: automatic mode, sound alarm." },
+    como: { es: "Enlázala a una variable: marcada vale 1 y sin marcar 0.", en: "Link it to a variable: ticked is 1 and unticked 0." } },
+  "dropdown": { cuando: { es: "Elegir entre pocas opciones sin ocupar sitio: el modo, la receta.", en: "Choose between a few options without taking space: the mode, the recipe." },
+    como: { es: "Una opción por línea. La variable recibe el número de la elegida (0, 1, 2…) y en la lógica se pregunta: <code>if modo == 1: …</code>", en: "One option per line. The variable gets the number of the chosen one (0, 1, 2…), and the logic asks: <code>if mode == 1: …</code>" } },
+  "roller": { cuando: { es: "Lo mismo que el desplegable, pero a la vista y cómodo con el dedo.", en: "Same as the dropdown, but always visible and easy with a finger." },
+    como: { es: "Una opción por línea; la variable recibe el número de la elegida (0, 1, 2…).", en: "One option per line; the variable gets the number of the chosen one (0, 1, 2…)." } },
+  "spinbox": { cuando: { es: "Ajustar un número exacto de poco en poco: minutos, grados.", en: "Set an exact number step by step: minutes, degrees." },
+    como: { es: "Enlázalo a una variable: − y + suben o bajan su <b>paso</b> sin salirse del rango. Mantenido pulsado, sigue.", en: "Link it to a variable: − and + move it by its <b>step</b> within the range. Held down, it keeps going." } },
+  "buttonmatrix": { cuando: { es: "Varios botones iguales juntos: un teclado numérico, un menú.", en: "Several equal buttons together: a keypad, a menu." },
+    como: { es: "Una fila por línea, botones separados por espacios. Por ahora solo se dibuja: sus pulsaciones hay que atenderlas a mano en el código.", en: "One row per line, buttons separated by spaces. For now it is only drawn: its taps have to be handled by hand in the code." } },
+  "textarea": { cuando: { es: "Escribir un número exacto con un Teclado: una consigna, un tiempo.", en: "Type an exact number with a Keyboard: a setpoint, a time." },
+    como: { es: "Ponle un <b>Teclado</b> y elige <b>Guarda el número en</b>: al pulsar ✓, el número pasa a la variable.", en: "Add a <b>Keyboard</b> and choose <b>Saves the number in</b>: pressing ✓ sends the number to the variable." } },
+  "keyboard": { cuando: { es: "Teclear en un Campo de texto.", en: "Type into a Text area." },
+    como: { es: "Elige <b>Números</b>, créale el campo con su botón y, en el campo, <b>Guarda el número en</b> un ajuste: al pulsar ✓, el número escrito pasa a él. Con Letras, lo escrito solo se ve.", en: "Choose <b>Numbers</b>, create its field with its button and, in the field, <b>Saves the number in</b> a setting: pressing ✓ sends the typed number to it. With Letters, the text is only shown." } },
+  "scale": { cuando: { es: "Una regla con números junto a una Barra o un Deslizador.", en: "A ruler with numbers next to a Bar or a Slider." },
+    como: { es: "No se mueve. El rango sale de <b>Desde/Hasta</b> o de su variable; las divisiones y dónde van los números, en su panel.", en: "It does not move. The range comes from <b>From/To</b> or its variable; divisions and where the numbers go, in its panel." } },
+  "led": { cuando: { es: "Una alarma, marcha o fallo que se ve de un vistazo.", en: "An alarm, running or fault you see at a glance." },
+    como: { es: "Enlázalo a una variable de sí/no (una entrada, una salida, una bandera): se enciende cuando vale 1.", en: "Link it to an on/off variable (an input, an output, a flag): it lights up when it is 1." } },
+  "spinner": { cuando: { es: "Que se vea que algo está en marcha: conectando, calentando.", en: "Show that something is going on: connecting, heating." },
+    como: { es: "Gira siempre: ponlo en la pantalla que se enseña mientras se espera.", en: "It always spins: put it on the screen shown while waiting." } },
+  "qrcode": { cuando: { es: "Llevar al móvil un manual, una web o la wifi.", en: "Send a manual, a website or the wifi to a phone." },
+    como: { es: "Escribe el texto o el enlace. En la placa hay que encender <code>LV_USE_QRCODE</code> en lv_conf.h.", en: "Type the text or the link. On the board, <code>LV_USE_QRCODE</code> has to be on in lv_conf.h." } },
+  "tarjeta": { cuando: { es: "Agrupar datos que van juntos, con un fondo y un rótulo.", en: "Group data that belong together, with a background and a caption." },
+    como: { es: "Ponla detrás (en Capas) y los widgets encima.", en: "Put it behind (in Layers) and the widgets on top." } },
+  "lectura": { cuando: { es: "La medida principal, grande y con su unidad.", en: "The main measurement, large and with its unit." },
+    como: { es: "Enlázalo a una lectura o a un ajuste; unidad, decimales y rótulo, en su panel.", en: "Link it to a reading or a setting; unit, decimals and caption in its panel." } },
+  "pildora": { cuando: { es: "El estado del proceso, con un color que se entiende de lejos.", en: "The process state, with a colour you understand from afar." },
+    como: { es: "Cambia sola cuando la lógica cambia de estado. En su panel eliges el texto y el color de cada estado; los estados se crean ahí mismo o en la Lógica.", en: "It changes by itself when the logic changes state. In its panel you choose the text and colour of each state; states are created there or in the Logic." } },
+  "pasos": { cuando: { es: "Ver en qué paso del ciclo va la máquina.", en: "See which step of the cycle the machine is in." },
+    como: { es: "Una casilla por estado de la lógica (<code>states:</code>), en orden; se ilumina la del estado actual. Para tener más o menos pasos, añade o quita estados. El texto y el color de cada casilla van con su estado, en su panel.", en: "One box per logic state (<code>states:</code>), in order; the current one lights up. For more or fewer steps, add or remove states. The text and colour of each box go with its state, in its panel." } },
+  "barra-consigna": { cuando: { es: "Un nivel, un llenado o una carga, con su consigna marcada.", en: "A level, a filling or a load, with its setpoint marked." },
+    como: { es: "Enlázala a la medida; la marca verde sale de un valor fijo o de un ajuste.", en: "Link it to the measurement; the green mark comes from a fixed value or a setting." } },
+  "curva": { cuando: { es: "Ver cómo evoluciona una medida con el tiempo.", en: "See how a measurement changes over time." },
+    como: { es: "Enlázala a la medida y elige la ventana de tiempo; la consigna y una referencia, si quieres.", en: "Link it to the measurement and choose the time window; the setpoint and a reference, if you like." } },
+  "aguja": { cuando: { es: "Una medida como en un instrumento: tensión, presión, velocidad.", en: "A measurement like on an instrument: voltage, pressure, speed." },
+    como: { es: "Enlázalo a la medida; rango, apertura y consigna en su panel. El texto de la consigna se escribe y se arrastra.", en: "Link it to the measurement; range, opening and setpoint in its panel. The setpoint text can be edited and dragged." } },
+  "tiempo": { cuando: { es: "Una cuenta atrás o lo que lleva un ciclo.", en: "A countdown or how long a cycle has run." },
+    como: { es: "Enlázalo a un <code>timer</code> de la lógica (en segundos): sale como mm:ss.", en: "Link it to a logic <code>timer</code> (in seconds): it shows as mm:ss." } },
+  "icono": { cuando: { es: "Un símbolo junto a un dato: un rayo, un termómetro.", en: "A symbol next to a value: a bolt, a thermometer." },
+    como: { es: "Elige el icono, el tamaño y el color.", en: "Choose the icon, the size and the colour." } },
+};
 
 /* Widgets que siguen funcionando en los proyectos que ya los usan, pero
    que ya no se ofrecen: otro componente hace lo mismo y tenerlos los dos
@@ -1478,7 +1671,7 @@ const esMono = P => !!(P && P.mono);
 /* Los tactiles. El de SPI (XPT2046) es el de las resistivas baratas; los
    de I2C son los de las capacitivas. */
 const TACTILES = {
-  'ninguno':  { nombre:'sin tactil', clase:null, bus:null },
+  'ninguno':  { nombre:'sin táctil', clase:null, bus:null },
   'XPT2046':  { nombre:'XPT2046 (resistivo, SPI)', clase:'Touch_XPT2046', bus:'spi' },
   'FT5x06':   { nombre:'FT5x06 / FT6236 (capacitivo, I2C)', clase:'Touch_FT5x06', bus:'i2c' },
   'GT911':    { nombre:'GT911 (capacitivo, I2C)', clase:'Touch_GT911', bus:'i2c' },
@@ -1533,18 +1726,18 @@ function pinesDePantalla(pa){
   pon(s.sck, 'pantalla SPI SCK'); pon(s.mosi, 'pantalla SPI MOSI');
   pon(s.miso, 'pantalla SPI MISO'); pon(s.dc, 'pantalla DC');
   pon(s.cs, 'pantalla CS'); pon(s.rst, 'pantalla RESET');
-  if (pa?.luz) pon(pa.luz.pin, 'retroiluminacion');
+  if (pa?.luz) pon(pa.luz.pin, 'retroiluminación');
   const t = pa?.tactil;
   if (t && t.controlador && t.controlador !== 'ninguno'){
     const T = TACTILES[t.controlador];
     if (T && T.bus === 'spi'){
-      pon(t.sck, 'tactil SPI SCK'); pon(t.mosi, 'tactil SPI MOSI');
-      pon(t.miso, 'tactil SPI MISO'); pon(t.cs, 'tactil CS');
+      pon(t.sck, 'táctil SPI SCK'); pon(t.mosi, 'táctil SPI MOSI');
+      pon(t.miso, 'táctil SPI MISO'); pon(t.cs, 'táctil CS');
     } else {
-      pon(t.sda, 'tactil I2C SDA'); pon(t.scl, 'tactil I2C SCL');
-      pon(t.rst, 'tactil RESET');
+      pon(t.sda, 'táctil I2C SDA'); pon(t.scl, 'táctil I2C SCL');
+      pon(t.rst, 'táctil RESET');
     }
-    pon(t.irq, 'interrupcion del tactil');
+    pon(t.irq, 'interrupción del táctil');
   }
   return r;
 }
@@ -1604,8 +1797,11 @@ function fichaConPantalla(base, pa){
     ancho: med.ancho, alto: med.alto,
     puerto_codigo: 'lovyan',
     panel: pan.nombre + (pan.bus === 'i2c' ? '' : ' por SPI'),
+    /* con pantalla, la Pico pide su sistema operativo en Herramientas */
+    ...(base.os_pantalla ? { opciones_ide: { ...(base.opciones_ide || {}), 'Operating System': base.os_pantalla },
+                             nota_ide: base.nota_ide_pantalla || base.nota_ide } : {}),
     tactil: pan.bus !== 'i2c' && pa.tactil && pa.tactil.controlador !== 'ninguno'
-              ? (TACTILES[pa.tactil.controlador] || {}).nombre : 'sin tactil',
+              ? (TACTILES[pa.tactil.controlador] || {}).nombre : 'sin táctil',
     lv_mem: base.lv_mem ?? 49152,
     pines:  { ...(base.pines || {}), ...mios },
     libres: (base.libres || []).filter(x => !ocupados.has(x)),
@@ -1614,7 +1810,9 @@ function fichaConPantalla(base, pa){
       controlador: pa.controlador,
       bus: pan.bus || 'spi',
       i2c: pa.i2c || null,
-      i2c_puerto: pan.bus === 'i2c' ? ((base.i2c_controladores ?? 2) < 2 ? 0 : 1) : null,
+      i2c_puerto: pan.bus === 'i2c' ? (busFijo(base, 'i2c', { sda: pa.i2c?.sda, scl: pa.i2c?.scl }) ?? ((base.i2c_controladores ?? 2) < 2 ? 0 : 1)) : null,
+      /* en la Pico el SPI es el de sus pines (0 o 1); en el ESP32, no se usa */
+      spi_host_num: busFijo(base, 'spi', { sck: pa.spi?.sck, mosi: pa.spi?.mosi, miso: pa.spi?.miso }),
       ancho_panel: pa.ancho_panel ?? (PANELES[pa.controlador] || PANELES['ILI9341']).ancho,
       alto_panel:  pa.alto_panel  ?? (PANELES[pa.controlador] || PANELES['ILI9341']).alto,
       rotacion: pa.rotacion ?? 0,

@@ -58,6 +58,12 @@ header{
 .btn:disabled{opacity:.35;cursor:default}
 .btn:disabled:hover{background:var(--panel2);border-color:var(--borde)}
 #btnDeshacer,#btnRehacer{padding:8px 11px;font-size:15px;line-height:1}
+/* la documentacion, siempre a mano: en cualquier pestaña, con F1 */
+#btnDocs{display:inline-flex;align-items:center;gap:7px}
+#btnDocs svg{width:16px;height:16px;flex:none}
+header .btn{white-space:nowrap}
+/* en portatiles la barra no cabe entera: el subtitulo del logo es lo que sobra */
+@media (max-width:1500px){ .marca small{display:none} }
 
 /* ---------- cuerpo ---------- */
 main{flex:1;display:flex;min-height:0}
@@ -491,8 +497,8 @@ optgroup{background:var(--fondo);color:var(--debil);font-size:11px}
 .w{position:absolute;cursor:move;user-select:none;border:1px solid transparent;border-radius:6px}
 .w.sel{border-color:var(--acento);box-shadow:0 0 0 1px var(--acento)}
 .w .tirador{
-  position:absolute;width:10px;height:10px;background:var(--acento);
-  border:2px solid #04121f;border-radius:3px;display:none;
+  position:absolute;width:calc(10px * var(--k,1));height:calc(10px * var(--k,1));background:var(--acento);
+  border:calc(2px * var(--k,1)) solid #04121f;border-radius:calc(3px * var(--k,1));display:none;
 }
 .w.sel .tirador{display:block}
 .elegir-icono{display:flex;align-items:center;gap:10px;width:100%;text-align:left}
@@ -513,18 +519,37 @@ optgroup{background:var(--fondo);color:var(--debil);font-size:11px}
 .w.w-linea{border:0;border-radius:0}
 .w.w-linea::before{content:'';position:absolute;inset:-6px}
 .w.w-linea.sel{box-shadow:none;outline:1px dashed var(--acento);outline-offset:3px}
+/* La linea inclinada: su caja es un rectangulo casi vacio, y pinchar en
+   el hueco no debe cogerla (taparia lo que hay debajo). Solo el trazo y
+   sus dos extremos reciben el raton. */
+.w.w-diag{pointer-events:none}
+.w.w-diag::before{content:none}
+.w.w-diag .linea-toque{pointer-events:stroke;cursor:move}
+.w.w-diag .tirador{pointer-events:auto}
+.w.w-diag.sel{outline-style:dotted}
+.w .tirador[data-dir="a"],.w .tirador[data-dir="b"]{cursor:crosshair;border-radius:50%}
 .w.multi{box-shadow:0 0 0 1px var(--acento), inset 0 0 0 100vmax rgba(59,157,255,.10)}
 /* Rectangulo de seleccion por arrastre sobre el fondo */
 .marquesina{position:absolute;z-index:40;border:1px solid var(--acento);
   background:rgba(59,157,255,.14);pointer-events:none}
-.w .tirador[data-dir="nw"]{left:-5px;top:-5px;cursor:nwse-resize}
-.w .tirador[data-dir="n" ]{left:50%;top:-5px;margin-left:-5px;cursor:ns-resize}
-.w .tirador[data-dir="ne"]{right:-5px;top:-5px;cursor:nesw-resize}
-.w .tirador[data-dir="e" ]{right:-5px;top:50%;margin-top:-5px;cursor:ew-resize}
-.w .tirador[data-dir="se"]{right:-5px;bottom:-5px;cursor:nwse-resize}
-.w .tirador[data-dir="s" ]{left:50%;bottom:-5px;margin-left:-5px;cursor:ns-resize}
-.w .tirador[data-dir="sw"]{left:-5px;bottom:-5px;cursor:nesw-resize}
-.w .tirador[data-dir="w" ]{left:-5px;top:50%;margin-top:-5px;cursor:ew-resize}
+.w .tirador{--m:calc(-5px * var(--k,1))}
+.w .tirador[data-dir="nw"]{left:var(--m);top:var(--m);cursor:nwse-resize}
+.w .tirador[data-dir="n" ]{left:50%;top:var(--m);margin-left:var(--m);cursor:ns-resize}
+.w .tirador[data-dir="ne"]{right:var(--m);top:var(--m);cursor:nesw-resize}
+.w .tirador[data-dir="e" ]{right:var(--m);top:50%;margin-top:var(--m);cursor:ew-resize}
+.w .tirador[data-dir="se"]{right:var(--m);bottom:var(--m);cursor:nwse-resize}
+.w .tirador[data-dir="s" ]{left:50%;bottom:var(--m);margin-left:var(--m);cursor:ns-resize}
+.w .tirador[data-dir="sw"]{left:var(--m);bottom:var(--m);cursor:nesw-resize}
+.w .tirador[data-dir="w" ]{left:var(--m);top:50%;margin-top:var(--m);cursor:ew-resize}
+/* Con el lienzo muy ampliado (.fina), el marco de seleccion va por fuera
+   y fino: el borde de 1 px del lienzo serian 8 px de pantalla a 800 % */
+.pantalla.fina .w.sel{border-color:transparent;box-shadow:0 0 0 calc(2px * var(--k)) var(--acento)}
+.pantalla.fina .w.multi{box-shadow:0 0 0 calc(2px * var(--k)) var(--acento), inset 0 0 0 100vmax rgba(59,157,255,.10)}
+.pantalla.fina .w.sel:not(.multi) [data-parte]{outline-width:calc(1px * var(--k));outline-offset:calc(2px * var(--k))}
+.pantalla.fina .w.w-linea.sel{box-shadow:none;outline-width:calc(1px * var(--k));outline-offset:calc(3px * var(--k))}
+.pantalla.fina .w .w-reserva{border-width:calc(1px * var(--k))}
+.pantalla.fina .w .w-reserva span{font-size:calc(10px * var(--k));bottom:calc(-15px * var(--k))}
+.pantalla.fina .marquesina{border-width:calc(1px * var(--k))}
 
 /* ---------- paleta de estilos ---------- */
 /* Una fila por color. En dos columnas no caben selector, etiqueta y
@@ -548,6 +573,13 @@ optgroup{background:var(--fondo);color:var(--debil);font-size:11px}
             text-transform:lowercase;text-align:center}
 .w-int{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
        align-items:center;overflow:hidden;pointer-events:none;color:#fff}
+/* El dibujo ocupa la caja ENTERA, como en la placa y en el simulador: el
+   borde transparente de .w (el de la seleccion) le quitaba 1 px por lado,
+   y lo que llega al borde (el Cargando, un arco, un piloto) salia cortado
+   abajo y a la derecha, o aplastado. La linea no lleva borde. */
+.w:not(.w-linea) > .w-int{inset:-1px}
+/* El halo del piloto sale de su caja, como en la placa: recortado parecia un cuadrado */
+.w-led > .w-int{overflow:visible}
 /* Caja para escribir el texto encima del propio widget */
 .menu-ctx{
   position:fixed;z-index:200;background:var(--panel);border:1px solid var(--borde);
@@ -695,11 +727,12 @@ pre{
   <div class="marca"><svg class="logo" viewBox="0 0 22 22" aria-hidden="true"><g fill="none" stroke-width="2.6" stroke-linecap="round">
       <path d="M6 2.5v17" stroke="#3b9dff"/><path d="M11 2.5v17" stroke="#3ddc97"/><path d="M16 2.5v17" stroke="#f5a524"/>
       <path d="M2.5 7h6M13.5 7h6" stroke="#e6e9ef"/><path d="M2.5 11h1.3M8.7 11h4.6M18.2 11h1.3" stroke="#e6e9ef"/>
-      <path d="M2.5 15h6M13.5 15h6" stroke="#e6e9ef"/></g></svg>Telar Studio <small>DISEÑADOR DE PANTALLAS ESP32</small></div>
+      <path d="M2.5 15h6M13.5 15h6" stroke="#e6e9ef"/></g></svg>Telar Studio <small>DISEÑADOR DE PANTALLAS</small></div>
   <div class="chip" id="chipPlaca">—</div>
   <div class="chip" id="chipRes">—</div>
   <div class="chip" id="chipPines">—</div>
   <div class="sep"></div>
+  <button class="btn" id="btnDocs" title="Abrir la documentación (F1)">Documentación</button>
   <select id="selIdioma" class="sel-idioma" title="Idioma / Language"></select>
   <button class="btn" id="btnDeshacer" title="Deshacer (Ctrl+Z)" disabled>↶</button>
   <button class="btn" id="btnRehacer"  title="Rehacer (Ctrl+Y)" disabled>↷</button>
@@ -730,6 +763,13 @@ pre{
         <button type="button" class="bz" data-zoom="+" title="Acercar (Ctrl + rueda)" aria-label="Acercar">+</button>
       </div>
     </div>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+      <filter id="filtroOled" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+        <feColorMatrix type="matrix" values=".2126 .7152 .0722 0 0  .2126 .7152 .0722 0 0  .2126 .7152 .0722 0 0  0 0 0 1 0"/>
+        <feComponentTransfer><feFuncR type="linear" slope="1000" intercept="-300"/><feFuncG type="linear" slope="1000" intercept="-300"/><feFuncB type="linear" slope="1000" intercept="-300"/></feComponentTransfer>
+        <feComponentTransfer><feFuncR type="linear" slope="0.8314" intercept="0.1020"/><feFuncG type="linear" slope="0.8196" intercept="0.1451"/><feFuncB type="linear" slope="0.8039" intercept="0.1961"/></feComponentTransfer>
+      </filter>
+    </svg>
     <div class="zona" id="zona">
       <div>
         <div class="marco" id="marco">
@@ -893,7 +933,15 @@ function seleccionar(id, aditivo){
 }
 const limpiarSeleccion = () => seleccionar(null, false);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const REJ = 4, ajusta = n => Math.round(n / REJ) * REJ;
+/* La rejilla del lienzo. De 4 en 4 en las pantallas grandes; en las
+   pequenas 4 px es un salto enorme (en una OLED de 64 de alto solo hay 16
+   sitios donde dejar un widget): de 2 en 2 por debajo de 200, y pixel a
+   pixel hasta 64. */
+const pasoRejilla = () => {
+  const P = placa(), m = Math.min(P.ancho || 999, P.alto || 999);
+  return m <= 64 ? 1 : m < 200 ? 2 : 4;
+};
+const ajusta = n => { const r = pasoRejilla(); return Math.round(n / r) * r; };
 
 /* Todo lo conectado, de todos los nodos, con su procedencia */
 function piezas(){
@@ -1026,7 +1074,7 @@ const pasoPorDefecto = v => Math.max(1, Math.round(((v.max ?? 100) - (v.min ?? 0
 
 const varsPara = acepta =>
   acepta === 'lectura'   ? variables().filter(v => v.dir==='lectura' || v.dir==='ajuste' || v.dir==='logica' || (v.dir==='escritura' && !v.booleano))
-: acepta === 'escritura' ? variables().filter(v => v.dir==='escritura' || v.dir==='ajuste')
+: acepta === 'escritura' ? variables().filter(v => v.dir==='escritura' || v.dir==='ajuste' || (v.tipoLogica==='setting' && !v.booleano))
 : acepta === 'series'    ? variables().filter(v => v.dir==='lectura')
 : [];
 
@@ -1120,19 +1168,22 @@ function asignarPines(n){
   }
 
   for (const d of n.conexiones){
-    const cat = CONEXIONES[d.tipo];
+    const cat = piezaEnPlaca(CONEXIONES[d.tipo], P);
     if (!cat) continue;
     const nec = conexionANecesidad(cat);
     const f = { clave:d.clave, pieza:d, cat, necesidad:'', pin:null, regla:'', aviso:null, coste:1, nec };
 
     /* Ni una AVR ni una Linux son un ESP32: lo que no saben hacer se dice
        aqui, antes de repartir ningun pin, y el export se niega despues. */
-    const permitidas = P.familia === 'avr' ? AVR_PIEZAS : P.familia === 'linux' ? LINUX_PIEZAS : null;
+    /* La Pico tampoco: pines sueltos si; buses, radio y CAN, no (piezasDe) */
+    const permitidas = piezasDe(P, n === nodoHMI());
     if (permitidas && !permitidas.has(d.tipo)){
       f.necesidad = cat.nombre;
       f.coste = 0;
       f.regla = P.familia === 'linux'
         ? t('Una placa con Linux no tiene convertidor analógico, y su PWM depende del overlay de cada modelo. Aquí sabe hacer entradas y salidas digitales. Para medir algo analógico, un ADC por I2C (ADS1115) o un micro que lo haga y lo mande.')
+        : P.familia === 'arduino'
+        ? t('En esta placa esto no existe o necesitaría código que Telar todavía no escribe para ella: los buses que genera usan las funciones del ESP32, y la radio y el CAN son de su chip. Lo que sí sabe hacer aquí: entradas analógicas, entradas y salidas digitales y salidas PWM.')
         : t('En una placa AVR (UNO/Nano) esto no existe o necesitaría código que Telar todavía no escribe para esta familia. Lo que sí sabe hacer aquí: entradas analógicas, entradas y salidas digitales y salidas PWM.');
       f.aviso = { tipo:'error', txt: `${t('No disponible en ')}${P.corto}` };
       filas.push(f); continue;
@@ -1233,6 +1284,8 @@ function asignarPines(n){
           f.regla = `${t('Uno de los seis pines con PWM de la placa:')} ${P.pwm.map(x => nombrePin(P, x)).join(', ')}. `
                   + t('En AVR el PWM es de 8 bits y a frecuencia fija: la frecuencia y la resolución que pongas en la pieza aquí no se usan.');
         }
+        else if (esPwm && (P.familia || 'esp32') !== 'esp32')
+          f.regla += ' ' + t('PWM con analogWrite, a la frecuencia que fija la placa.');
         else if (esPwm){
           const fr = d.params?.frecuencia ?? cat.campos?.frecuencia?.val ?? 5000;
           const re = d.params?.resolucion ?? cat.campos?.resolucion?.val ?? 13;
@@ -1406,6 +1459,8 @@ function manifiesto(){
       if (w.destino)        c.push(`goto: ${w.destino}`);
       if (w.texto)          c.push(`text: "${w.texto}"`);
       c.push(`x: ${w.x}`, `y: ${w.y}`, `w: ${w.w}`, `h: ${w.h}`);
+      if (w.tipo === 'line' && w.diag) c.push(`diagonal: "${w.diag === '/' ? 'up' : 'down'}"`, `thickness: ${lineaGrosor(w)}`);
+      if (w.tipo === 'keyboard' && w.modo === 'numeros') c.push('mode: numbers');
       if (w.estilo && Object.keys(w.estilo).length){
         const st = Object.entries(w.estilo).map(([k,v]) =>
           k === 'fuente' ? `font: montserrat_${v}`
@@ -1513,7 +1568,8 @@ function fuenteEfectiva(w){
   if (w.auto)   return E.tema.fuente;     /* la caja la sigue: no puede mandar */
   const prop = PROP_TEXTO[w.tipo];
   if (!prop) return E.tema.fuente;
-  const px = Math.round(w.h * prop);
+  const lado = w.tipo === 'scale' && (w.orientacion === 'izquierda' || w.orientacion === 'derecha') ? Math.min(w.w, w.h) : w.h;
+  const px = Math.round(lado * prop);
   /* Chivo o Plex se convierten al tamano exacto: no hay que redondear
      a los de Montserrat. */
   if (tipoLibre(varianteFuente(w))) return Math.max(esMono(placa()) ? 10 : 8, px);
@@ -1657,6 +1713,34 @@ function fuentePorAncho(w, ancho){
   const hol = (HOLGURA[w.tipo] || [0,0])[0];
   return TODAS_FUENTES.reduce((a,b) =>
     Math.abs(medirTexto(txt,b,w).w + hol - ancho) < Math.abs(medirTexto(txt,a,w).w + hol - ancho) ? b : a);
+}
+
+/* La letra con la que la caja cenida mide lo que pide el tirador. La caja
+   no es solo la letra: el Numero lleva el rotulo encima y la unidad al
+   lado. Se prueba cada tamano con tamanoAuto, la misma medida que usa
+   normalizarAuto, asi que la caja acaba donde esta el puntero. Crece con
+   la letra, y por eso basta una busqueda binaria. En una pantalla de un
+   color no baja de 10 (ver fuenteEfectiva). */
+function fuenteParaCaja(w, lado, objetivo){
+  const min = esMono(placa()) ? 10 : 8;
+  const cands = tipoLibre(varianteFuente(w))
+    ? Array.from({ length: 361 - min }, (_, i) => min + i)
+    : [...new Set(TODAS_FUENTES)].filter(px => px >= min).sort((a, b) => a - b);
+  const P = placa();
+  const caja = px => tamanoAuto({ ...w, estilo: { ...(w.estilo || {}), fuente: px } });
+  const mide = px => caja(px)[lado];
+  /* el ultimo indice (hasta b) que aun cumple ok: todo crece con la letra */
+  const ultimo = (a, b, ok) => { while (a < b){ const m = (a + b + 1) >> 1; if (ok(cands[m])) a = m; else b = m - 1; } return a; };
+  /* no mas grande de lo que cabe en la pantalla: lo que sobra, LVGL lo recorta */
+  const tope = ultimo(0, cands.length - 1, px => { const t = caja(px); return t.w <= P.ancho && t.h <= P.alto; });
+  let lo = 0, hi = tope;
+  while (lo < hi){ const m = (lo + hi) >> 1; if (mide(cands[m]) < objetivo) lo = m + 1; else hi = m; }
+  if (lo > 0 && Math.abs(mide(cands[lo - 1]) - objetivo) <= Math.abs(mide(cands[lo]) - objetivo)) lo--;
+  /* Si varios tamanos dan la misma caja (el rotulo del Numero, que no
+     crece con el, marca un ancho minimo), el mas grande de ellos:
+     estrechar un poco no debe hundir el numero a 10 px. */
+  const v = mide(cands[lo]);
+  return cands[ultimo(lo, tope, px => mide(px) <= v)];
 }
 
 /**
@@ -2002,8 +2086,11 @@ function planFuentes(){
   const ORDEN = { medium: 0, bold: 1, italic: 2, bolditalic: 3 };
   for (const { px, variante, set } of [...plan.values()].sort((a,b) => a.px - b.px || ORDEN[a.variante] - ORDEN[b.variante])){
     const glifos = [...set].sort().join('');
-    /* la negrita y la cursiva nunca vienen compiladas en LVGL */
-    const propia = variante !== 'medium' || px > 48 || [...set].some(c => !glifoOK(c));
+    /* la negrita y la cursiva nunca vienen compiladas en LVGL. Y la de
+       8 px tampoco, en la practica: lv_conf.h la trae apagada de fabrica
+       y un widget pequeno en una pantalla de 320 px la pide (el sketch no
+       compilaba hasta tocar lv_conf.h). Se genera, como las de mas de 48. */
+    const propia = variante !== 'medium' || px > 48 || px < 10 || [...set].some(c => !glifoOK(c));
     /* Aproximacion del peso en flash. Un glifo ocupa mas o menos
        (ancho x alto) medios bytes a 4 bpp; el ancho medio ronda el 55 %
        del cuerpo y el alto el 75 %. Calibrado contra generaciones
@@ -2067,9 +2154,22 @@ function textosConProblema(){
   return r;
 }
 
-/* grayscale deja la luminancia; brightness(1/0.3) lleva el 30 % al 100 %
-   y contrast satura: por debajo del corte negro, por encima blanco. */
-const FILTRO_MONO = 'grayscale(1) brightness(1.67) contrast(60)';
+/* La OLED: cada pixel, encendido o apagado, con el mismo corte (30 %)
+   que colorC del generador. El filtro #filtroOled (en el HTML) saca la
+   luminancia, la corta y pinta el apagado en gris pizarra y el encendido
+   en blanco frio: en negro puro la pantalla no se distinguia del marco. */
+const FILTRO_MONO = 'url(#filtroOled)';
+
+/* En una pantalla de un color, la «tinta» (lo que se enciende) y el
+   «vacio» (el fondo), segun el fondo del tema sea oscuro o claro. Los
+   canales y las casillas se dibujan con contorno de tinta: su color de
+   superficie cae bajo el corte y se iria a negro sobre negro. Lo usan el
+   lienzo y el generador. null si la pantalla es de color. */
+function monoTinta(){
+  if (!esMono(placa())) return null;
+  return colorC(E.tema.fondo) === '0xffffff' ? { tinta: '#000000', vacio: '#ffffff' }
+                                             : { tinta: '#ffffff', vacio: '#000000' };
+}
 
 function pintarLienzo(){
   migrarCajas(); migrarTextos();
@@ -2087,6 +2187,11 @@ function pintarLienzo(){
   const pant = document.getElementById('pantalla');
   pant.style.width = P.ancho+'px'; pant.style.height = P.alto+'px';
   pant.style.transform = `scale(${escala})`;
+  /* Tiradores y marco de seleccion: por encima del 160 % se encogen lo
+     que crece el lienzo, para que midan en pantalla lo de siempre y no
+     tapen el widget (una OLED va al 500 % o mas) */
+  pant.style.setProperty('--k', Math.min(1, 1.6 / escala));
+  pant.classList.toggle('fina', escala > 1.6);
   pant.style.background = E.tema.fondo;
   /* De un color: el lienzo se ve como la pantalla de verdad, cada pixel
      blanco o negro, con el mismo corte (30 %) que usa el generador. */
@@ -2130,13 +2235,494 @@ function choquesReserva(w){
   return con.length || fuera ? { ...m, con, fuera } : null;
 }
 
+/* =====================================================================
+ * LA LINEA
+ *
+ * Dos extremos y un grosor. Sin w.diag es la de siempre: un rectangulo de
+ * color, horizontal (w >= h; el grosor es h) o vertical (el grosor es w).
+ * Con w.diag ('\\' baja hacia la derecha, '/' sube) va de una esquina a
+ * la contraria de su caja, metida medio grosor, y en la placa es un
+ * lv_line. Mover o reescalar la caja mueve y estira la linea sola.
+ * ===================================================================== */
+const lineaGrosor = w => Math.max(1, Math.round(w.grosor || 2));
+/* Cuando usar el widget y como se conecta (USO, datos.js). Los Pasos
+   avisan si la logica tiene uno o ningun estado: salen como una sola
+   casilla (el «RUN» de un proyecto de un estado). */
+/* La ficha de cada widget en la guía (docs/logica.html, «Los widgets, uno
+   a uno»): el ancla #w-… de cada tipo que ya la tiene */
+const FICHA_GUIA = {
+  label: 'texto', button: 'boton', image: 'imagen', line: 'linea', list: 'lista', table: 'tabla',
+  msgbox: 'aviso', tabview: 'pestanas', tarjeta: 'tarjeta', icono: 'icono',
+  slider: 'deslizador', toggle: 'interruptor', checkbox: 'casilla', dropdown: 'desplegable', roller: 'rueda',
+  spinbox: 'contador', buttonmatrix: 'rejilla', textarea: 'campo', keyboard: 'teclado',
+  scale: 'escala', led: 'piloto', spinner: 'cargando', qrcode: 'qr', lectura: 'numero', pildora: 'estado-actual',
+  pasos: 'pasos', 'barra-consigna': 'barra', curva: 'curva', aguja: 'reloj', tiempo: 'tiempo',
+};
+const enlaceGuia = tipo => FICHA_GUIA[tipo]
+  ? `<a href="docs/logica.html?lang=${encodeURIComponent(IDIOMA.actual)}#w-${FICHA_GUIA[tipo]}" target="_blank" rel="noopener">${t('Ver en la guía')} →</a>` : '';
+function usoHTML(w){
+  const U = typeof USO !== 'undefined' && USO[w.tipo];
+  if (!U) return '';
+  const L = IDIOMA.actual === 'en' ? 'en' : 'es';
+  const guia = enlaceGuia(w.tipo);
+  let h = `<div class="nota info" style="margin-bottom:10px"><b>${t('Cuándo usarlo')}:</b> ${U.cuando[L]}<br><b>${t('Cómo')}:</b> ${U.como[L]}${guia ? `<br>${guia}` : ''}</div>`;
+  /* (Los Pasos llevan su explicacion en su propia seccion, «Los pasos»:
+     ver panelPasos.) */
+  return h;
+}
+/* La logica de ejemplo de los Pasos: cuatro estados que avanzan solos */
+function logicaEjemploPasos(){
+  const [a, b, c, d] = IDIOMA.actual === 'en' ? ['IDLE', 'FILLING', 'HEATING', 'DONE'] : ['ESPERA', 'LLENANDO', 'CALENTANDO', 'LISTO'];
+  return `# ${t('Ejemplo: un ciclo de cuatro pasos que avanza solo. Pruébalo con Simular.')}
+start_in: ${a}
+states:
+  ${a}:
+    after 2: [go to ${b}]
+  ${b}:
+    after 3: [go to ${c}]
+  ${c}:
+    after 3: [go to ${d}]
+  ${d}:
+    after 2: [go to ${a}]
+`;
+}
+
+/* ---------------------------------------------------------------------
+ * LOS PASOS DESDE DISEÑO: anadir o quitar un estado del primer bloque de
+ * la logica sin ir a la pestana Logica. Se toca el TEXTO, con las lineas
+ * que da el lector de logica.js, y nunca a ciegas:
+ *   - anadir: el estado nuevo, vacio, al final de states:. Nadie va a el
+ *     todavia; se dice, porque solo la logica sabe cuando se llega.
+ *   - quitar: solo si nada lo nombra (go to, start_in, in, is). Si algo lo
+ *     nombra no se toca nada y se dice que lineas: adonde ir en su lugar es
+ *     una decision del alumno, no de la herramienta.
+ * ------------------------------------------------------------------- */
+function lineasEstados(){
+  const M = logicaModelo(); if (!M || !M.blocks.length) return null;
+  const txt = String(E.logica || ''), p = LOGICA.parse(txt);
+  const base = (M.blocks[0].name ? M.blocks[0].name + '.' : '') + 'states';
+  const n = base.split('.').length + 1;
+  const estados = Object.entries(p.lines).filter(([k]) => k.startsWith(base + '.') && k.split('.').length === n)
+    .map(([k, l]) => ({ nombre: k.slice(base.length + 1), linea: l })).sort((a, b) => a.linea - b.linea);
+  return { L: txt.split('\n'), estados };
+}
+/* La ultima linea (1..n) del cuerpo de un estado: las que siguen con mas sangria */
+function finDeEstado(L, linea){
+  const sangria = L[linea - 1].match(/^\s*/)[0].length;
+  let fin = linea;
+  for (let i = linea; i < L.length; i++){
+    const l = L[i];
+    if (!l.trim() || /^\s*#/.test(l)) continue;
+    if (l.match(/^\s*/)[0].length > sangria) fin = i + 1; else break;
+  }
+  return fin;
+}
+const nombreEstado = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/[^A-Z0-9_]+/g, '_').replace(/^_+|_+$/g, '');
+/* Uno o varios pasos (separados por comas o en lineas), al final. Sin
+   logica todavia, la crea con ellos: el primero es donde arranca. */
+function anadirPasoLogica(nombres){
+  const lista = String(nombres || '').split(/[,;\n]+/).map(x => x.trim()).filter(Boolean).map(nombreEstado);
+  if (!lista.length) return { error: t('Escribe el nombre del paso.') };
+  const malo = lista.find(s => !/^[A-Z][A-Z0-9_]*$/.test(s));
+  if (malo !== undefined) return { error: `${malo || '?'}: ${t('El nombre de un paso empieza por una letra y lleva letras, números o _.')}` };
+  const repe = lista.find((s, i) => lista.indexOf(s) !== i);
+  if (repe) return { error: `${repe}: ${t('está dos veces.')}` };
+  if (!String(E.logica || '').trim())
+    return { txt: `start_in: ${lista[0]}\nstates:\n${lista.map(s => `  ${s}:`).join('\n')}\n`, nombres: lista, nueva: true };
+  const R = lineasEstados();
+  if (!R) return { error: t('La lógica tiene errores: arréglalos en la pestaña Lógica y vuelve.') };
+  if (!R.estados.length) return { error: t('Primero la lógica tiene que tener estados (states:).') };
+  const ya = lista.find(s => R.estados.some(e => e.nombre === s));
+  if (ya) return { error: `${ya}: ${t('ese paso ya existe.')}` };
+  const ult = R.estados[R.estados.length - 1];
+  const sangria = R.L[ult.linea - 1].match(/^\s*/)[0];
+  R.L.splice(finDeEstado(R.L, ult.linea), 0, ...lista.map(s => sangria + s + ':'));
+  return { txt: R.L.join('\n'), nombres: lista };
+}
+/* Las lineas de la logica que nombran un estado, fuera de su propio cuerpo */
+function quienNombraEstado(s){
+  const R = lineasEstados(); if (!R) return [];
+  const yo = R.estados.find(e => e.nombre === s);
+  const desde = yo ? yo.linea : 0, hasta = yo ? finDeEstado(R.L, yo.linea) : 0;
+  const re = new RegExp(`(go to\\s+${s}\\b|start_in:\\s*${s}\\b|\\bin\\s+${s}\\s*:|\\bis\\s+(not\\s+)?${s}\\b)`);
+  return R.L.map((l, i) => [i + 1, l]).filter(([n, l]) => (n < desde || n > hasta) && re.test(l.replace(/#.*$/, '')))
+    .map(([n, l]) => `${t('línea')} ${n}: ${l.trim()}`);
+}
+/* Como esta cada paso, para ensenarlo: si es el de arranque, si algo lleva
+   a el (un go to en otro sitio) y si sale a algun otro (un go to en su
+   cuerpo). Un paso al que nada lleva nunca se iluminara. */
+function estadoDePasos(){
+  const R = lineasEstados(); if (!R) return null;
+  const M = logicaModelo(), inicio = M && M.blocks[0] ? M.blocks[0].start_in : null;
+  return R.estados.map(e => {
+    const fin = finDeEstado(R.L, e.linea);
+    const cuerpo = R.L.slice(e.linea, fin).map(l => l.replace(/#.*$/, ''));
+    const fuera = R.L.filter((l, i) => i + 1 < e.linea || i + 1 > fin).map(l => l.replace(/#.*$/, ''));
+    const re = new RegExp(`go to\\s+${e.nombre}\\b`);
+    return { nombre: e.nombre, arranque: e.nombre === inicio,
+             llega: e.nombre === inicio || fuera.some(l => re.test(l)),
+             sale: cuerpo.some(l => /go to\s+\w+/.test(l)),
+             vacio: !cuerpo.some(l => l.trim()) };
+  });
+}
+/* «Que avancen solos»: a cada paso VACIO se le escribe after N: [go to el
+   siguiente] (el ultimo, al primero). Los que ya tienen algo no se tocan. */
+function encadenarPasos(seg){
+  const R = lineasEstados(); if (!R || R.estados.length < 2) return null;
+  const E2 = R.estados;
+  /* de abajo arriba, para que las lineas de los de arriba no se muevan */
+  for (let i = E2.length - 1; i >= 0; i--){
+    const e = E2[i], fin = finDeEstado(R.L, e.linea);
+    if (R.L.slice(e.linea, fin).some(l => l.replace(/#.*$/, '').trim())) continue;
+    const sangria = R.L[e.linea - 1].match(/^\s*/)[0] + '  ';
+    R.L.splice(e.linea, 0, `${sangria}after ${seg}: [go to ${E2[(i + 1) % E2.length].nombre}]`);
+  }
+  return R.L.join('\n');
+}
+/* EL PANEL DE LOS PASOS. Tres situaciones, cada una con lo que hace falta:
+   sin logica (escribir los pasos o partir de un ejemplo), con errores (ir
+   a arreglarlos) y con pasos (la lista numerada, que falta para que
+   avancen, y anadir otro). El nombre del paso y el texto que se ve en
+   pantalla van separados y rotulados: antes el texto parecia el nombre. */
+function panelPasos(w){
+  const insignia = (txt, c) => `<span style="font:600 10px var(--mono);letter-spacing:.04em;padding:2px 6px;border-radius:5px;white-space:nowrap;
+    background:color-mix(in srgb,var(${c}) 16%,transparent);color:var(${c})">${esc(txt)}</span>`;
+  const botones = extra => `<div class="fila" style="gap:6px;margin:8px 0 10px">${extra || ''}
+      <button class="btn" id="pasosEstilo" style="flex:1">${t('Colores (uno por paso)')} →</button></div>`;
+  let h = `<div class="acc-sec" style="margin-top:4px">${t('Los pasos del proceso')}</div>`;
+
+  /* 1. sin logica: escribir los pasos */
+  if (!String(E.logica || '').trim()){
+    h += `<div class="nota info" style="margin-bottom:8px">${t('Todavía no hay pasos. Escribe los de tu proceso en orden, separados por comas. El primero será el de arranque.')}</div>
+      <div class="fila" style="gap:6px;margin-bottom:6px">
+        <input type="text" id="pasoNuevo" placeholder="${esc(t('Por ejemplo: INICIO, EJECUTANDO, STOP'))}" style="flex:1;min-width:0">
+        <button class="btn" id="pasoAnadir">${t('Crear los pasos')}</button></div>
+      <button class="btn" id="pasosEjemplo" style="width:100%;margin-bottom:6px">${t('O empezar con un ejemplo de 4 pasos que avanza solo')}</button>
+      <div class="regla">${t('Mientras no haya pasos, la pantalla muestra una sola casilla, RUN: el estado por defecto.')}</div>`;
+    return h + botones();
+  }
+  /* 2. la logica tiene errores: no se puede leer que pasos hay */
+  const info = estadoDePasos();
+  if (!info || !info.length){
+    h += `<div class="nota aviso" style="margin-bottom:8px">${t('La lógica tiene errores: arréglalos en la pestaña Lógica y aquí podrás añadir y quitar pasos.')}</div>`;
+    return h + botones(`<button class="btn" id="pasosIrLogica2" style="flex:1">${t('Ir a la Lógica')} →</button>`);
+  }
+  /* 3. la lista: numero, nombre, arranque / nadie llega, quitar, y el texto */
+  const tx = COMPONENTES.pasos.textos(w), est = estadosDe();
+  h += info.map((p, i) => {
+    const k = est.indexOf(p.nombre), txt = k >= 0 ? tx[k] : p.nombre;
+    return `<div style="border:1px solid var(--borde);border-radius:8px;padding:8px 10px;margin-bottom:6px;background:var(--panel2)">
+      <div class="fila" style="align-items:center;gap:8px">
+        <span style="font:600 11px var(--mono);color:var(--suave);min-width:14px">${i + 1}</span>
+        <b style="flex:1;min-width:0;font:600 13px var(--mono);overflow:hidden;text-overflow:ellipsis">${esc(p.nombre)}</b>
+        ${p.arranque ? insignia(t('arranque'), '--ok') : ''}${p.llega ? '' : insignia(t('nadie llega'), '--aviso')}
+        <button type="button" class="btn" data-pasoborrar="${esc(p.nombre)}" title="${esc(t('Quitar este paso de la lógica'))}" style="padding:2px 8px">✕</button>
+      </div>
+      <label class="campo" style="margin:6px 0 0"><span>${t('Texto en pantalla (opcional)')}</span>
+        <input type="text" data-pasotexto="${esc(p.nombre)}" value="${esc(txt !== p.nombre ? txt : '')}" placeholder="${esc(p.nombre)}"></label>
+    </div>`;
+  }).join('');
+  h += `<div class="fila" style="gap:6px;margin:8px 0 4px">
+      <input type="text" id="pasoNuevo" placeholder="${esc(t('Otro paso (o varios, con comas)'))}" style="flex:1;min-width:0">
+      <button class="btn" id="pasoAnadir">${t('+ Añadir')}</button></div>
+    <div class="regla" style="margin-bottom:8px">${t('Se añaden al final.')}</div>`;
+  /* como cambia de uno a otro (y anadir un cambio sin escribir codigo) */
+  if (info.length > 1){
+    h += bloqueCambios(info);
+    /* atajo para ver algo moverse: solo si hay pasos a los que nada lleva */
+    if (info.some(p => !p.llega) && info.some(p => p.vacio))
+      h += `<button class="btn" id="pasosEncadenar" style="width:100%;margin-bottom:6px">${t('Que avancen solos cada 3 s')}</button>
+        <div class="regla" style="margin-bottom:6px">${t('Escribe en cada paso vacío «a los 3 s, al siguiente». Útil para probar con Simular; luego lo cambias.')}</div>`;
+  }
+  return h + botones(`<button class="btn" id="pasosIrLogica2" style="flex:1">${t('Ir a la Lógica')} →</button>`);
+}
+/* EL PANEL DEL «ESTADO ACTUAL» (la pildora): el mismo esquema que los
+   Pasos, porque habla de lo mismo, los estados de la logica. Por cada
+   estado, el texto que se ve y su color; se guardan en el widget
+   (textosEstado, coloresEstado) y mandan sobre looks. */
+function panelEstadoActual(w){
+  const C = COMPONENTES.pildora;
+  let h = `<div class="acc-sec" style="margin-top:4px">${t('Los estados')}</div>
+    <div class="regla" style="margin-bottom:8px">${t('Enseña el estado en el que está la máquina. Cambia solo cuando la lógica pasa a otro estado: pruébalo con Simular.')}</div>`;
+  if (!String(E.logica || '').trim()){
+    return h + `<div class="nota info" style="margin-bottom:8px">${t('Todavía no hay estados: por eso enseña RUN, el de por defecto. Escribe los de tu máquina en orden, separados por comas. El primero será el de arranque.')}</div>
+      <div class="fila" style="gap:6px;margin-bottom:6px">
+        <input type="text" id="pasoNuevo" placeholder="${esc(t('Por ejemplo: PARADO, EN MARCHA, ALARMA'))}" style="flex:1;min-width:0">
+        <button class="btn" id="pasoAnadir">${t('Crear los estados')}</button></div>
+      <button class="btn" id="pasosEjemplo" style="width:100%;margin-bottom:10px">${t('O empezar con un ejemplo de 4 estados que avanza solo')}</button>`;
+  }
+  const info = estadoDePasos();
+  if (!info || !info.length)
+    return h + `<div class="nota aviso" style="margin-bottom:8px">${t('La lógica tiene errores: arréglalos en la pestaña Lógica y aquí podrás elegir el texto y el color de cada estado.')}</div>
+      <button class="btn" id="pasosIrLogica2" style="width:100%;margin-bottom:10px">${t('Ir a la Lógica')} →</button>`;
+  const tema = E.tema.tenue;
+  h += info.map((p, i) => {
+    const d = C.deEstado(w, p.nombre), propioT = (w.textosEstado || {})[p.nombre], propioC = (w.coloresEstado || {})[p.nombre];
+    const L = lookDe(w, p.nombre);
+    return `<div style="border:1px solid var(--borde);border-radius:8px;padding:8px 10px;margin-bottom:6px;background:var(--panel2)">
+      <div class="fila" style="align-items:center;gap:8px">
+        <span style="font:600 11px var(--mono);color:var(--suave);min-width:14px">${i + 1}</span>
+        <b style="flex:1;min-width:0;font:600 13px var(--mono);overflow:hidden;text-overflow:ellipsis">${esc(p.nombre)}</b>
+        ${p.arranque ? `<span style="font:600 10px var(--mono);padding:2px 6px;border-radius:5px;background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)">${t('arranque')}</span>` : ''}
+        <button type="button" class="btn" data-pasoborrar="${esc(p.nombre)}" title="${esc(t('Quitar este estado de la lógica'))}" style="padding:2px 8px">✕</button>
+      </div>
+      <div class="fila" style="gap:8px;align-items:flex-end;margin-top:6px">
+        <label class="campo" style="flex:1;margin:0"><span>${t('Texto en pantalla')}</span>
+          <input type="text" data-piltexto="${esc(p.nombre)}" value="${esc(propioT || '')}" placeholder="${esc(L.text !== undefined ? String(L.text) : p.nombre)}"></label>
+        <label class="campo" style="margin:0;flex:none"><span>${t('Color')}</span>
+          <input type="color" data-pilcolor="${esc(p.nombre)}" value="${d.color}" style="width:44px;height:30px;padding:0 2px"></label>
+        ${propioC ? `<button type="button" class="btn" data-pilquitar="${esc(p.nombre)}" title="${esc(t('Volver al color de antes'))}" style="padding:4px 8px">↺</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+  h += `<div class="fila" style="gap:6px;margin:8px 0 4px">
+      <input type="text" id="pasoNuevo" placeholder="${esc(t('Otro estado (o varios, con comas)'))}" style="flex:1;min-width:0">
+      <button class="btn" id="pasoAnadir">${t('+ Añadir')}</button></div>
+    <div class="regla" style="margin-bottom:6px">${t('En blanco, el texto es el nombre del estado; sin color propio, gris. Cuándo se pasa de un estado a otro se dice en la Lógica.')}${E.nodos.length > 1 ? ' ' + t('Si se cae el enlace con el otro nodo, dice SIN ENLACE, en el color de alarma.') : ''}</div>`;
+  if (info.length > 1) h += bloqueCambios(info);
+  h += `<button class="btn" id="pasosIrLogica2" style="width:100%;margin-bottom:10px">${t('Ir a la Lógica')} →</button>`;
+  return h;
+}
+/* ---------------------------------------------------------------------
+ * COMO CAMBIA DE ESTADO: los go to de la logica, dichos en palabras
+ * («STOP → RUN: al pulsar btn_start»), y un formulario para anadir uno sin
+ * escribir codigo: de que estado, a cual y cuando (a los N s o al pulsar
+ * un boton). Se escribe en el texto de la logica, que sigue siendo lo que
+ * manda; si el cambio dejara la logica con errores, no se aplica.
+ * ------------------------------------------------------------------- */
+function describirFila(k){
+  let m;
+  if (k === 'on enter') return t('nada más entrar');
+  if (k === 'while') return t('mientras está en él');
+  if (k === 'else') return t('si no se cumple nada de lo anterior');
+  if ((m = k.match(/^after\s+(\S+)/))) return `${t('a los')} ${m[1]} s`;
+  if ((m = k.match(/^every\s+(\S+)/))) return `${t('cada')} ${m[1]} s`;
+  if ((m = k.match(/^if\s+(.+)$/))) return `${t('si')} ${m[1]}`;
+  return k;
+}
+function cambiosDeEstado(){
+  const M = logicaModelo(); if (!M || !M.blocks.length) return [];
+  const b = M.blocks[0], out = [];
+  const destinos = acts => (Array.isArray(acts) ? acts : []).map(a => String(a).trim().match(/^go to\s+(\w+)$/)).filter(Boolean).map(m => m[1]);
+  for (const [s, body] of Object.entries(b.states || {}))
+    for (const [k, acts] of Object.entries(body || {}))
+      for (const a of destinos(acts)) out.push({ de: s, a, cuando: describirFila(k) });
+  for (const [btn, filas] of Object.entries(b.buttons || {}))
+    for (const [k, acts] of Object.entries(filas || {})){
+      const m = k.match(/^in\s+(\w+)$/), mh = k.match(/^on hold\s+(\S+)/);
+      for (const a of destinos(acts)) out.push({ de: m ? m[1] : '*', a,
+        cuando: k === 'on release' ? `${t('al soltar')} ${btn}` : mh ? `${t('al mantener')} ${btn} ${mh[1]} s` : `${t('al pulsar')} ${btn}` });
+    }
+  return out;
+}
+/* Anadir «de → a, cuando». modo: 'tiempo' (valor: segundos) o 'boton' (valor: su nombre) */
+function anadirCambioLogica(de, a, modo, valor){
+  const M = logicaModelo(); if (!M) return { error: t('La lógica tiene errores: arréglalos en la pestaña Lógica y vuelve.') };
+  const b = M.blocks[0], pre = b.name ? b.name + '.' : '';
+  const txt = String(E.logica || ''), p = LOGICA.parse(txt), L = txt.split('\n');
+  const ind = l => L[l - 1].match(/^\s*/)[0];
+  if (de === a) return { error: t('Elige dos estados distintos.') };
+  if (modo === 'tiempo'){
+    const seg = Number(String(valor).replace(',', '.'));
+    if (!(seg > 0)) return { error: t('Los segundos tienen que ser un número mayor que 0.') };
+    const n = Math.round(seg * 100) / 100;
+    if ((b.states[de] || {})['after ' + n]) return { error: `${de} ${t('ya tiene un')} after ${n}.` };
+    const l = p.lines[pre + 'states.' + de]; if (!l) return { error: `${de}: ${t('no es un paso de la lógica.')}` };
+    L.splice(finDeEstado(L, l), 0, `${ind(l)}  after ${n}: [go to ${a}]`);
+  } else {
+    const btn = String(valor || '');
+    if (!/^[a-z_][a-z0-9_]*$/.test(btn)) return { error: t('Elige un botón de la pantalla.') };
+    if (((b.buttons || {})[btn] || {})['in ' + de]) return { error: `${btn} ${t('ya hace algo en')} ${de}: ${t('cámbialo en la Lógica.')}` };
+    const lb = p.lines[pre + 'buttons'], lbtn = p.lines[pre + 'buttons.' + btn];
+    if (lbtn) L.splice(finDeEstado(L, lbtn), 0, `${ind(lbtn)}  in ${de}: [go to ${a}]`);
+    else if (lb) L.splice(finDeEstado(L, lb), 0, `${ind(lb)}  ${btn}:`, `${ind(lb)}    in ${de}: [go to ${a}]`);
+    else if (b.name){
+      const lk = p.lines[b.name];
+      L.splice(finDeEstado(L, lk), 0, `${ind(lk)}  buttons:`, `${ind(lk)}    ${btn}:`, `${ind(lk)}      in ${de}: [go to ${a}]`);
+    } else {
+      while (L.length && !L[L.length - 1].trim()) L.pop();
+      L.push('buttons:', `  ${btn}:`, `    in ${de}: [go to ${a}]`, '');
+    }
+  }
+  const nuevo = L.join('\n');
+  const r = LOGICA.validate(nuevo, JSON.parse(JSON.stringify(ctxLogica())));
+  if (r.errors && r.errors.length) return { error: t('Ese cambio dejaría la lógica con errores; mejor hazlo en la pestaña Lógica.') };
+  return { txt: nuevo };
+}
+/* El bloque, para el panel de los Pasos y el del Estado actual */
+function bloqueCambios(info){
+  const ini = (info.find(p => p.arranque) || info[0] || {}).nombre || '';
+  const cambios = cambiosDeEstado();
+  const botones = [...new Set(E.pantallas.flatMap(s => s.widgets).filter(x => x.tipo === 'button').map(x => x.nombre))];
+  const opEst = sel => info.map(p => `<option value="${esc(p.nombre)}"${p.nombre === sel ? ' selected' : ''}>${esc(p.nombre)}</option>`).join('');
+  return `<div class="acc-sec" style="margin-top:12px">${t('Cómo cambia de estado')}</div>
+    <div class="regla" style="margin-bottom:6px">${t('Al encender, arranca en')} <b>${esc(ini)}</b>. ${t('Pasa a otro solo cuando la Lógica lo dice (go to):')}</div>
+    ${cambios.length ? `<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px">${cambios.map(c =>
+      `<div style="font:12px var(--mono);padding:5px 8px;border-radius:6px;background:var(--panel2);border:1px solid var(--borde)"><b>${esc(c.de === '*' ? t('cualquiera') : c.de)}</b> → <b>${esc(c.a)}</b><span style="color:var(--suave)"> · ${esc(c.cuando)}</span></div>`).join('')}</div>`
+      : `<div class="nota aviso" style="margin-bottom:8px">${t('Todavía no cambia nunca: se queda en')} <b>${esc(ini)}</b>.</div>`}
+    <div style="border:1px dashed var(--borde);border-radius:8px;padding:8px 10px;margin-bottom:10px">
+      <div style="font-weight:600;margin-bottom:6px">${t('Añadir un cambio')}</div>
+      <div class="fila" style="gap:6px;align-items:center;margin-bottom:6px">
+        <select id="cambioDe" style="flex:1;min-width:0">${opEst(info[0] && info[0].nombre)}</select><span>→</span>
+        <select id="cambioA" style="flex:1;min-width:0">${opEst(info[1] && info[1].nombre)}</select></div>
+      <div class="fila" style="gap:6px;align-items:center;margin-bottom:6px">
+        <select id="cambioCuando" style="flex:1;min-width:0"><option value="tiempo">${t('a los … segundos')}</option>${botones.map(n =>
+          `<option value="boton:${esc(n)}">${t('al pulsar')} ${esc(n)}</option>`).join('')}</select>
+        <input type="number" id="cambioSeg" value="5" min="0.1" step="0.5" style="width:70px"></div>
+      <button class="btn" id="cambioAnadir" style="width:100%">${t('Añadir el cambio')}</button>
+      <div class="regla" style="margin-top:6px">${botones.length ? '' : t('Para cambiar con un botón, pon un Botón en la pantalla. ')}${t('Se escribe en la Lógica: allí puedes verlo y cambiarlo.')}</div>
+    </div>`;
+}
+function quitarPasoLogica(s){
+  const R = lineasEstados(); if (!R) return { error: t('No hay lógica.') };
+  const yo = R.estados.find(e => e.nombre === s); if (!yo) return { error: `${s}: ${t('no es un paso de la lógica.')}` };
+  if (R.estados.length <= 1) return { error: t('Es el único paso: la lógica necesita al menos uno.') };
+  const refs = quienNombraEstado(s);
+  if (refs.length) return { refs };
+  R.L.splice(yo.linea - 1, finDeEstado(R.L, yo.linea) - yo.linea + 1);
+  return { txt: R.L.join('\n') };
+}
+/* LA ESCALA: una sola medida para el lienzo y la placa. Como en LVGL, el
+   minimo va a la izquierda (o abajo, si es vertical); una marca mayor, con
+   su numero, cada «cada» marcas. El margen deja entero el primer numero y
+   el ultimo. */
+const MODO_ESCALA = { abajo: 'HORIZONTAL_BOTTOM', arriba: 'HORIZONTAL_TOP', izquierda: 'VERTICAL_LEFT', derecha: 'VERTICAL_RIGHT' };
+function geoEscala(w){
+  const r = rangoDe(w), lo = Math.round(r.min), hi = Math.max(lo + 1, Math.round(r.max));
+  const orient = MODO_ESCALA[w.orientacion] ? w.orientacion : 'abajo';
+  const horiz = orient === 'abajo' || orient === 'arriba';
+  const div = Math.max(1, Math.min(100, Math.round(Number(w.divisiones) || 10)));
+  const cada = Math.max(1, Math.min(div, Math.round(Number(w.cadaNumero) || 5)));
+  const px = fuenteEfectiva(w);
+  const valor = i => Math.round(lo + (hi - lo) * i / div);
+  let ancho = 0;
+  for (let i = 0; i <= div; i += cada) ancho = Math.max(ancho, medirTexto(String(valor(i)), px, w).w);
+  const L = horiz ? w.h : w.w, mayor = Math.max(4, Math.round(L * 0.3));
+  return { lo, hi, orient, horiz, div, n: div + 1, cada, px, valor, mayor, menor: Math.max(2, Math.round(mayor / 2)),
+           margen: horiz ? Math.ceil(ancho / 2) + 1 : Math.ceil(altoLinea(px) / 2) + 1 };
+}
+/* EL AVISO: en que estados sale. null si sale al arrancar (el de siempre)
+   o si la logica no tiene estados; si no, los elegidos que existen */
+function estadosAviso(w){
+  if (w.tipo !== 'msgbox' || w.aparece !== 'estados') return null;
+  const hay = estadosProyecto();
+  if (!hay.length) return null;
+  return (w.enEstados || []).filter(x => hay.includes(x));
+}
+/* EL CONTADOR: el numero entre sus botones - y +. Botones de 0,8 del alto,
+   a 4 px del numero; decimales y paso, del panel. Lienzo y placa. */
+function geoContador(w){
+  const bw = Math.max(16, Math.round(w.h * 0.8)), gap = 4;
+  return { bw, gap, anchoNumero: Math.max(20, w.w - 2 * (bw + gap)),
+           dec: Math.max(0, Math.min(3, Number(w.decimales) || 0)), paso: Number(w.paso) > 0 ? Number(w.paso) : 1 };
+}
+/* el color de la letra sobre el acento (el + del contador) */
+const colorBotonSobre = S => '#04121f';
+/* Los puntos de la inclinada, dentro de su caja. Los usan el lienzo y el
+   generador: un solo calculo (ver «Lienzo y generador, un solo numero») */
+function puntosLinea(w){
+  const g = lineaGrosor(w), m = Math.floor(g / 2), W = w.w, H = w.h;
+  return w.diag === '/' ? { g, x1: m, y1: H - m, x2: W - m, y2: m }
+                        : { g, x1: m, y1: m, x2: W - m, y2: H - m };
+}
+/* Los extremos en coordenadas de la pantalla, y el grosor */
+function extremosLinea(w){
+  if (w.diag){
+    const L = puntosLinea(w);
+    return { a: { x: w.x + L.x1, y: w.y + L.y1 }, b: { x: w.x + L.x2, y: w.y + L.y2 }, g: L.g };
+  }
+  if (w.w >= w.h) return { a: { x: w.x, y: w.y + w.h / 2 }, b: { x: w.x + w.w, y: w.y + w.h / 2 }, g: w.h };
+  return { a: { x: w.x + w.w / 2, y: w.y }, b: { x: w.x + w.w / 2, y: w.y + w.h }, g: w.w };
+}
+/* Coloca la linea entre dos puntos. Recta si lo es: entonces vuelve a ser
+   la de siempre y genera lo mismo que antes de poder girar. */
+function ponExtremosLinea(w, a, b, g){
+  const P = placa(), dx = b.x - a.x, dy = b.y - a.y;
+  g = Math.max(1, Math.round(g));
+  if (Math.round(dy) === 0 || Math.round(dx) === 0){
+    delete w.diag; delete w.grosor;
+    if (Math.abs(dx) >= Math.abs(dy)){
+      w.x = Math.round(Math.min(a.x, b.x)); w.w = Math.max(1, Math.round(Math.abs(dx)));
+      w.h = g; w.y = Math.round(a.y - g / 2);
+    } else {
+      w.y = Math.round(Math.min(a.y, b.y)); w.h = Math.max(1, Math.round(Math.abs(dy)));
+      w.w = g; w.x = Math.round(a.x - g / 2);
+    }
+  } else {
+    const m = Math.floor(g / 2);
+    w.diag = (dx > 0) === (dy > 0) ? '\\' : '/';
+    w.grosor = g;
+    w.x = Math.round(Math.min(a.x, b.x)) - m; w.y = Math.round(Math.min(a.y, b.y)) - m;
+    w.w = Math.round(Math.abs(dx)) + 2 * m; w.h = Math.round(Math.abs(dy)) + 2 * m;
+  }
+  /* que no se salga de la pantalla */
+  w.w = Math.min(w.w, P.ancho); w.h = Math.min(w.h, P.alto);
+  w.x = Math.max(0, Math.min(w.x, P.ancho - w.w)); w.y = Math.max(0, Math.min(w.y, P.alto - w.h));
+}
+/* El angulo, en grados: 0 horizontal, 90 vertical, positivo hacia arriba */
+function anguloLinea(w){
+  const E0 = extremosLinea(w);
+  let a = Math.atan2(-(E0.b.y - E0.a.y), E0.b.x - E0.a.x) * 180 / Math.PI;
+  if (a > 90) a -= 180; if (a <= -90) a += 180;
+  return Math.round(a);
+}
+/* Girarla a un angulo: el mismo centro y el mismo largo */
+function girarLinea(w, grados){
+  const E0 = extremosLinea(w), cx = (E0.a.x + E0.b.x) / 2, cy = (E0.a.y + E0.b.y) / 2;
+  const L = Math.max(2, Math.hypot(E0.b.x - E0.a.x, E0.b.y - E0.a.y)) / 2, r = grados * Math.PI / 180;
+  const vx = Math.round(L * Math.cos(r) * 2) / 2, vy = Math.round(-L * Math.sin(r) * 2) / 2;
+  ponExtremosLinea(w, { x: cx - vx, y: cy - vy }, { x: cx + vx, y: cy + vy }, E0.g);
+}
+/* Que extremo es el tirador: en la recta, sus dos puntas; el del medio
+   (el grosor) no es un extremo */
+function extremoDeTirador(w, dir){
+  if (w.diag) return dir === 'a' || dir === 'b' ? dir : null;
+  return (w.w >= w.h ? { w: 'a', e: 'b' } : { n: 'a', s: 'b' })[dir] || null;
+}
+
+/* EL CARGANDO: el mismo circulo en el lienzo y en la placa. d es el lado
+   (LVGL lo dibuja en el lado menor, centrado), el trazo va entero por
+   dentro y la pista parte del color de pista del tema, como el reloj de
+   aguja; el «borde» que se elija en el Estilo manda. */
+function geoSpinner(w){
+  const d = Math.min(w.w, w.h), e = w.estilo || {};
+  const grosor = Math.max(2, Math.min(Math.floor(d / 2), Math.round(Number(w.grosor) || d * 0.12)));
+  return { d, grosor, pista: e.borde || E.tema.pista || E.tema.borde };
+}
+const SPINNER_GRADOS = 200;   /* lo que mide el arco que gira en LVGL (DEF_ARC_ANGLE) */
+
+/* EL TECLADO: las mismas teclas que dibuja LVGL (lv_keyboard.c). Cada
+   tecla es [texto, ancho relativo, de control]. Las de control (cambiar
+   de modo, borrar, OK...) van del color del acento, como en la placa. */
+const TECLADO = {
+  letras: [
+    [['1#', 5, 1], ...'qwertyuiop'.split('').map(c => [c, 4]), ['⌫', 7, 1]],
+    [['ABC', 6, 1], ...'asdfghjkl'.split('').map(c => [c, 3]), ['↵', 7, 1]],
+    [['_', 1, 1], ['-', 1, 1], ...'zxcvbnm'.split('').map(c => [c, 1]), ['.', 1, 1], [',', 1, 1], [':', 1, 1]],
+    [['⌨', 2, 1], ['←', 2, 1], [' ', 6], ['→', 2, 1], ['✓', 2, 1]]
+  ],
+  numeros: [
+    [['1', 1], ['2', 1], ['3', 1], ['⌨', 2, 1]],
+    [['4', 1], ['5', 1], ['6', 1], ['✓', 2, 1]],
+    [['7', 1], ['8', 1], ['9', 1], ['⌫', 2, 1]],
+    [['+/-', 1], ['0', 1], ['.', 1], ['←', 1], ['→', 1]]
+  ]
+};
+const modoTeclado = w => w.modo === 'numeros' ? 'numeros' : 'letras';
+/* los colores del teclado: fondo, tecla, tecla de control y sus letras */
+function coloresTeclado(w){
+  const S = est(w);
+  return { fondo: S.sup, tecla: S.borde, letra: S.texto, control: S.acento,
+           sobre: typeof sobreColor === 'function' ? sobreColor(S.acento) : '#04121f' };
+}
+
 function nodoWidget(w){
   const d = document.createElement('div');
   const dentro = (E.seleccion||[]).includes(w.id);
   /* Los tiradores solo cuando hay UNO seleccionado: redimensionar un
      grupo entero es ambiguo y mas vale no fingir que se puede. */
-  const linea = w.tipo === 'line';
-  d.className = 'w' + (linea ? ' w-linea' : '') + (dentro ? ' sel' : '') + (dentro && E.seleccion.length > 1 ? ' multi' : '');
+  const linea = w.tipo === 'line', diag = linea && !!w.diag;
+  d.className = 'w' + (linea ? ' w-linea' : '') + (diag ? ' w-diag' : '') + (w.tipo === 'led' ? ' w-led' : '') + (dentro ? ' sel' : '') + (dentro && E.seleccion.length > 1 ? ' multi' : '');
   d.style.cssText = `left:${w.x}px;top:${w.y}px;width:${w.w}px;height:${w.h}px`;
   d.dataset.id = w.id;
   /* Una linea tiene dos extremos (el largo) y un tirador en medio (el
@@ -2144,9 +2730,12 @@ function nodoWidget(w){
      los extremos y al tirar del largo la linea se volvia una barra. Los
      extremos van los ultimos, para quedar por encima si se tocan. */
   const tiradores = !linea ? ['nw','n','ne','e','se','s','sw','w']
-    : w.w >= w.h ? ['s', 'w', 'e'] : ['e', 'n', 's'];
+    : diag ? ['a', 'b'] : w.w >= w.h ? ['s', 'w', 'e'] : ['e', 'n', 's'];
+  /* los de la inclinada van donde acaba el trazo, no en las esquinas fijas */
+  const pl = diag ? puntosLinea(w) : null;
+  const sitio = dir => !pl ? '' : ` style="left:calc(${dir === 'a' ? pl.x1 : pl.x2}px + var(--m));top:calc(${dir === 'a' ? pl.y1 : pl.y2}px + var(--m))"`;
   d.innerHTML = `<div class="w-int">${dibujo(w)}</div>` + reservaHTML(w) +
-    tiradores.map(dir => `<div class="tirador" data-dir="${dir}"></div>`).join('');
+    tiradores.map(dir => `<div class="tirador" data-dir="${dir}"${sitio(dir)}></div>`).join('');
   return d;
 }
 
@@ -2184,7 +2773,7 @@ function dibujo(w, vivo){
   switch (w.tipo){
 
   case 'value': return `<div style="font:${LETRA()};color:${V && V.color || BL};${ESTT}">${V && V.texto !== undefined ? esc(V.texto) : muestraValor(w)}</div>`
-      + (!V && w.id === E.sel ? `<div style="font:11px system-ui;color:${E.tema.tenue};opacity:.75">${esc(w.bind||t('sin enlazar'))}</div>` : '');
+      + (!V && w.id === E.sel ? `<div style="font:calc(11px * var(--k,1)) system-ui;color:${E.tema.tenue};opacity:.75">${esc(w.bind||t('sin enlazar'))}</div>` : '');
   case 'label': return `<div style="font:${LETRA()};color:${V && V.color || BL};${ESTT}">${T(V && V.texto !== undefined ? V.texto : (w.texto||'Texto'))}</div>`;
   /* El mismo molde que emite el generador: nace con los cuatro digitos
      puestos, no con un "0", para que la caja no pegue un salto en el
@@ -2196,9 +2785,16 @@ function dibujo(w, vivo){
     ? `<img src="${w.img.src}" style="width:100%;height:100%;object-fit:contain;display:block">`
     : `<div style="${caja(GR,6)};display:flex;align-items:center;justify-content:center;
       color:${TE};font-size:${Math.min(W,H)*.4}px">🖼</div>`;
-  case 'line':  return `<div style="width:100%;height:100%;flex:none;background:${AZ}"></div>`;
+  case 'line': {
+    if (!w.diag) return `<div style="width:100%;height:100%;flex:none;background:${AZ}"></div>`;
+    /* inclinada: los MISMOS puntos que emite el generador (puntosLinea) */
+    const L = puntosLinea(w), xy = `x1="${L.x1}" y1="${L.y1}" x2="${L.x2}" y2="${L.y2}"`;
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="position:absolute;inset:0;overflow:visible">
+      <line ${xy} stroke="${AZ}" stroke-width="${L.g}"/>
+      <line class="linea-toque" ${xy} stroke="transparent" style="stroke-width:calc(${L.g}px + 12px * var(--k,1))"/></svg>`;
+  }
   case 'list':  return `<div style="${caja(GR,7)};padding:5px;display:flex;flex-direction:column;gap:3px;overflow:hidden">${
-      EL().map(x => `<div style="background:${BR};border-radius:4px;color:${BL};font-size:${TX()}px;
+      EL().map((x, i) => `<div data-i="${i}" style="background:${V && V.idx === i ? AZ : BR};border-radius:4px;color:${V && V.idx === i ? SOBRE : BL};font-size:${TX()}px;
       padding:4px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${T(x)}</div>`).join('')}</div>`;
   case 'table': { const filas = EL().map(l => l.split(';').map(c => c.trim()));
     const cols = Math.max(1, ...filas.map(f => f.length));
@@ -2206,13 +2802,15 @@ function dibujo(w, vivo){
       filas.map((f,i) => `<div style="display:flex;gap:2px">${Array.from({length:cols},(_,k) =>
       `<div style="flex:1;background:${i?'transparent':BR};color:${BL};font-size:${TX()}px;padding:3px 6px;
        white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${T(f[k] || '')}</div>`).join('')}</div>`).join('')}</div>`; }
-  case 'msgbox': { const ft = FT, [tit, ...resto] = EL();
+  case 'msgbox': { const ft = FT, [tit, ...resto] = EL(), enEst = estadosAviso(w);
+    if (V && V.oculto) return '';
     return `<div style="${caja(GR,9)};border:1px solid ${BR};padding:8px;
       display:flex;flex-direction:column;gap:6px;overflow:hidden">
       <div style="display:flex;align-items:center;gap:8px">
         <div style="flex:1;color:${BL};font:600 ${ft}px system-ui;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${T(tit || 'Aviso')}</div>
-        <div style="color:${TE};font-size:${ft*.9}px">✕</div></div>
-      <div style="flex:1;color:${TE};font-size:${ft*.85}px;overflow:hidden">${T(resto.join(' '))}</div></div>`; }
+        ${enEst ? '' : `<div data-cerrar style="color:${TE};font-size:${ft*.9}px">✕</div>`}</div>
+      <div style="flex:1;color:${TE};font-size:${ft*.85}px;overflow:hidden">${T(resto.join(' '))}</div>${enEst ? `
+      <div style="display:flex;justify-content:flex-end"><div data-cerrar style="background:${AZ};color:${SOBRE};border-radius:5px;padding:4px 12px;font-size:${ft*.85}px">${T(w.botonAviso || 'Aceptar')}</div></div>` : ''}</div>`; }
   case 'tabview': return `<div style="${caja(BR,7)};display:flex;flex-direction:column;overflow:hidden">
       <div style="display:flex;gap:2px;padding:3px">${EL().map((x,i)=>
       `<div style="flex:1;text-align:center;padding:4px 0;border-radius:4px 4px 0 0;font-size:${TX()}px;
@@ -2222,36 +2820,46 @@ function dibujo(w, vivo){
 
   /* Las medidas salen de geometria(): el generador emite ESTAS, no las
      de la caja. Ver el bloque GEOMETRIA en datos.js. */
-  case 'slider': { const g = geometria(w);
+  case 'slider': { const g = geometria(w), M = monoTinta();
+    if (M) return `<div style="width:${g.w}px;height:${g.h}px;background:${M.vacio};box-shadow:inset 0 0 0 1px ${M.tinta};border-radius:99px;position:relative">
+      <div style="width:${PCT(55)}%;height:100%;background:${V && V.color || M.tinta};border-radius:99px"></div>
+      <div style="position:absolute;left:${PCT(55)}%;top:50%;transform:translate(-50%,-50%);
+      width:${g.mango}px;height:${g.mango}px;background:${V && V.color || M.tinta};border-radius:50%"></div></div>`;
     return `<div style="width:${g.w}px;height:${g.h}px;background:${GR};border-radius:99px;position:relative">
       <div style="width:${PCT(55)}%;height:100%;background:${V && V.color || AZ};border-radius:99px"></div>
       <div style="position:absolute;left:${PCT(55)}%;top:50%;transform:translate(-50%,-50%);
       width:${g.mango}px;height:${g.mango}px;background:${V && V.color || AZ};border-radius:50%"></div></div>`; }
-  case 'toggle': { const g = geometria(w);
+  case 'toggle': { const g = geometria(w), M = monoTinta();
+    if (M){ const on = !V || V.on;
+      return `<div style="width:${g.w}px;height:${g.h}px;background:${on ? M.tinta : M.vacio};border-radius:99px;position:relative;box-shadow:inset 0 0 0 1px ${M.tinta}">
+      <div style="position:absolute;${on ? 'right' : 'left'}:3px;top:50%;transform:translateY(-50%);
+      width:${Math.round(g.h*.78)}px;height:${Math.round(g.h*.78)}px;background:${on ? M.vacio : M.tinta};border-radius:50%"></div></div>`; }
     return `<div style="width:${g.w}px;height:${g.h}px;background:${!V || V.on ? AZ : GR};border-radius:99px;position:relative;box-shadow:inset 0 0 0 3px ${GR}">
       <div style="position:absolute;${!V || V.on ? 'right' : 'left'}:3px;top:50%;transform:translateY(-50%);
       width:${Math.round(g.h*.78)}px;height:${Math.round(g.h*.78)}px;background:#fff;border-radius:50%"></div></div>`; }
-  case 'checkbox': return `<div style="display:flex;align-items:center;gap:8px;width:100%;padding:0 6px">
-      <div style="width:${F(.6)}px;height:${F(.6)}px;background:${AZ};border-radius:4px;color:${SOBRE};
-      display:flex;align-items:center;justify-content:center;font-size:${F(.45)}px">✓</div>
-      <div style="color:${BL};font:${LETRA()};${ESTT}">${T(w.texto||'')}</div></div>`;
+  case 'checkbox': { const M = monoTinta(), on = !V || V.on !== false;
+    return `<div style="display:flex;align-items:center;gap:8px;width:100%;padding:0 6px">
+      <div style="width:${F(.6)}px;height:${F(.6)}px;background:${on ? (M ? M.tinta : AZ) : (M ? M.vacio : 'transparent')};border-radius:4px;color:${M ? M.vacio : SOBRE};${M || !on ? `box-shadow:inset 0 0 0 ${M ? 1 : 2}px ${M ? M.tinta : AZ};` : ''}
+      display:flex;align-items:center;justify-content:center;font-size:${F(.45)}px">${on ? '✓' : ''}</div>
+      <div style="color:${BL};font:${LETRA()};${ESTT}">${T(w.texto||'')}</div></div>`; }
   case 'dropdown': return `<div style="${caja(GR,6)};border:1px solid ${BR};display:flex;
       align-items:center;justify-content:space-between;padding:0 10px;color:${BL};font-size:${TX()}px">
-      <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${T(EL()[0] || w.texto || 'Elegir...')}</span><span style="color:${AZ}">▼</span></div>`;
+      <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${T(EL()[V && V.idx !== undefined ? V.idx : 0] || w.texto || 'Elegir...')}</span><span style="color:${AZ}">▼</span></div>`;
   /* La rueda enseña el elegido en medio, como en la placa */
-  case 'roller': { const op = EL(), n = op.length;
+  case 'roller': { const op = EL(), n = op.length, i = V && V.idx !== undefined ? V.idx : 0;
     return `<div style="${caja(GR,7)};display:flex;flex-direction:column;
       align-items:center;justify-content:center;gap:2px;color:${TE};font-size:${TX()}px;overflow:hidden">
-      <div style="opacity:.45">${T(op[n-1] || '')}</div>
-      <div style="color:${SOBRE};background:${AZ};width:100%;text-align:center;padding:3px 0">${T(op[0] || '')}</div>
-      <div style="opacity:.45">${T(op[1] || '')}</div></div>`; }
-  case 'spinbox': return `<div style="display:flex;align-items:center;width:100%;height:100%;gap:4px">
-      <div style="width:${H*.8}px;height:100%;background:${GR};border-radius:5px;color:${BL};
+      <div style="opacity:.45">${T(op[(i - 1 + n) % n] || '')}</div>
+      <div style="color:${SOBRE};background:${AZ};width:100%;text-align:center;padding:3px 0">${T(op[i] || '')}</div>
+      <div style="opacity:.45">${T(op[(i + 1) % n] || '')}</div></div>`; }
+  case 'spinbox': { const G2 = geoContador(w);
+    return `<div style="display:flex;align-items:center;width:100%;height:100%;gap:${G2.gap}px">
+      <div data-lado="menos" style="width:${G2.bw}px;flex:none;height:100%;background:${GR};border-radius:5px;color:${BL};
       display:flex;align-items:center;justify-content:center;font-size:${F(.5)}px">−</div>
       <div style="flex:1;background:${GR};border:1px solid ${BR};border-radius:5px;color:${BL};text-align:center;
-      line-height:${H}px;font-size:${TX()}px">12</div>
-      <div style="width:${H*.8}px;height:100%;background:${AZ};border-radius:5px;color:${SOBRE};
-      display:flex;align-items:center;justify-content:center;font-size:${F(.5)}px">+</div></div>`;
+      line-height:${H}px;font-size:${TX()}px">${esc(V && V.texto !== undefined ? V.texto : (12).toFixed(G2.dec))}</div>
+      <div data-lado="mas" style="width:${G2.bw}px;flex:none;height:100%;background:${AZ};border-radius:5px;color:${SOBRE};
+      display:flex;align-items:center;justify-content:center;font-size:${F(.5)}px">+</div></div>`; }
   case 'buttonmatrix': {
     const filas = EL().map(l => l.split(/\s+/).filter(Boolean)).filter(f => f.length);
     return `<div style="width:100%;height:100%;display:flex;flex-direction:column;gap:4px;overflow:hidden">${
@@ -2262,13 +2870,18 @@ function dibujo(w, vivo){
   case 'textarea': return `<div style="${caja(GR,6)};border:1px solid ${BR};padding:6px;color:${BL};
       font-size:${TX()}px">${T(w.texto||'Escribe aqui...')}</div>`;
   case 'keyboard': {
-    const filas = [10,9,7,3];
-    return `<div style="${caja(GR,7)};padding:4px;display:flex;flex-direction:column;gap:3px">${
-      filas.map((n,fi)=>`<div style="flex:1;display:flex;gap:3px">${Array.from({length:n},()=>
-      `<div style="flex:1;background:${fi===3?AZ:BR};border-radius:3px"></div>`).join('')}</div>`).join('')}</div>`;
+    const filas = TECLADO[modoTeclado(w)], K = coloresTeclado(w);
+    /* la letra: la del teclado, sin pasar de lo que cabe en una tecla */
+    const px = Math.max(8, Math.min(TX(), Math.floor((H - 8 - 9) / 4 * 0.55)));
+    return `<div style="${caja(K.fondo,7)};padding:4px;display:flex;flex-direction:column;gap:3px">${
+      filas.map(f => `<div style="flex:1;display:flex;gap:3px;min-height:0">${f.map(([c, n, ctl]) =>
+      `<div style="flex:${n} 1 0;min-width:0;background:${ctl ? K.control : K.tecla};color:${ctl ? K.sobre : K.letra};border-radius:3px;
+        display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;font:500 ${px}px Montserrat,system-ui">${esc(c)}</div>`).join('')}</div>`).join('')}</div>`;
   }
 
-  case 'bar': { const g = geometria(w);
+  case 'bar': { const g = geometria(w), M = monoTinta();
+    if (M) return `<div style="width:${g.w}px;height:${g.h}px;background:${M.vacio};box-shadow:inset 0 0 0 1px ${M.tinta};border-radius:99px;overflow:hidden">
+      <div style="width:${PCT(62)}%;height:100%;background:${V && V.color || M.tinta}"></div></div>`;
     return `<div style="width:${g.w}px;height:${g.h}px;background:${GR};border-radius:99px;overflow:hidden">
       <div style="width:${PCT(62)}%;height:100%;background:${V && V.color || AZ}"></div></div>`; }
   /* El radio y el grosor salen de geometria(): el generador emite ESTOS
@@ -2310,22 +2923,36 @@ function dibujo(w, vivo){
       <path d="${b}" fill="none" stroke="${VE}" stroke-width="2"/></svg>`;
   }
   case 'scale': {
-    const n = Math.max(5, Math.floor(W/40));
-    return `<svg width="${W}" height="${H}"><rect width="${W}" height="${H}" fill="${GR}" rx="4"/>
-      <line x1="4" y1="${H*.55}" x2="${W-4}" y2="${H*.55}" stroke="${AZ}" stroke-width="2"/>
-      ${Array.from({length:n+1},(_,i)=>{const x=4+i*(W-8)/n;const g=i%2===0;
-        return `<line x1="${x}" y1="${H*.55}" x2="${x}" y2="${H*(g?.15:.35)}" stroke="${g?AZ:TE}" stroke-width="${g?2:1}"/>`
-        + (g?`<text x="${x}" y="${H*.95}" text-anchor="middle" fill="${TE}" font-size="${FT}" font-family="system-ui">${i*10}</text>`:'');
-      }).join('')}</svg>`;
+    const G3 = geoEscala(w), largo = (G3.horiz ? W : H) - 2 * G3.margen;
+    /* la linea base, en el borde del que salen las marcas */
+    const base = G3.horiz ? (G3.orient === 'abajo' ? 1 : H - 1) : (G3.orient === 'izquierda' ? W - 1 : 1);
+    const dir = G3.orient === 'abajo' || G3.orient === 'derecha' ? 1 : -1;
+    let s = G3.horiz
+      ? `<line x1="${G3.margen}" y1="${base}" x2="${W - G3.margen}" y2="${base}" stroke="${AZ}" stroke-width="2"/>`
+      : `<line x1="${base}" y1="${G3.margen}" x2="${base}" y2="${H - G3.margen}" stroke="${AZ}" stroke-width="2"/>`;
+    for (let i = 0; i < G3.n; i++){
+      const may = i % G3.cada === 0, len = may ? G3.mayor : G3.menor, f = i / G3.div;
+      const p = G3.horiz ? G3.margen + f * largo : H - G3.margen - f * largo, fin = base + dir * len;
+      s += G3.horiz
+        ? `<line x1="${p}" y1="${base}" x2="${p}" y2="${fin}" stroke="${may ? AZ : TE}" stroke-width="${may ? 2 : 1}"/>`
+        : `<line x1="${base}" y1="${p}" x2="${fin}" y2="${p}" stroke="${may ? AZ : TE}" stroke-width="${may ? 2 : 1}"/>`;
+      if (may) s += G3.horiz
+        ? `<text x="${p}" y="${fin + dir * (4 + G3.px * 0.5)}" text-anchor="middle" dominant-baseline="central" fill="${TE}" font-size="${G3.px}" font-family="Montserrat,system-ui">${G3.valor(i)}</text>`
+        : `<text x="${fin + dir * 4}" y="${p}" text-anchor="${dir > 0 ? 'start' : 'end'}" dominant-baseline="central" fill="${TE}" font-size="${G3.px}" font-family="Montserrat,system-ui">${G3.valor(i)}</text>`;
+    }
+    return `<svg width="${W}" height="${H}" style="overflow:visible">${s}</svg>`;
   }
-  case 'led': { const d = Math.min(W,H);
-    return `<div style="width:${d}px;height:${d}px;border-radius:50%;background:${V && !V.on ? GR : (V && V.color || AZ)};
-      box-shadow:${V && !V.on ? 'none' : `0 0 ${d*.4}px ${V && V.color || AZ}`}"></div>`; }
-  case 'spinner': { const d = Math.min(W,H), r = d/2-4;
+  /* Como lo pinta LVGL: encendido, su color con un halo que sale de la
+     caja (por eso la caja del piloto no recorta, ver .w-led); apagado, el
+     MISMO color mezclado con negro (brillo 80 de 255) y sin halo */
+  case 'led': { const d = Math.min(W,H), col = V && V.color || AZ, off = V && !V.on;
+    return `<div style="width:${d}px;height:${d}px;border-radius:50%;background:${off ? mezclaColor(col, '#000000', 1 - 80 / 255) : col};
+      box-shadow:${off ? 'none' : `0 0 ${d*.4}px ${col}`}"></div>`; }
+  case 'spinner': { const g = geoSpinner(w), d = g.d, r = (d - g.grosor) / 2, C = 2 * Math.PI * r;
     return `<svg width="${d}" height="${d}"><circle cx="${d/2}" cy="${d/2}" r="${r}" fill="none"
-      stroke="${BR}" stroke-width="${r*.28}"/><circle cx="${d/2}" cy="${d/2}" r="${r}" fill="none"
-      stroke="${AZ}" stroke-width="${r*.28}" stroke-linecap="round"
-      stroke-dasharray="${2*Math.PI*r*.28} ${2*Math.PI*r}"/></svg>`; }
+      stroke="${g.pista}" stroke-width="${g.grosor}"/><circle cx="${d/2}" cy="${d/2}" r="${r}" fill="none"
+      stroke="${AZ}" stroke-width="${g.grosor}" stroke-linecap="round" transform="rotate(-90 ${d/2} ${d/2})"
+      stroke-dasharray="${(C * SPINNER_GRADOS / 360).toFixed(1)} ${C.toFixed(1)}"/></svg>`; }
   case 'qrcode': { const d = Math.min(W,H), n = 9;
     let c=''; for(let y=0;y<n;y++) for(let x=0;x<n;x++){
       const esq=(x<3&&y<3)||(x>n-4&&y<3)||(x<3&&y>n-4);
@@ -2375,6 +3002,16 @@ function actualizarNodo(id){
   const w = pantalla().widgets.find(x => x.id === id);
   const n = document.querySelector(`.w[data-id="${id}"]`);
   if (!w || !n) return;
+  /* una linea que gira cambia de tiradores (recta: 3; inclinada: sus 2
+     extremos): se rehace entera. El arrastre sigue, que escucha en document */
+  if (w.tipo === 'line' && (w.diag || n.classList.contains('w-diag'))){
+    n.replaceWith(nodoWidget(w));
+    for (const [c,k] of [['wX','x'],['wY','y'],['wW','w'],['wH','h']]){
+      const caja = document.getElementById(c); if (caja) caja.value = w[k];
+    }
+    const ang = document.getElementById('wAngulo'); if (ang) ang.value = anguloLinea(w);
+    return;
+  }
   n.style.left = w.x+'px'; n.style.top = w.y+'px';
   n.style.width = w.w+'px'; n.style.height = w.h+'px';
   n.querySelector('.w-int').innerHTML = dibujo(w);
@@ -2434,10 +3071,11 @@ document.getElementById('pantalla').addEventListener('pointerdown', ev => {
      seleccionado, pinchar en la unidad y arrastrar la mueve a ella. Lo que
      se mueve son unidadDx / unidadDy: los mismos campos del panel, asi que
      la placa la pone exactamente donde se solto. */
-  const parte = ev.target.closest('[data-parte="uni"],[data-parte="rot"]');
+  const parte = ev.target.closest('[data-parte="uni"],[data-parte="rot"],[data-parte="cons"]');
   const wUni = parte && pantalla().widgets.find(x => x.id === n0.dataset.id);
   /* la unidad o el rotulo: cada uno con su pareja de campos */
-  const [kx, ky] = parte && parte.dataset.parte === 'rot' ? ['rotuloDx', 'rotuloDy'] : ['unidadDx', 'unidadDy'];
+  const [kx, ky] = !parte ? [] : parte.dataset.parte === 'rot' ? ['rotuloDx', 'rotuloDy']
+                 : parte.dataset.parte === 'cons' ? ['consDx', 'consDy'] : ['unidadDx', 'unidadDy'];
   if (wUni && (E.seleccion || []).length === 1 && E.seleccion[0] === wUni.id){
     ev.preventDefault(); ev.stopPropagation();
     HIST.iniciar();
@@ -2482,12 +3120,17 @@ document.getElementById('pantalla').addEventListener('pointerdown', ev => {
   const MIN_W = w && w.tipo === 'line' ? 1 : 24, MIN_H = w && w.tipo === 'line' ? 1 : 20;
   /* y su grosor va de pixel en pixel: con la rejilla saltaria de 1 a 4 */
   const aj = w && w.tipo === 'line' ? Math.round : ajusta;
+  /* el tirador de un extremo de la linea (a o b), si es eso lo que se coge */
+  const extremo = w && w.tipo === 'line' && dir ? extremoDeTirador(W0, dir) : null;
 
   /* pintar() reconstruye el lienzo y destruye n0, asi que va ANTES de
      montar el arrastre. Nada de setPointerCapture: sobre un nodo ya
      desconectado lanza y se lleva por delante el resto del manejador. */
   HIST.iniciar();          /* un solo paso para todo el gesto */
-  const aditivo = ev.ctrlKey || ev.metaKey || ev.shiftKey;
+  /* Mayus sobre un tirador es «de 15 en 15 grados», no «anadir a la
+     seleccion»: si no, al coger el extremo con Mayus pulsada la linea se
+     deseleccionaba y perdia sus tiradores */
+  const aditivo = !dir && (ev.ctrlKey || ev.metaKey || ev.shiftKey);
   const yaDentro = (E.seleccion||[]).includes(id);
   if (aditivo || !yaDentro){
     seleccionar(id, aditivo);
@@ -2529,6 +3172,26 @@ document.getElementById('pantalla').addEventListener('pointerdown', ev => {
       return;
     }
 
+    /* Un extremo de la linea: va donde este el puntero y la linea gira.
+       Cerca de horizontal o vertical se queda recta (el pulso no deja
+       una raya perfecta); con Mayus, de 15 en 15 grados. */
+    if (extremo){
+      const E0 = extremosLinea(W0), fijo = extremo === 'a' ? E0.b : E0.a, m0 = extremo === 'a' ? E0.a : E0.b;
+      let vx = Math.max(0, Math.min(P.ancho, m0.x + dx)) - fijo.x, vy = Math.max(0, Math.min(P.alto, m0.y + dy)) - fijo.y;
+      const largo = Math.hypot(vx, vy);
+      if (e.shiftKey && largo){
+        const paso = Math.PI / 12, ang = Math.round(Math.atan2(vy, vx) / paso) * paso;
+        vx = largo * Math.cos(ang); vy = largo * Math.sin(ang);
+      } else {
+        const tol = Math.max(1, 6 / escala), grados = Math.abs(Math.atan2(vy, vx)) * 180 / Math.PI;
+        if (Math.abs(vy) <= tol || grados < 2 || grados > 178) vy = 0;
+        else if (Math.abs(vx) <= tol || Math.abs(grados - 90) < 2) vx = 0;
+      }
+      ponExtremosLinea(w, fijo, { x: fijo.x + vx, y: fijo.y + vy }, E0.g);
+      actualizarNodo(id);
+      return;
+    }
+
     /* Redimensionar. Los lados norte y oeste mueven el origen ademas del
        tamano: al tirar del borde izquierdo, x baja y w sube. El tope no
        es solo el minimo, tambien el borde opuesto, para que el widget no
@@ -2538,11 +3201,9 @@ document.getElementById('pantalla').addEventListener('pointerdown', ev => {
        siga pegada al texto mientras la arrastras. */
     if (w.auto && AUTOAJUSTABLES.has(w.tipo)){
       const vert = dir.includes('n') || dir.includes('s');
-      const libre = tipoLibre(varianteFuente(w));
       const alto = Math.max(8, dir.includes('s') ? W0.h + dy : W0.h - dy);
-      const px = vert
-        ? (libre ? fuenteLibrePorAlto(w, alto) : fuentePorAlto(alto))
-        : fuentePorAncho(w, Math.max(8, dir.includes('e') ? W0.w + dx : W0.w - dx));
+      const px = vert ? fuenteParaCaja(w, 'h', alto)
+                      : fuenteParaCaja(w, 'w', Math.max(8, dir.includes('e') ? W0.w + dx : W0.w - dx));
       w.estilo = w.estilo || {};
       w.estilo.fuente = px;
       const t = tamanoAuto(w);
@@ -2662,7 +3323,7 @@ function camposEstilo(w){
   const comp = COLORES_COMPONENTE[w.tipo];
   const aviso = CON_CONSIGNA.has(w.tipo) && w.marca === false ? t('oculta (se muestra en Diseño)') : '';
   const e0 = w.estilo || {};
-  if (comp) return comp.map(([k, et, base]) => ({ k, et, her: base ? (e0[base] || E.tema[base]) : E.tema[k], de: nombreColorTema(base || k),
+  if (comp) return comp.map(([k, et, base]) => ({ k, et, her: base ? (e0[base] || valorTema(base)) : E.tema[k], de: nombreColorTema(base || k),
     aviso: k === 'ok' ? aviso : '' }));
   const S = est(w), b = w.tipo === 'button' ? colorBoton({ ...w, estilo: {} }) : null;
   /* en un boton, "color" es su fondo y el de partida es el de su clase */
@@ -2670,10 +3331,15 @@ function camposEstilo(w){
   const her = { color: b ? b.fondo : S.acento, fondo:S.sup, borde:S.borde, texto: b ? b.texto : S.texto };
   const de  = { color: b ? t('su clase de botón') : nombreColorTema('acento'), fondo: nombreColorTema('superficie'),
                 borde: nombreColorTema('borde'), texto: b ? t('su clase de botón') : nombreColorTema('texto') };
+  /* en el Cargando el borde es la pista del circulo: parte del de pista */
+  if (w.tipo === 'spinner'){ et.borde = 'Pista'; her.borde = E.tema.pista || S.borde; de.borde = nombreColorTema('pista'); }
   return estilosDe(w.tipo).filter(k => k !== 'fuente').map(k => ({ k, et:et[k], her:her[k], de:de[k] }));
 }
 /* "Pista", "Acento"...: como se llama ese color en la pestana Estilo */
 function nombreColorTema(k){
+  /* los del grupo Seleccionado (el paso actual de los Pasos) */
+  const sel = { 'seleccion.fondo': 'Seleccionado: fondo', 'seleccion.borde': 'Seleccionado: borde', 'seleccion.texto': 'Seleccionado: texto' }[k];
+  if (sel) return t(sel);
   const f = GRUPOS_TEMA.flatMap(([, l]) => l).find(([c]) => c === k);
   return f ? t(f[1]) : k;
 }
@@ -2742,7 +3408,7 @@ function abrirMenuCtx(w, x, y){
   const idsCapa = (E.seleccion || []).includes(w.id) ? E.seleccion.slice() : [w.id];
   const capas = capasPosibles(idsCapa);
   m.innerHTML =
-    `<h4>Estilo de <b>${esc(w.nombre)}</b></h4>` +
+    `<h4>${t('Estilo de')} <b>${esc(w.nombre)}</b></h4>` +
     (campos.length
       ? `<div class="colores">${campos.map(c => filaColorWidget(c, e, 'ctx')).join('')}</div>`
       : `<div class="vacio">Este widget no tiene colores propios.</div>`) +
@@ -2753,8 +3419,8 @@ function abrirMenuCtx(w, x, y){
           }</select></label>`
       : '') +
     `<div class="sep"></div>` +
-    (Object.keys(e).length ? `<button class="acc" data-ctxacc="heredar">Volver a heredar del tema</button>` : '') +
-    (EDITABLES.has(w.tipo) ? `<button class="acc" data-ctxacc="texto">Editar el texto…</button>` : '') +
+    (Object.keys(e).length ? `<button class="acc" data-ctxacc="heredar">${t('Volver a heredar del tema')}</button>` : '') +
+    (EDITABLES.has(w.tipo) ? `<button class="acc" data-ctxacc="texto">${t('Editar el texto…')}</button>` : '') +
     (HOLGURA[w.tipo] ? `<button class="acc" data-ctxacc="ajustar">Ajustar al texto</button>` : '') +
     `<div class="sep"></div><div class="capas">` +
       `<button class="acc" data-ctxacc="frente"${capas.arriba ? '' : ' disabled'}><i>⤒</i>${t('Traer al frente')}</button>` +
@@ -3079,7 +3745,7 @@ document.addEventListener('keydown', e => {
   /* Flechas: colocar al pixel sin pelearse con el raton */
   if (E.seleccion.length && e.key.startsWith('Arrow')){
     HIST.iniciar();
-    const paso = e.shiftKey ? 1 : REJ;
+    const paso = e.shiftKey ? 1 : pasoRejilla();
     if (e.key === 'ArrowLeft')  mover(-paso, 0);
     if (e.key === 'ArrowRight') mover( paso, 0);
     if (e.key === 'ArrowUp')    mover(0, -paso);
@@ -3359,10 +4025,19 @@ function panelEstilo(){
     h += campos.length
       ? paletaWidget(campos, e)
       : `<div class="vacio">${sel.tipo === 'pildora'
-          ? t('Sus colores salen de looks, en la Lógica: uno por estado.')
+          ? t('Su color, uno por estado, se elige en Diseño, en «Los estados».')
           : t('Este widget no tiene colores propios.')}</div>`;
-    if (sel.tipo === 'pasos')
-      h += `<div class="regla" style="margin-top:6px">${t('El paso actual se pinta con la clase de botón Seleccionado del tema.')}</div>`;
+    /* Los Pasos: un color por estado, opcional, para el paso actual */
+    if (sel.tipo === 'pasos'){
+      const st = estadosDe(), por = sel.coloresPaso || {}, tmw = temaDe(sel);
+      h += `<div class="acc-sec" style="margin-top:14px">${t('Color de cada paso')}</div>
+        <div class="regla" style="margin-bottom:6px">${t('Opcional. Cuando la máquina está en ese estado, su casilla sale de este color (el fondo, un tono apagado del mismo). Sin color propio, usa «Paso actual».')}</div>
+        <div class="colores">${st.map(s => `<div class="color-fila"><input type="color" data-pasocolor="${esc(s)}" value="${por[s] || tmw.act_borde}">
+          <span class="et">${esc(s)}<small>${por[s] ? t('propio de este paso') : t('el de «Paso actual»')}</small></span>${por[s]
+          ? `<button type="button" class="btn" data-pasoquitar="${esc(s)}" title="${esc(t('Quitar su color'))}" style="padding:2px 8px">✕</button>` : ''}</div>`).join('')
+        || `<div class="vacio">${t('La lógica todavía no tiene estados.')}</div>`}</div>
+`;
+    }
     /* La clase de un boton: de ella salen sus tres colores */
     if (sel.tipo === 'button')
       h += `<label class="campo" style="margin-top:10px"><span>${t('Clase de botón')}</span>
@@ -3373,7 +4048,12 @@ function panelEstilo(){
     if (papelDe(sel) || TEXTO_ESTILABLE.has(sel.tipo)){
       const papel = e.papel || papelDe(sel) || 'texto';
       const delTema = (tm.tipografia || {})[papel] || 'medium';
-      h += `<label class="campo" style="margin-top:10px"><span>${t('Tipografía')}</span>
+      /* la letra con su encabezado, y su tamano de ahora: el tamano se
+         cambia en Diseño (es parte de "cuanto mide"), pero se dice aqui */
+      const pxAhora = COMPONENTES[sel.tipo] && PARTE_FUENTE[sel.tipo] ? (COMPONENTES[sel.tipo].partes(sel)[PARTE_FUENTE[sel.tipo]] || {}).px : fuenteEfectiva(sel);
+      h += `<div class="acc-sec" style="margin-top:14px">${t('Letra')}</div>
+        ${pxAhora ? `<div class="regla" style="margin-bottom:4px">${t('Tamaño ahora')}: <b>${pxAhora} px</b>. ${t('Se cambia en Diseño, en «Tamaño de letra».')}</div>` : ''}`;
+      h += `<label class="campo" style="margin-top:6px"><span>${t('Tipografía')}</span>
         <select data-west="tipo"><option value="">${t('La del tema')} (${esc(t(PAPELES_TEXTO[papel]))}: ${esc(t(TIPOS[delTema].nombre))})</option>${
           Object.entries(TIPOS).map(([k, T]) => `<option value="${k}"${e.tipo === k ? ' selected' : ''}>${esc(t(T.nombre))}</option>`).join('')}</select></label>`;
       /* una letra con juego limitado (el display de 7 segmentos) no tiene coma */
@@ -3384,7 +4064,7 @@ function panelEstilo(){
     }
     h += controlesTexto(sel);
     h += Object.keys(e).length
-      ? `<button class="btn" id="westReset" style="width:100%;margin-top:8px">Volver a heredar del tema</button>`
+      ? `<button class="btn" id="westReset" style="width:100%;margin-top:8px">${t('Volver a heredar del tema')}</button>`
       : `<div class="hereda" style="margin-top:8px">${t('Ahora mismo hereda todo del tema.')}</div>`;
     h += `</div>`;
   } else {
@@ -3458,14 +4138,12 @@ function panelEstilo(){
 
   if (propias.length){
     const total = propias.reduce((a,f) => a + f.bytes, 0);
-    h += `<div class="nota info"><b>Fuentes propias.</b> Estos tamaños LVGL no los trae
-      —pasan de 48 px o llevan tildes—, así que se generan a partir de la Montserrat que
-      viene con la librería, con <b>sólo los glifos que usas</b>:<br><br>${
-        propias.map(f => `· <b>${f.px} px${NOMBRE_VARIANTE[f.variante || 'medium'] ? ' ' + NOMBRE_VARIANTE[f.variante] : ''}</b> — ${f.glifos.length} glifos, ~${Math.round(f.bytes/1024)} KB`).join('<br>')
-      }${propias.some(montVariante) ? '<br><br>La <b>negrita</b> y la <b>cursiva</b> salen de Montserrat Bold e Italic, que no vienen con LVGL: se descargan una vez (fuentes/LEEME.txt dice de dónde y adónde).' : ''}<br><br>Total aproximado: <b>${Math.round(total/1024)} KB</b> de flash.
+    h += `<div class="nota info">${t('<b>Fuentes propias.</b> Estos tamaños LVGL no los trae —pasan de 48 px o llevan tildes—, así que se generan a partir de la Montserrat que viene con la librería, con <b>sólo los glifos que usas</b>:')}<br><br>${
+        propias.map(f => `· <b>${f.px} px${NOMBRE_VARIANTE[f.variante || 'medium'] ? ' ' + NOMBRE_VARIANTE[f.variante] : ''}</b> — ${f.glifos.length} ${t('glifos')}, ~${Math.round(f.bytes/1024)} KB`).join('<br>')
+      }${propias.some(montVariante) ? '<br><br>' + t('La <b>negrita</b> y la <b>cursiva</b> salen de Montserrat Bold e Italic, que no vienen con LVGL: se descargan una vez (fuentes/LEEME.txt dice de dónde y adónde).') : ''}<br><br>${t('Total aproximado:')} <b>${Math.round(total/1024)} KB</b> ${t('de flash.')}
       ${propias.some(montVariante)
-        ? 'Telar las genera al exportar y las deja en <code>src/ui/</code>, salvo la negrita y la cursiva de Montserrat: esas, con <code>fuentes/generar.cmd</code>.'
-        : 'Telar las genera al exportar y las deja en <code>src/ui/</code>: no hay que ejecutar nada. <code>fuentes/generar.cmd</code> queda por si quieres rehacerlas a mano.'}</div>`;
+        ? t('Telar las genera al exportar y las deja en <code>src/ui/</code>, salvo la negrita y la cursiva de Montserrat: esas, con <code>fuentes/generar.cmd</code>.')
+        : t('Telar las genera al exportar y las deja en <code>src/ui/</code>: no hay que ejecutar nada. <code>fuentes/generar.cmd</code> queda por si quieres rehacerlas a mano.')}</div>`;
   }
   hx += h; }
   h += seccion('est-export', t('Para exportar'), hx, `${PLAN.length} ${t('fuentes')}`);
@@ -3528,33 +4206,18 @@ function panelDiseno(){
   const malos = textosConProblema();
   if (malos.length){
     aviso += `<div class="bloque" style="margin-top:12px"><div class="nota error">
-      <b>La placa no puede dibujar estos caracteres.</b><br>
-      Las fuentes Montserrat que trae LVGL sólo llevan ASCII, el grado y el bullet:
-      ni tildes, ni eñes, ni signos de apertura. En pantalla salen como <b>□</b>,
-      y por eso el lienzo también los pinta así.<br><br>
+      ${t('<b>La placa no puede dibujar estos caracteres.</b><br>Las fuentes Montserrat que trae LVGL sólo llevan ASCII, el grado y el bullet: ni tildes, ni eñes, ni signos de apertura. En pantalla salen como <b>□</b>, y por eso el lienzo también los pinta así.')}<br><br>
       ${malos.slice(0,6).map(m => `· <b>${esc(m.texto)}</b> (${esc(m.malos.join(' '))})`).join('<br>')}
-      ${malos.length > 6 ? `<br>· y ${malos.length-6} más` : ''}
+      ${malos.length > 6 ? `<br>· ${t('y')} ${malos.length-6} ${t('más')}` : ''}
       </div>
-      <button class="btn" id="quitarTildes" style="width:100%">Quitar tildes de todos los textos</button>
-      <div class="regla" style="margin-top:6px">La alternativa es una <b>fuente propia</b>, con las
-      tildes dentro: elige un tamaño de letra que no traiga LVGL (más de 48 px) o cámbiala en Estilo, y
-      al exportar sale la carpeta <b>fuentes\\</b> con el script que la convierte. El LEEME del proyecto
-      lo explica paso a paso.</div>
+      <button class="btn" id="quitarTildes" style="width:100%">${t('Quitar tildes de todos los textos')}</button>
+      <div class="regla" style="margin-top:6px">${t('La alternativa es una <b>fuente propia</b>, con las tildes dentro: elige un tamaño de letra que no traiga LVGL (más de 48 px) o cámbiala en Estilo, y al exportar sale la carpeta <b>fuentes</b> con el script que la convierte. El LEEME del proyecto lo explica paso a paso.')}</div>
     </div>`;
   }
 
   const bloqueProyecto = `
     <label class="campo"><span>${t('Nombre')}</span><input type="text" id="fProyecto" value="${esc(E.proyecto)}"></label>
-    <label class="campo"><span>${t('Placa de la pantalla')}</span><select id="fPlaca">
-      <optgroup label="${t('Con pantalla integrada')}">${
-        Object.entries(placasTodas()).filter(([,v]) => !v.sin_pantalla).map(([k,v]) =>
-          `<option value="${k}"${k===nodoHMI().placa?' selected':''}>${esc(v.corto)} · ${v.ancho}×${v.alto}</option>`).join('')}
-      </optgroup>
-      <optgroup label="${t('Con una pantalla aparte: TFT, OLED o Nextion')}">${
-        Object.entries(placasTodas()).filter(([,v]) => v.sin_pantalla && v.familia !== 'avr' && v.familia !== 'linux')
-          .map(([k,v]) => `<option value="${k}"${k===nodoHMI().placa?' selected':''}>${esc(v.corto)} + ${t('pantalla aparte')}</option>`).join('')}
-      </optgroup>
-    </select></label>
+    <label class="campo"><span>${t('Pantalla')}</span><select id="fPlaca">${opcionesPantalla()}</select></label>
     ${bloquePantallaExterna()}
     <label class="campo"><span>${t('Refresco de pantalla')}</span><select id="fRefresco">${
       [[100,'10 por segundo \u00b7 recomendado'],
@@ -3618,7 +4281,7 @@ function panelDiseno(){
       <b>Ctrl+clic</b> añade o quita uno.</div>`);
 
     h += `<details class="sec" data-sec="alinear"${abierta('alinear')}><summary>${t('Alinear con')} ${esc(w.nombre)}</summary>
-      <div class="regla" style="margin-bottom:8px">Manda el último que tocaste; los demás se le alinean.</div>
+      <div class="regla" style="margin-bottom:8px">${t('Manda el último que tocaste; los demás se le alinean.')}</div>
       <div class="alinea" style="margin-bottom:6px">
         <button data-alinea="izq">Izquierda</button>
         <button data-alinea="centro">Centrar ↔</button>
@@ -3655,7 +4318,7 @@ function panelDiseno(){
   } else {
     const cat = WIDGETS[w.tipo];
     h += `<details class="sec" data-sec="props"${abierta('props')}><summary>${t('Propiedades')}</summary>
-      <div class="regla" style="margin-bottom:10px">${esc(t(cat.ayuda))}</div>
+      <div class="regla" style="margin-bottom:10px">${esc(t(cat.ayuda))}</div>${usoHTML(w)}
       <label class="campo"><span>${t('Nombre en el código')}</span><input type="text" id="wNombre" value="${esc(w.nombre)}"></label>`;
 
     if (cat.acepta === 'lectura' || cat.acepta === 'escritura'){
@@ -3670,9 +4333,32 @@ function panelDiseno(){
       if (erroresLogica) h += `<div class="nota aviso">${t('La lógica tiene errores, así que sus variables (<b>setting</b> y <b>timer</b>) todavía no aparecen aquí. Arréglalos en la pestaña <b>Lógica</b> y vuelve.')}</div>`;
       else if (!o.length) h += `<div class="nota aviso">${t('No hay variables de este tipo. Añade hardware en la pestaña <b>Hardware</b>.')}</div>`;
       const vb = o.find(v => v.nombre === w.bind);
-      if (w.tipo === 'scale') h += `<div class="nota info">La <b>Escala</b> es una regla fija: usa
-        el enlace sólo para saber de qué número a qué número va, y no se mueve. Sirve de fondo
-        para una <b>Aguja</b> o una <b>Barra</b> puestas encima.</div>`;
+      /* que numero le llega a la variable desde cada widget de entrada */
+      if (vb && w.tipo === 'checkbox') h += `<div class="regla" style="margin-bottom:10px">${t('Marcada, la variable vale 1; sin marcar, 0. Y si la cambia otro (la lógica, un botón), la casilla la sigue.')}</div>`;
+      if (vb && (w.tipo === 'dropdown' || w.tipo === 'roller')){
+        const op = elementosDe(w);
+        h += `<div class="regla" style="margin-bottom:10px">${t('La variable recibe el número de la opción elegida, empezando por 0:')} ${
+          op.slice(0, 4).map((x, i) => `<b>${esc(x)}</b> = ${i}`).join(', ')}${op.length > 4 ? '…' : ''}. ${t('En la lógica se pregunta así:')} <code>if ${esc(vb.nombre)} == 1: …</code></div>`;
+      }
+      if (w.tipo === 'spinbox')
+        h += `<div class="fila">
+            <label class="campo"><span>${t('Paso')}</span><input type="number" id="wPasoContador" min="0" step="any" value="${w.paso ?? ''}" placeholder="1"></label>
+            <label class="campo"><span>${t('Decimales')}</span><select id="wDecimales">${[0,1,2,3].map(d => `<option value="${d}"${(Number(w.decimales) || 0) === d ? ' selected' : ''}>${d}</option>`).join('')}</select></label></div>
+          <div class="regla" style="margin-bottom:10px">${vb ? t('Con − y + sube o baja un paso sin salirse del rango de la variable; si lo mantienes pulsado, sigue.') : t('Enlázalo a una variable para que − y + la cambien.')}</div>`;
+      if (w.tipo === 'scale'){
+        const G3 = geoEscala(w), r0 = rangoDe({ ...w, min: undefined, max: undefined });
+        h += `<div class="fila">
+            <label class="campo"><span>${t('Desde')}</span><input type="number" id="wMin" step="any" value="${w.min ?? ''}" placeholder="${r0.min}"></label>
+            <label class="campo"><span>${t('Hasta')}</span><input type="number" id="wMax" step="any" value="${w.max ?? ''}" placeholder="${r0.max}"></label></div>
+          <div class="fila">
+            <label class="campo"><span>${t('Divisiones')}</span><input type="number" id="wDivisiones" min="1" max="100" step="1" value="${w.divisiones ?? ''}" placeholder="10"></label>
+            <label class="campo"><span>${t('Un número cada')}</span><input type="number" id="wCadaNumero" min="1" max="100" step="1" value="${w.cadaNumero ?? ''}" placeholder="5"></label></div>
+          <label class="campo"><span>${t('Los números van')}</span><select id="wOrientacion">${
+            [['abajo', 'Debajo (regla horizontal)'], ['arriba', 'Encima (regla horizontal)'], ['izquierda', 'A la izquierda (regla vertical)'], ['derecha', 'A la derecha (regla vertical)']].map(([k, et]) =>
+            `<option value="${k}"${G3.orient === k ? ' selected' : ''}>${esc(t(et))}</option>`).join('')}</select></label>
+          <div class="regla" style="margin-bottom:10px">${t('Ahora mismo:')} ${G3.lo} … ${G3.hi}, ${G3.div} ${t('divisiones y un número cada')} ${G3.cada}: ${
+            Array.from({ length: Math.floor(G3.div / G3.cada) + 1 }, (_, k) => G3.valor(k * G3.cada)).join(', ')}.</div>`;
+      }
       if (vb?.remota) h += `<div class="nota info">${t('bind:remota').replace('{nodo}', esc(vb.nodo))}</div>`;
     }
     if (cat.acepta === 'series'){
@@ -3681,12 +4367,10 @@ function panelDiseno(){
       h += o.length ? o.map(v => `<label style="display:flex;gap:8px;align-items:center;margin-bottom:5px;font-size:13px">
         <input type="checkbox" data-serie="${v.nombre}" style="width:auto"${(w.series||[]).includes(v.nombre)?' checked':''}>
         ${esc(v.nombre)}${v.remota?' ⇄':''}</label>`).join('')
-        : `<div class="nota aviso">Sin variables que dibujar todavía.</div>`;
+        : `<div class="nota aviso">${t('Sin variables que dibujar todavía.')}</div>`;
     }
     if (w.tipo === 'value'){
-      h += `<div class="nota info">Este widget <b>no lleva texto</b>: lo escribe la variable
-        cuando el aparato está en marcha. Con <b>doble clic</b> editas el valor de ejemplo,
-        y las cifras que pongas tras el punto fijan los decimales.</div>
+      h += `<div class="nota info">${t('Este widget <b>no lleva texto</b>: lo escribe la variable cuando el aparato está en marcha. Con <b>doble clic</b> editas el valor de ejemplo, y las cifras que pongas tras el punto fijan los decimales.')}</div>
         <div class="fila">
           <label class="campo"><span>${t('Decimales')}</span><select id="wDecimales">${
             [0,1,2,3].map(d => `<option value="${d}"${(w.decimales??1)===d?' selected':''}>${d}</option>`).join('')
@@ -3789,6 +4473,14 @@ function panelDiseno(){
       h += `<label class="interruptor" style="margin:4px 0 8px"><input type="checkbox" id="wMarca"${w.marca !== false ? ' checked' : ''}>
         <span>${t(w.tipo === 'curva' ? 'Mostrar la línea de consigna' : 'Mostrar la marca de consigna')}</span></label>`;
       if (w.marca !== false){
+        /* el texto que acompana al valor: su texto, su sitio y su letra */
+        if (w.tipo === 'aguja')
+          h += `<label class="campo"><span>${t('Texto de la consigna')}</span><input type="text" id="wTextoCons" value="${esc(COMPONENTES.aguja.prefijo(w))}" placeholder="${t('solo el número')}"></label>
+            <div class="fila">
+              <label class="campo"><span>${t('Consigna X (px)')}</span><input type="number" id="wConsDx" step="1" value="${w.consDx ?? ''}" placeholder="0"></label>
+              <label class="campo"><span>${t('Consigna Y (px)')}</span><input type="number" id="wConsDy" step="1" value="${w.consDy ?? ''}" placeholder="0"></label>
+            </div>` + letraDeParte(w, 'cons', 'rotulo') +
+            `<div class="regla" style="margin:-4px 0 8px">${t('O arrástralo en el lienzo con el ratón: con el reloj seleccionado, el texto de la consigna sale recuadrado. Su color, en la pestaña Estilo.')}</div>`;
         if (o.length) h += sel('wConsigna', w.consigna, 'Su valor sale de', '— un valor fijo —');
         if (!w.consigna)
           h += `<label class="campo"><span>${t('Valor fijo de la consigna')}</span>
@@ -3812,8 +4504,11 @@ function panelDiseno(){
     if (w.tipo === 'pildora')
       h += `<label class="interruptor" style="margin:2px 0 10px"><input type="checkbox" id="wPlano"${w.plano === true ? ' checked' : ''}>
         <span>${t('Solo el texto, sin fondo')}</span></label>`;
-    if (w.tipo === 'pildora')
-      h += `<div class="nota info">${t('El texto y el color de cada estado se dicen en la Lógica, en <b>looks</b>, con el nombre de este elemento. Por ejemplo: <code>in RAISING: { text: SUBIENDO, color: amber }</code>. Si el enlace con el otro nodo se cae, dice SIN ENLACE en rojo.')}</div>`;
+    if (w.tipo === 'pildora') h += panelEstadoActual(w);
+    /* Los Pasos: una casilla por estado de la Logica, y el texto de cada
+       una junto a SU estado (no por orden de lineas: al anadir o quitar
+       estados, cada uno conserva el suyo). En blanco, el nombre del estado. */
+    if (w.tipo === 'pasos') h += panelPasos(w);
     /* Lo que muestran los que no muestran una variable: una linea por
        elemento. Es lo que se lee igual en el lienzo y en la placa. */
     if (CON_ELEMENTOS[w.tipo]){
@@ -3827,13 +4522,62 @@ function panelDiseno(){
         <input type="text" id="wTexto" value="${esc(w.texto || '')}" placeholder="https://"></label>
         <div class="regla" style="margin-bottom:10px">${t('El QR lo dibuja LVGL en la placa. Hay que encender <b>LV_USE_QRCODE</b> en lv_conf.h; si no, en su sitio sale un aviso que lo dice.')}</div>`;
     if (w.tipo === 'keyboard'){
-      const campos = (pantalla().widgets || []).filter(x => x.tipo === 'textarea');
-      h += `<label class="campo"><span>${t('Escribe en el campo')}</span><select id="wCampo">
-        <option value="">${t('— el primero de la pantalla —')}</option>${campos.map(x =>
-        `<option value="${esc(x.nombre)}"${w.campo === x.nombre ? ' selected' : ''}>${esc(x.nombre)}</option>`).join('')}</select></label>
-        <div class="regla" style="margin-bottom:10px">${campos.length
-          ? t('El campo de texto tiene que estar <b>antes</b> que el teclado en la pantalla: los elementos nacen en orden.')
-          : t('No hay ningún Campo de texto en esta pantalla todavía: añade uno y el teclado escribirá en él.')}</div>`;
+      const lista = pantalla().widgets || [], campos = lista.filter(x => x.tipo === 'textarea');
+      const suyo = campos.find(x => x.nombre === w.campo) || campos[0];
+      const detras = suyo && lista.indexOf(suyo) > lista.indexOf(w);
+      h += `<label class="campo"><span>${t('Teclas')}</span><select id="wModoTeclado">
+          <option value=""${modoTeclado(w) === 'letras' ? ' selected' : ''}>${t('Letras (y con 1# números y signos)')}</option>
+          <option value="numeros"${modoTeclado(w) === 'numeros' ? ' selected' : ''}>${t('Números (teclado numérico)')}</option></select></label>`;
+      if (campos.length){
+        h += `<label class="campo"><span>${t('Escribe en el campo')}</span><select id="wCampo">
+          <option value="">${t('— el primero de la pantalla —')}</option>${campos.map(x =>
+          `<option value="${esc(x.nombre)}"${w.campo === x.nombre ? ' selected' : ''}>${esc(x.nombre)}</option>`).join('')}</select></label>`;
+        if (detras) h += `<div class="nota aviso" style="margin-bottom:8px">${t('El campo está detrás del teclado en la lista de capas, y en la placa el teclado nacería sin saber dónde escribir.')}
+          <button class="btn" id="tecladoDelante" style="width:100%;margin-top:6px">${t('Arreglarlo: poner el teclado encima')}</button></div>`;
+        else if (suyo && !suyo.bind) h += `<div class="regla" style="margin-bottom:10px">${t('El campo todavía no guarda en ninguna variable: lo escrito se queda en la pantalla. Selecciónalo y elige <b>Guarda el número en</b>.')}</div>`;
+      } else
+        h += `<div class="nota aviso" style="margin-bottom:8px">${t('No hay ningún Campo de texto en esta pantalla: el teclado no tiene dónde escribir.')}
+          <button class="btn" id="tecladoCampo" style="width:100%;margin-top:6px">${t('+ Añadir un Campo de texto encima')}</button></div>`;
+    }
+    /* el aviso: cuando aparece */
+    if (w.tipo === 'msgbox'){
+      const est = estadosProyecto(), enEst = w.aparece === 'estados';
+      h += `<label class="campo"><span>${t('Cuándo aparece')}</span><select id="wAparece">
+          <option value=""${enEst ? '' : ' selected'}>${t('Al arrancar (se cierra con la ✕ y no vuelve)')}</option>
+          <option value="estados"${enEst ? ' selected' : ''}${est.length ? '' : ' disabled'}>${t('Solo en unos estados de la lógica')}</option></select></label>`;
+      if (!est.length) h += `<div class="regla" style="margin-bottom:10px">${t('Para que salga en unos estados, la lógica tiene que tenerlos (states:).')}</div>`;
+      else if (enEst){
+        h += `<div class="campo"><span>${t('Sale en')}</span><div class="fila" style="flex-wrap:wrap;gap:4px 12px">${est.map(x =>
+          `<label style="display:flex;gap:6px;align-items:center;font-size:13px"><input type="checkbox" data-estado-aviso="${esc(x)}" style="width:auto"${(w.enEstados || []).includes(x) ? ' checked' : ''}> ${esc(x)}</label>`).join('')}</div></div>
+          <label class="campo"><span>${t('Texto del botón')}</span><input type="text" id="wBotonAviso" value="${esc(w.botonAviso || '')}" placeholder="Aceptar"></label>
+          <div class="regla" style="margin-bottom:10px">${t('Aparece al entrar en esos estados y se va al salir. Su botón lo oculta hasta la próxima vez que se entre.')}</div>`;
+        if (!(w.enEstados || []).length) h += `<div class="nota aviso" style="margin-bottom:10px">${t('Marca al menos un estado: si no, no saldrá nunca.')}</div>`;
+      }
+    }
+    /* la lista: que pasa al tocar un elemento */
+    if (w.tipo === 'list'){
+      const o = varsPara('escritura');
+      h += `<label class="campo"><span>${t('Al tocar, guarda su número en')}</span><select id="wBindLista">
+          <option value="">${t('— en ninguna: solo se ve —')}</option>${o.map(v =>
+          `<option value="${esc(v.nombre)}"${w.bind === v.nombre ? ' selected' : ''}>${esc(v.nombre)}</option>`).join('')}</select></label>`;
+      if (w.bind){ const op = elementosDe(w);
+        h += `<div class="regla" style="margin-bottom:10px">${op.slice(0, 4).map((x, i) => `<b>${esc(x)}</b> = ${i}`).join(', ')}${op.length > 4 ? '…' : ''}. ${t('En la lógica se pregunta así:')} <code>if ${esc(w.bind)} == 1: …</code></div>`; }
+    }
+    /* el campo de texto: donde deja el numero escrito */
+    if (w.tipo === 'textarea'){
+      /* lo que se puede escribir con un numero: salidas, ajustes de
+         Hardware y los ajustes de la logica (setting) */
+      const o = variables().filter(v => !v.booleano && (v.dir === 'escritura' || v.dir === 'ajuste' || v.tipoLogica === 'setting'));
+      h += `<label class="campo"><span>${t('Guarda el número en')}</span><select id="wBindCampo">
+        <option value="">${t('— en ninguna: el texto se queda en la pantalla —')}</option>${o.map(v =>
+        `<option value="${esc(v.nombre)}"${w.bind === v.nombre ? ' selected' : ''}>${esc(v.nombre)} (${esc(v.unidad || '—')}, ${esc(v.min ?? '')}–${esc(v.max ?? '')})</option>`).join('')}</select></label>`;
+      h += w.bind
+        ? `<label class="campo"><span>${t('Decimales')}</span><select id="wDecimales">${
+            [0,1,2,3].map(d => `<option value="${d}"${(w.decimales ?? 1) === d ? ' selected' : ''}>${d}</option>`).join('')}</select></label>
+          <div class="regla" style="margin-bottom:10px">${t('Enseña el valor de la variable. Al tocarlo se escribe con el teclado y, al pulsar ✓, el número pasa a la variable, sin salirse de su rango. Solo admite cifras, el signo y la coma.')}</div>`
+        : `<div class="regla" style="margin-bottom:10px">${o.length
+            ? t('Elige una variable y lo que se escriba con el teclado pasará a ella al pulsar ✓.')
+            : t('No hay variables que se puedan escribir: crea un ajuste en la lógica (setting) o una salida en Hardware.')}</div>`;
     }
     if (w.tipo === 'image'){
       const kb = w.img ? Math.round(w.img.w * w.img.h * 4 / 1024) : 0;
@@ -3856,7 +4600,9 @@ function panelDiseno(){
           <b>${k ? iconoChar(k) : ''}</b><span>${k ? esc(t(iconoEt(k))) : t('Sin icono')}</span><small>${t('Cambiar')}</small></button>
         <div class="regla" style="margin:6px 0 10px">${t('Más de cien, por temas: eléctricos, físicos, químicos, de máquinas… En la placa entran en la fuente al exportar; crecen con el tamaño de letra y toman su color.')}</div>`;
     }
-    if (['button','buttonmatrix'].includes(w.tipo)){
+    /* Solo el Boton: la Rejilla ofrecia «ir a» y «lanzar el evento», pero
+       el generador no los conecta y en la placa no hacian nada. */
+    if (w.tipo === 'button'){
       h += `<label class="campo"><span>${t('Al pulsar, ir a')}</span><select id="wDestino">
         <option value="">— nada —</option>${E.pantallas.map(s =>
         `<option value="${s.nombre}"${w.destino===s.nombre?' selected':''}>${esc(s.nombre)}</option>`).join('')}</select></label>
@@ -3890,20 +4636,32 @@ function panelDiseno(){
             <div class="regla" style="margin:6px 0 10px">${t('Cada pulsación suma o resta el paso a')} <b>${esc(elegida.nombre)}</b>, ${t('sin salirse de')} ${esc(elegida.min)}–${esc(elegida.max)}. ${t('Pon un botón que suba y otro que baje.')}</div>`;
         }
         else h += ords.length
-          ? `<div class="regla" style="margin-bottom:10px">Con una salida de sí/no manda un <b>pulso</b>: vale 1 el
-             instante en que lo pulsas y vuelve a 0 solo (para algo que se queda encendido, usa un
-             <b>Interruptor</b>). Con una salida con valor, como un PWM, <b>sube o baja</b> ese valor.</div>`
-          : `<div class="nota info">No hay ninguna salida todavía. Añade un relé, un LED, una salida
-             digital o un PWM en <b>Hardware</b> y aparecerá aquí.</div>`;
+          ? `<div class="regla" style="margin-bottom:10px">${t('Con una salida de sí/no manda un <b>pulso</b>: vale 1 el instante en que lo pulsas y vuelve a 0 solo (para algo que se queda encendido, usa un <b>Interruptor</b>). Con una salida con valor, como un PWM, <b>sube o baja</b> ese valor.')}</div>`
+          : `<div class="nota info">${t('No hay ninguna salida todavía. Añade un relé, un LED, una salida digital o un PWM en <b>Hardware</b> y aparecerá aquí.')}</div>`;
       }
     }
     h += `</details><details class="sec" data-sec="geo"${abierta('geo')}><summary>${t('Posición y tamaño')}</summary>
       <div class="fila" style="margin-bottom:6px"><input type="number" id="wX" value="${w.x}"><input type="number" id="wY" value="${w.y}"></div>
       <div class="fila"><input type="number" id="wW" value="${w.w}"><input type="number" id="wH" value="${w.h}"></div>
       <div class="regla" style="margin-top:6px">${t('x · y · ancho · alto, en píxeles de la pantalla real')}</div>`;
+    if (w.tipo === 'spinner') h += `<label class="campo" style="margin-top:10px"><span>${t('Grosor del arco (px)')}</span>
+        <input type="number" id="wGrosor" min="2" max="120" step="1" value="${w.grosor ?? ''}" placeholder="${geoSpinner({ ...w, grosor: 0 }).grosor}"></label>`;
+    if (w.tipo === 'line') h += `<div class="fila" style="margin-top:10px">
+        <label class="campo"><span>${t('Ángulo (°)')}</span><input type="number" id="wAngulo" min="-90" max="90" step="1" value="${anguloLinea(w)}"></label>
+        <label class="campo"><span>${t('Grosor (px)')}</span><input type="number" id="wGrosorLinea" min="1" max="60" step="1" value="${extremosLinea(w).g}"></label></div>
+      <div class="regla">${t('Arrastra un extremo para girarla; con Mayús va de 15 en 15°. 0° es horizontal y 90°, vertical.')}</div>`;
 
     /* El tamano de letra, aqui: es parte de "cuanto mide", no del color.
        En la pestana Estilo no se repite. */
+    /* La tipografia, junto al tamaño: es lo primero que se busca al mirar
+       la letra, y en Estilo nadie la encontraba. (Estilo la sigue teniendo.) */
+    if ((papelDe(w) || TEXTO_ESTILABLE.has(w.tipo)) && (PROP_TEXTO[w.tipo] || PARTE_FUENTE[w.tipo])){
+      const e0 = w.estilo || {}, papel = e0.papel || papelDe(w) || 'texto';
+      const delTema = (E.tema.tipografia || {})[papel] || 'medium';
+      h += `<label class="campo" style="margin-top:10px"><span>${t('Tipografía')}</span>
+        <select id="wTipo"><option value="">${t('La del tema')} (${esc(t(TIPOS[delTema].nombre))})</option>${
+          Object.entries(TIPOS).map(([k, T]) => `<option value="${k}"${e0.tipo === k ? ' selected' : ''}>${esc(t(T.nombre))}</option>`).join('')}</select></label>`;
+    }
     if (PROP_TEXTO[w.tipo] || PARTE_FUENTE[w.tipo]){
       const libre = tipoLibre(varianteFuente(w)), e0 = w.estilo || {};
       /* el automatico de un componente lo sabe el componente */
@@ -4018,7 +4776,7 @@ function panelEnlace(){
   if (ausentes.length){
     const sinEllos = E.nodos.map(n => placaDe(n)).filter(P => ausentes.some(k => !enlacesDe(P).has(k)));
     c += `<div class="regla" style="margin:-4px 0 10px">${t('No aparecen')} ${ausentes.map(k => nom(ENLACES[k])).join(t(' ni '))}: ${
-      [...new Set(sinEllos.map(P => P.corto))].join(t(' ni '))} ${t('no los tiene. Solo los ESP32 hablan por CAN o sin cables.')}</div>`;
+      ((q, u) => u.length === 1 ? `${esc(u[0])} ${t('no los tiene.')}` : `${t('Ni')} ${u.map(esc).join(t(' ni '))} ${t('los tienen.')}`)(0, [...new Set(sinEllos.map(P => P.corto))])} ${t('Solo los ESP32 hablan por CAN o sin cables.')}</div>`;
   }
   if (E.enlace && !posibles.includes(E.enlace.tipo))
     c += `<div class="nota error">${esc(nom(ENLACES[E.enlace.tipo]))}: ${t('una de las dos placas no lo admite. Elige otro enlace.')}</div>`;
@@ -4088,7 +4846,7 @@ function panelHardware(){
   let hp = `
     ${multi && E.iNodo > 0 ? `<label class="campo"><span>${t('Placa')}</span><select id="fPlacaNodo">${
       Object.entries(placasTodas()).map(([k,v]) =>
-      `<option value="${k}"${k===n.placa?' selected':''}>${esc(v.corto)}${v.propia ? ' · ' + t('tuya') : ''}</option>`).join('')}</select></label>
+      `<option value="${k}"${k===n.placa?' selected':''}>${esc(v.nombre || v.corto)}${v.propia ? ' · ' + t('tuya') : ''}</option>`).join('')}</select></label>
       ${E.iNodo > 0 ? `<div class="fila" style="margin-bottom:10px">
         <button class="btn" id="nuevaPlaca" style="flex:1">${t('+ Placa a medida')}</button>
         ${P.propia ? `<button class="btn" id="editarPlaca" style="flex:1">${t('Editar esta ficha')}</button>` : ''}
@@ -4219,7 +4977,7 @@ function panelHardware(){
   }
 
   const piezas = [
-    ...n.conexiones.map((c, i) => ({ ...c, _lista: 'conexiones', _i: i, _cat: CONEXIONES[c.tipo] })),
+    ...n.conexiones.map((c, i) => ({ ...c, _lista: 'conexiones', _i: i, _cat: piezaEnPlaca(CONEXIONES[c.tipo], placaBase(n)) })),
   ];
 
   h += piezas.map(pz => acordeon(pz._lista + '|' + pz._i, pz._cat.icono, pz.clave,
@@ -4232,11 +4990,17 @@ function panelHardware(){
   const gruposC = {};
   for (const [k, v] of Object.entries(CONEXIONES)) (gruposC[v.grupo] = gruposC[v.grupo] || []).push([k, v]);
 
+  /* Lo que esta placa no puede llevar sale en gris y dice por que: no se
+     esconde (se aprende que existe), pero tampoco se ofrece como si valiera */
+  const esPant = n === nodoHMI();
+  const noPuede = Object.fromEntries(Object.keys(CONEXIONES).map(k => [k, porQueNoPieza(P, k, esPant)]).filter(([, r]) => r));
   h += `<div class="anadir">
     <select id="addConex"><option value="">${t('+ conectar algo…')}</option>${
       Object.entries(gruposC).map(([g, l]) => `<optgroup label="${esc(t(g))}">${l.map(([k, v]) =>
-      `<option value="${k}">${v.icono} ${esc(nom(v))}</option>`).join('')}</optgroup>`).join('')}</select>
+      noPuede[k] ? `<option value="${k}" disabled>${v.icono} ${esc(nom(v))} — ${esc(t(noPuede[k]))}</option>`
+                 : `<option value="${k}">${v.icono} ${esc(nom(v))}</option>`).join('')}</optgroup>`).join('')}</select>
     <div class="regla">${t('conectar:regla')}</div>
+    ${Object.keys(noPuede).length ? `<div class="regla">${t('En gris, lo que')} <b>${esc(P.corto)}</b> ${t('no puede llevar, con el motivo.')}</div>` : ''}
   </div>`;
 
   /* el resumen de pines, que es del nodo entero y no de ninguna pieza */
@@ -4247,9 +5011,9 @@ function panelHardware(){
     h += `<div class="nota error" style="margin-top:12px"><b>${pinesMal.length === 1 ? t('Revisa este pin:') : t('Revisa estos pines:')}</b><br>${
       pinesMal.map(f => `<b>${esc(f.clave)}</b>${f.pin ? ` (${esc(f.pin)})` : ''} — ${esc(f.aviso.txt)}`).join('<br>')}</div>`;
   h += A.filas.some(f => f.aviso?.sinPines)
-    ? `<div class="nota error" style="margin-top:12px"><b>Sin pines suficientes.</b> Esta placa tiene salidas:</div>
+    ? `<div class="nota error" style="margin-top:12px">${t('<b>Sin pines suficientes.</b> Esta placa tiene salidas:')}</div>
        <ol style="font-size:12px;color:var(--tenue);padding-left:18px;line-height:1.6">${
-       P.rutas_escape.map(r => `<li>${esc(r)}</li>`).join('')}</ol>
+       (P.rutas_escape || []).map(r => `<li>${esc(t(r))}</li>`).join('')}</ol>
        ${E.nodos.length === 1 ? `<button class="btn primario" data-addnodo style="width:100%;margin-top:10px">${t('Añadir un segundo nodo')}</button>` : ''}`
     : `<div class="dato-linea ok"><span>${t('Pines libres')}</span><b>${A.libresTras}</b></div>`;
   hc = h; h = hIni;
@@ -4271,14 +5035,17 @@ function panelHardware(){
   h += seccion('hw-cuidado', deNodo(t('Antes de cablear')),
     (tr.length ? `<div class="acc-sec">${t('Por lo que has conectado')}</div><div class="trampas">${tr.map(x => trampa('', x)).join('')}</div>` : '')
     + `<div class="acc-sec">${t('Trampas de esta placa')}</div>${trPlaca.length
-      ? `<div class="trampas">${trPlaca.map(([k,x]) => trampa('GPIO' + k, x)).join('')}</div>`
-      : '<div class="vacio">Ninguna registrada.</div>'}`,
+      ? `<div class="trampas">${trPlaca.map(([k,x]) => trampa(nombrePin(P, Number(k)), x)).join('')}</div>`
+      : `<div class="vacio">${t('Ninguna registrada.')}</div>`}`,
     tr.length + trPlaca.length || undefined);
 
-  h += seccion('hw-ide', deNodo(t('Herramientas del IDE')), `
+  /* una placa con Linux no tiene IDE: solo se dice como se ejecuta */
+  const opsIde = Object.entries(P.opciones_ide || {});
+  if (opsIde.length) h += seccion('hw-ide', deNodo(t('Herramientas del IDE')), `
     <div class="regla">${t('El IDE reinicia estas opciones por sketch. Compruébalas antes de cada flasheo:')}</div>
-    <div class="kv">${Object.entries(P.opciones_ide).map(([k,v]) => `<span>${esc(k)}</span><b>${esc(v)}</b>`).join('')}</div>
+    <div class="kv">${opsIde.map(([k,v]) => `<span>${esc(k)}</span><b>${esc(v)}</b>`).join('')}</div>
     ${P.nota_ide ? `<div class="regla">${esc(t(P.nota_ide))}</div>` : ''}`);
+  else if (P.nota_ide) h += seccion('hw-ide', deNodo(t('Cómo se ejecuta')), `<div class="regla">${esc(t(P.nota_ide))}</div>`);
 
   /* quitar el nodo: al final, lejos de lo que se toca a menudo */
   if (multi && E.iNodo > 0)
@@ -4325,7 +5092,8 @@ function conectarPanel(){
   const w = widgetSel();
 
   on('fProyecto','input', e => { E.proyecto = e.target.value.trim() || 'mi-proyecto'; pintarCabecera(); });
-  on('fPlaca','change',     e => cambiarPlaca(nodoHMI(), e.target.value));
+  on('fPlaca','change',     e => elegirPantalla(e.target.value));
+  on('fPlacaAparte','change', e => cambiarPlaca(nodoHMI(), e.target.value));
 
   /* --- pantalla a medida --- */
   on('nuevaPantalla',  'click', () => { E.pantallaEdit = plantillaPantalla(); pintar(); });
@@ -4374,6 +5142,11 @@ function conectarPanel(){
     const v = e.target.value.trim(); if (v === '') delete w2[k]; else w2[k] = num ? Number(v) : v; pintar(); });
   campoComp('wConsigna', 'consigna'); campoComp('wSerie2', 'serie2'); campoComp('wConsignaValor', 'consignaValor', true);
   campoComp('wUnidadPos', 'unidadPos'); campoComp('wRotuloDx', 'rotuloDx', true); campoComp('wRotuloDy', 'rotuloDy', true);
+  campoComp('wConsDx', 'consDx', true); campoComp('wConsDy', 'consDy', true);
+  /* el texto de la consigna: «consigna» es el de siempre (no se guarda);
+     vacio, solo el numero */
+  on('wTextoCons', 'change', e => { const w2 = widgetSel(); if (!w2) return; HIST.iniciar();
+    const v = e.target.value.trim(); if (v === 'consigna') delete w2.textoCons; else w2.textoCons = v; pintar(); });
   /* la letra y el tamano de una parte: van en el estilo (tipo_rot, fuente_uni...) */
   document.querySelectorAll('[data-letraparte]').forEach(i => i.addEventListener('change', () => {
     const w2 = widgetSel(); if (!w2) return; HIST.iniciar();
@@ -4457,7 +5230,118 @@ function conectarPanel(){
     on('wOrdenRepite','change', e => ponOrden('repite', e.target.checked));
     on('wTexto','input',  e => { w.texto = e.target.value; pintarLienzo(); });
     on('wElementos','input', e => { w.elementos = e.target.value; pintarLienzo(); });
-    on('wCampo','change', e => { HIST.iniciar(); w.campo = e.target.value; pintarLienzo(); });
+    /* los Pasos: una logica de ejemplo (solo si no hay ninguna) o ir a la Logica */
+    on('pasosEjemplo','click', () => {
+      if (String(E.logica || '').trim()) return;
+      HIST.iniciar(); E.logica = logicaEjemploPasos(); pintar();
+      toast(t('Escrita una lógica de ejemplo con cuatro pasos. Pulsa Simular para verlos avanzar.'), 'ok', 6000);
+    });
+    on('pasosIrLogica','click', () => { E.pestana = 'logica'; pintar(); });
+    on('pasosEstilo','click', () => { E.pestana = 'estilo'; pintar(); });
+    on('pasosIrLogica2','click', () => { E.pestana = 'logica'; pintar(); });
+    /* anadir un paso: un estado vacio al final de states: */
+    const anadirPaso = () => {
+      const campo = $('pasoNuevo'); if (!campo || !campo.value.trim()) return;
+      const r = anadirPasoLogica(campo.value);
+      if (r.error){ toast(escDlg(r.error), 'aviso', 6000); return; }
+      HIST.iniciar(); E.logica = r.txt; pintar();
+      const nn = r.nombres.map(escDlg).join(', ');
+      toast(r.nueva
+        ? `${t('Pasos creados')}: <b>${nn}</b>. ${t('Arranca en')} <b>${escDlg(r.nombres[0])}</b>.`
+        : `${t('Añadido')}: <b>${nn}</b>.`, 'ok', 5000);
+    };
+    on('pasoAnadir','click', anadirPaso);
+    /* anadir un cambio de estado: de, a y cuando */
+    on('cambioCuando','change', e => { const s = $('cambioSeg'); if (s) s.style.visibility = e.target.value === 'tiempo' ? '' : 'hidden'; });
+    on('cambioAnadir','click', () => {
+      const de = $('cambioDe').value, a = $('cambioA').value, cu = $('cambioCuando').value, seg = $('cambioSeg').value;
+      const r = cu === 'tiempo' ? anadirCambioLogica(de, a, 'tiempo', seg) : anadirCambioLogica(de, a, 'boton', cu.slice(6));
+      if (r.error){ toast(escDlg(r.error), 'aviso', 6000); return; }
+      HIST.iniciar(); E.logica = r.txt; pintar();
+      toast(`${t('Añadido')}: <b>${escDlg(de)}</b> → <b>${escDlg(a)}</b>, ${escDlg(cu === 'tiempo' ? t('a los') + ' ' + seg + ' s' : t('al pulsar') + ' ' + cu.slice(6))}.`, 'ok', 5000);
+    });
+    /* el Estado actual: el texto y el color de cada estado, en el widget */
+    const ponPorEstado = (k, s, v) => {
+      if (v) w[k] = { ...(w[k] || {}), [s]: v };
+      else if (w[k]){ delete w[k][s]; if (!Object.keys(w[k]).length) delete w[k]; }
+    };
+    document.querySelectorAll('[data-piltexto]').forEach(i => {
+      i.addEventListener('focus', () => HIST.iniciar());
+      i.addEventListener('input', () => { ponPorEstado('textosEstado', i.dataset.piltexto, i.value.trim()); pintarLienzo(); });
+    });
+    document.querySelectorAll('[data-pilcolor]').forEach(i => {
+      i.addEventListener('input', () => { ponPorEstado('coloresEstado', i.dataset.pilcolor, i.value); pintarLienzo(); });
+      i.addEventListener('change', () => { HIST.iniciar(); ponPorEstado('coloresEstado', i.dataset.pilcolor, i.value); pintarLienzo(); pintarPanel(); });
+    });
+    document.querySelectorAll('[data-pilquitar]').forEach(b => b.addEventListener('click', () => {
+      HIST.iniciar(); ponPorEstado('coloresEstado', b.dataset.pilquitar, ''); pintarLienzo(); pintarPanel();
+    }));
+    /* que los pasos vacios avancen solos, para verlos moverse en el simulador */
+    on('pasosEncadenar','click', () => {
+      const txt = encadenarPasos(3); if (!txt) return;
+      HIST.iniciar(); E.logica = txt; pintar();
+      toast(t('Listo: cada paso vacío pasa al siguiente a los 3 s (el último vuelve al primero). Pulsa Simular para verlo; en la Lógica puedes cambiar los tiempos.'), 'ok', 9000);
+    });
+    on('pasoNuevo','keydown', e => { if (e.key === 'Enter') anadirPaso(); });
+    /* quitar un paso: solo si nada lo nombra; si no, se dice que lineas */
+    document.querySelectorAll('[data-pasoborrar]').forEach(b => b.addEventListener('click', async () => {
+      const s = b.dataset.pasoborrar, r = quitarPasoLogica(s);
+      if (r.error){ toast(escDlg(r.error), 'aviso', 6000); return; }
+      if (r.refs){
+        const ir = await dialogo({ tipo: 'aviso', ancho: 520, titulo: `${t('No quito')} ${escDlg(s)}: ${t('la lógica lo usa')}`,
+          cuerpo: `<p>${t('Estas líneas llevan a ese paso o preguntan por él. Si lo quitara, la lógica se quedaría sin saber adónde ir:')}</p>`
+            + listaDlg(r.refs.map(escDlg)) + `<p>${t('Cámbialas en la Lógica (por ejemplo, que vayan a otro paso) y vuelve a quitarlo.')}</p>`,
+          botones: [{ et: t('Cancelar'), valor: false, cancela: true }, { et: t('Ir a la Lógica'), valor: true, principal: true }] });
+        if (ir){ E.pestana = 'logica'; pintar(); }
+        return;
+      }
+      HIST.iniciar(); E.logica = r.txt;
+      for (const k of ['textosPaso', 'coloresPaso', 'textosEstado', 'coloresEstado']) if (w[k]) delete w[k][s];
+      pintar();
+      toast(`${t('Quitado el paso')} <b>${escDlg(s)}</b>.`, 'ok', 5000);
+    }));
+    /* el texto de un paso: se guardan todos por su estado (y el orden de
+       lineas de antes, si lo habia, deja de usarse) */
+    document.querySelectorAll('[data-pasotexto]').forEach(i => {
+      const guardar = () => {
+        const por = {};
+        document.querySelectorAll('[data-pasotexto]').forEach(x => { if (x.value.trim()) por[x.dataset.pasotexto] = x.value.trim(); });
+        if (Object.keys(por).length) w.textosPaso = por; else delete w.textosPaso;
+        delete w.elementos;
+        pintarLienzo();
+      };
+      i.addEventListener('focus', () => HIST.iniciar());
+      i.addEventListener('input', guardar);
+    });
+    /* la tipografia desde Diseño: lo mismo que el selector de Estilo */
+    on('wTipo','change', e => {
+      HIST.iniciar();
+      w.estilo = w.estilo || {};
+      if (e.target.value) w.estilo.tipo = e.target.value; else delete w.estilo.tipo;
+      if (!Object.keys(w.estilo).length) delete w.estilo;
+      pintar();
+    });
+    on('wCampo','change', e => { HIST.iniciar(); w.campo = e.target.value; pintar(); });
+    on('wModoTeclado', 'change', e => { HIST.iniciar(); if (e.target.value) w.modo = e.target.value; else delete w.modo; pintar(); });
+    on('wBindCampo', 'change', e => { HIST.iniciar(); w.bind = e.target.value; pintar(); });
+    /* el campo, encima del teclado y antes que el en la lista: asi nace primero */
+    on('tecladoCampo', 'click', () => {
+      HIST.iniciar();
+      const P = placa(), f = P.ancho / 800, lista = pantalla().widgets;
+      const hc = Math.max(24, ajusta(WIDGETS.textarea.h * f)), wc = Math.min(w.w, P.ancho);
+      const campo = { id: 'w' + (E.contador++), tipo: 'textarea', nombre: 'textarea_' + E.contador,
+        x: w.x, y: Math.max(0, w.y - hc - 8), w: wc, h: hc, bind: '', series: [], texto: t('Escribe aquí...'), evento: '', destino: '' };
+      lista.splice(lista.indexOf(w), 0, campo);
+      w.campo = campo.nombre;
+      pintar();
+    });
+    /* el teclado, detras de su campo en la lista (encima en la pantalla) */
+    on('tecladoDelante', 'click', () => {
+      HIST.iniciar();
+      const lista = pantalla().widgets;
+      lista.splice(lista.indexOf(w), 1); lista.push(w);
+      pintar();
+    });
     on('wIcono','click', async () => {
       const k = await elegirIcono(w.icono || '', w.tipo === 'button');
       if (k === null) return;
@@ -4471,6 +5355,22 @@ function conectarPanel(){
     on('wEjemplo','input',    e => { w.ejemplo = w.tipo === 'tiempo' ? Math.max(0, Math.round(+e.target.value || 0)) : (parseFloat(e.target.value) || 0); if (w.auto) normalizarAuto(); pintarLienzo(); });
     on('wEvento','input', e => { w.evento = e.target.value.trim(); });
     on('wDestino','change', e => { w.destino = e.target.value; });
+    on('wAparece', 'change', e => { HIST.iniciar(); if (e.target.value) w.aparece = e.target.value; else delete w.aparece; pintar(); });
+    on('wBotonAviso', 'change', e => { HIST.iniciar(); const v = e.target.value.trim(); if (v) w.botonAviso = v; else delete w.botonAviso; pintar(); });
+    on('wBindLista', 'change', e => { HIST.iniciar(); w.bind = e.target.value; pintar(); });
+    document.querySelectorAll('[data-estado-aviso]').forEach(c => c.addEventListener('change', () => {
+      HIST.iniciar();
+      w.enEstados = [...document.querySelectorAll('[data-estado-aviso]:checked')].map(x => x.dataset.estadoAviso);
+      pintar();
+    }));
+    const campoEntero = (id, k) => on(id, 'change', e => { HIST.iniciar(); const v = parseInt(e.target.value, 10); if (v >= 1) w[k] = v; else delete w[k]; pintar(); });
+    campoEntero('wDivisiones', 'divisiones'); campoEntero('wCadaNumero', 'cadaNumero');
+    on('wOrientacion', 'change', e => { HIST.iniciar(); if (e.target.value !== 'abajo') w.orientacion = e.target.value; else delete w.orientacion; pintar(); });
+    on('wPasoContador', 'change', e => { HIST.iniciar(); const v = parseFloat(e.target.value); if (v > 0) w.paso = v; else delete w.paso; pintar(); });
+    on('wAngulo', 'change', e => { const v = parseFloat(e.target.value); if (isNaN(v)) return;
+      HIST.iniciar(); girarLinea(w, Math.max(-90, Math.min(90, v))); pintar(); });
+    on('wGrosorLinea', 'change', e => { const v = parseInt(e.target.value, 10); if (!(v >= 1)) return;
+      HIST.iniciar(); const E0 = extremosLinea(w); ponExtremosLinea(w, E0.a, E0.b, Math.min(60, v)); pintar(); });
     for (const k of ['X','Y','W','H']) on('w'+k,'input', e => { w[k.toLowerCase()] = parseInt(e.target.value)||0;
       /* proporción fija: al escribir un lado, el otro le sigue */
       const R = PROPORCION[w.tipo];
@@ -4721,6 +5621,19 @@ function conectarPanel(){
     if (i.type === 'number')    i.addEventListener('change', () => { HIST.iniciar(); aplicar(); pintarPanel(); });
   });
 
+  /* los Pasos: el color de un paso, y quitarlo */
+  document.querySelectorAll('[data-pasocolor]').forEach(i => {
+    const aplicar = () => { if (!w) return; w.coloresPaso = { ...(w.coloresPaso || {}), [i.dataset.pasocolor]: i.value }; pintarLienzo(); };
+    i.addEventListener('input', aplicar);
+    i.addEventListener('change', () => { HIST.iniciar(); aplicar(); pintarPanel(); });
+  });
+  document.querySelectorAll('[data-pasoquitar]').forEach(b => b.addEventListener('click', () => {
+    if (!w || !w.coloresPaso) return;
+    HIST.iniciar(); delete w.coloresPaso[b.dataset.pasoquitar];
+    if (!Object.keys(w.coloresPaso).length) delete w.coloresPaso;
+    pintarLienzo(); pintarPanel();
+  }));
+
   document.querySelectorAll('[data-westhex]').forEach(i => i.addEventListener('change', () => {
     if (!w) return;
     const k = i.dataset.westhex, v = i.value.trim();
@@ -4784,7 +5697,7 @@ function formularioPlaca(){
               border:1px solid var(--borde);border-radius:6px;padding:6px 8px">${esc(val ?? '')}</textarea></label>`;
 
   return `<div class="bloque"><h3>${t('Placa a medida')}</h3>
-    <div class="nota info">${t('Describe la placa una vez y queda guardada dentro del proyecto. Vale como <b>nodo de control</b>: lee sensores, mueve salidas y habla con la pantalla. Si además quieres que tenga pantalla, elígela como placa de la pantalla con «+ pantalla aparte» en Diseño.')}</div>
+    <div class="nota info">${t('Describe la placa una vez y queda guardada dentro del proyecto. Vale como <b>nodo de control</b>: lee sensores, mueve salidas y habla con la pantalla. Si además quieres que tenga pantalla, elige en Diseño una pantalla aparte y, en «Placa a la que la conectas», esta placa.')}</div>
 
     <div class="fila">${campo('pfNombre', t('Nombre'), f.nombre, 'Raspberry Pi Pico')}${campo('pfCorto', t('Nombre corto'), f.corto, 'Pico')}</div>
     <label class="campo"><span>${t('Familia de código')}</span><select id="pfFamilia">${
@@ -4882,11 +5795,20 @@ const PINES_TIPICOS = {
 };
 
 function pantallaPorDefecto(base){
+  /* Una placa Linux solo mueve OLED por I2C (el motor de Python): nace con
+     la que funciona, no con una TFT que luego no se puede exportar */
+  if (base.familia === 'linux'){
+    const pa = { controlador: 'SSD1306', rotacion: 0, tactil: { controlador: 'ninguno' } };
+    proponerPinesI2c(pa, base);
+    return pa;
+  }
   const malos = new Set([...(base.solo_entrada || []), ...(base.arranque || [])]);
   const libres = (base.libres || []).filter(x => !malos.has(x));
   const usados = new Set();
+  /* una placa con los buses en pines fijos (la Pico) dice los suyos */
+  const suyos = (base.pantalla_por_defecto || {}).spi || {};
   const elige = clave => {
-    const pref = (PINES_TIPICOS[clave] || []).find(x => libres.includes(x) && !usados.has(x));
+    const pref = [suyos[clave], ...(PINES_TIPICOS[clave] || [])].find(x => x !== undefined && libres.includes(x) && !usados.has(x));
     const pin = pref ?? libres.find(x => !usados.has(x)) ?? -1;
     if (pin >= 0) usados.add(pin);
     return pin;
@@ -4908,10 +5830,98 @@ function pantallaPorDefecto(base){
  * Solo aparece cuando la placa elegida no trae pantalla. Es la ficha que
  * acaba en pantalla.h: controlador, pines, giro y tactil.
  * ------------------------------------------------------------------- */
+/* Las placas a las que se enchufa una pantalla aparte: solo la familia
+   ESP32. El programa de pantalla de Telar (LVGL y tambien la capa de la
+   Nextion) va sobre FreeRTOS al estilo del ESP32 —tareas en un nucleo,
+   semaforos, colas, heap_caps_malloc—, y las demas no lo tienen. Sirven
+   de nodo de control, como en control-var. */
+/* EL MOTOR DE DIBUJO: con que libreria dibuja una placa su pantalla.
+   Hoy, LVGL en la familia ESP32 y en la Pico (con FreeRTOS SMP; las
+   pantallas por puerto serie, todavia no). null si no puede. «bus» es el
+   de la pantalla elegida: 'spi', 'i2c' o 'uart'. */
+function motorPantalla(P, bus){
+  if (!P || !P.sin_pantalla) return 'LVGL';
+  if ((P.familia || 'esp32') === 'esp32') return 'LVGL';
+  if (P.rp2040 && bus !== 'uart') return 'LVGL';
+  /* Linux (Raspberry, Jetson, Orange Pi): las OLED por I2C que conoce
+     luma.oled, dibujadas por el motor de Python (generador-linux.js) */
+  if (P.familia === 'linux' && bus === 'i2c' && driverLinux(nodoHMI().pantalla_externa)) return 'Python';
+  return null;
+}
+const busDePantalla = n => (PANELES[(n && n.pantalla_externa || {}).controlador] || {}).bus || 'spi';
+function placasAparte(bus = busDePantalla(nodoHMI())){
+  return Object.fromEntries(Object.entries(placasTodas())
+    .filter(([,v]) => v.sin_pantalla && motorPantalla(v, bus)));
+}
+/* Por que una placa no puede mover esta pantalla (null si puede) */
+function porQueNoPantalla(P, bus = busDePantalla(nodoHMI())){
+  if (!P || motorPantalla(P, bus)) return null;
+  if (P.familia === 'avr') return t('tiene 2 KB de memoria y LVGL no cabe');
+  if (P.familia === 'linux') return t('con Linux, Telar dibuja por ahora solo las OLED por I2C (SSD1306 y SH1106), con Python: las TFT por SPI y las pantallas serie todavía no');
+  if (P.rp2040) return t('la Pico todavía no mueve pantallas por puerto serie (Nextion): sí las TFT por SPI y las OLED por I2C');
+  return t('el programa de pantalla de Telar usa FreeRTOS del ESP32, y esta placa no lo tiene');
+}
+/* Pines de la pantalla que no valen juntos en una placa con los buses en
+   pines fijos (la Pico): un aviso por bus, o [] si todo esta bien */
+function pinesPantallaMal(n){
+  const P = placaBase(n), pa = n.pantalla_externa;
+  if (!P.buses_fijos || !pa) return [];
+  const mal = [], bus = busDePantalla(n);
+  if (bus === 'i2c' && busFijo(P, 'i2c', { sda: pa.i2c?.sda, scl: pa.i2c?.scl }) === null)
+    mal.push(`${t('La OLED: el SDA y el SCL tienen que ser del mismo I2C.')} ${textoBusesFijos(P, 'i2c')}.`);
+  if (bus === 'spi' && busFijo(P, 'spi', { sck: pa.spi?.sck, mosi: pa.spi?.mosi, miso: pa.spi?.miso }) === null)
+    mal.push(`${t('La TFT: SCK, MOSI y MISO tienen que ser del mismo SPI.')} ${textoBusesFijos(P, 'spi')}.`);
+  const tc = pa.tactil || {}, T = TACTILES[tc.controlador] || {};
+  if (bus === 'spi' && T.bus === 'spi' && busFijo(P, 'spi', { sck: tc.sck, mosi: tc.mosi, miso: tc.miso }) === null)
+    mal.push(`${t('El táctil: SCK, MOSI y MISO tienen que ser del mismo SPI.')} ${textoBusesFijos(P, 'spi')}.`);
+  if (bus === 'spi' && T.bus === 'i2c' && busFijo(P, 'i2c', { sda: tc.sda, scl: tc.scl }) === null)
+    mal.push(`${t('El táctil: el SDA y el SCL tienen que ser del mismo I2C.')} ${textoBusesFijos(P, 'i2c')}.`);
+  return mal;
+}
+let ultimaPlacaAparte = 'esp32-devkit-v1';
+
+/* La lista «Pantalla»: primero las placas que la traen integrada, luego
+   las pantallas que se conectan aparte, por como se conectan */
+function opcionesPantalla(){
+  const n = nodoHMI(), aparte = !!placaBase(n).sin_pantalla;
+  const pa = aparte ? (n.pantalla_externa || (n.pantalla_externa = pantallaPorDefecto(placaBase(n)))) : null;
+  const panel = f => Object.entries(PANELES).filter(([,v]) => f(v.bus)).map(([k,v]) =>
+    `<option value="pan:${esc(k)}"${aparte && k===pa.controlador?' selected':''}>${esc(v.nombre)}${v.propia ? ' · ' + t('tuya') : ''}</option>`).join('');
+  return `<optgroup label="${t('Integrada en la placa')}">${
+      Object.entries(placasTodas()).filter(([,v]) => !v.sin_pantalla).map(([k,v]) =>
+        `<option value="${k}"${!aparte && k===n.placa?' selected':''}>${esc(v.nombre || v.corto)} · ${v.ancho}×${v.alto}</option>`).join('')}</optgroup>
+    <optgroup label="${t('Aparte, en color: TFT por SPI')}">${panel(b => b !== 'i2c' && b !== 'uart')}</optgroup>
+    <optgroup label="${t('Aparte, de un color: OLED por I2C')}">${panel(b => b === 'i2c')}</optgroup>
+    <optgroup label="${t('Aparte, se dibujan solas: Nextion y serie')}">${panel(b => b === 'uart')}
+      <option value="pan:+">${t('+ Pantalla a medida')}…</option></optgroup>`;
+}
+
+/* Elegir en la lista «Pantalla». Una pantalla aparte necesita una placa
+   sin pantalla: si la de ahora trae la suya, se pasa a la ultima que se
+   uso con una pantalla aparte (de entrada, el DevKit v1). */
+function elegirPantalla(v){
+  const n = nodoHMI();
+  if (!v.startsWith('pan:')) return cambiarPlaca(n, v);
+  HIST.iniciar();
+  if (!placaBase(n).sin_pantalla)
+    cambiarPlaca(n, placasAparte()[ultimaPlacaAparte] ? ultimaPlacaAparte : Object.keys(placasAparte())[0]);
+  const ctrl = v.slice(4);
+  if (ctrl === '+'){ E.pantallaEdit = plantillaPantalla(); pintar(); return; }
+  if (n.pantalla_externa?.controlador !== ctrl) ponEnPantalla('controlador', ctrl);
+  /* una Pico con una Nextion: todavia no. Pasa a un ESP32 y lo dice */
+  const antes = placaBase(n), motivo = porQueNoPantalla(antes);
+  if (motivo){
+    const otra = placasAparte()[ultimaPlacaAparte] ? ultimaPlacaAparte : Object.keys(placasAparte())[0];
+    cambiarPlaca(n, otra);
+    toast(`${escDlg(antes.corto)}: ${motivo}. ${t('Pasa a')} <b>${escDlg(placaBase(n).nombre)}</b>.`, 'aviso', 7000);
+  }
+}
+
 function bloquePantallaExterna(){
   const n = nodoHMI();
   if (!placaBase(n).sin_pantalla) return '';
   if (E.pantallaEdit) return formularioPantalla();
+  if (!porQueNoPantalla(placaBase(n))) ultimaPlacaAparte = n.placa;
   const pa = n.pantalla_externa || (n.pantalla_externa = pantallaPorDefecto(placaBase(n)));
   const med = medidaPantalla(pa);
   const tac = pa.tactil || { controlador:'ninguno' };
@@ -4937,17 +5947,25 @@ function bloquePantallaExterna(){
     <div class="pa-cab"><span class="pa-ico">${ICO_NODO.p}</span>
       <div><b>${t('La pantalla conectada')}</b><small>${esc(pa.controlador)} · ${med.ancho}×${med.alto} · ${bus}</small></div></div>
 
-    <label class="campo"><span>${t('Modelo de pantalla')}</span><select data-pan="controlador">
-      <optgroup label="${t('En color, por SPI')}">${
-        Object.entries(PANELES).filter(([,v]) => v.bus !== 'i2c' && v.bus !== 'uart').map(([k,v]) =>
-          `<option value="${k}"${k===pa.controlador?' selected':''}>${esc(v.nombre)}${v.propia ? ' · ' + t('tuya') : ''}</option>`).join('')}</optgroup>
-      <optgroup label="${t('De un color (OLED), por I2C')}">${
-        Object.entries(PANELES).filter(([,v]) => v.bus === 'i2c').map(([k,v]) =>
-          `<option value="${k}"${k===pa.controlador?' selected':''}>${esc(v.nombre)}${v.propia ? ' · ' + t('tuya') : ''}</option>`).join('')}</optgroup>
-      <optgroup label="${t('Que se dibujan solas, por puerto serie')}">${
-        Object.entries(PANELES).filter(([,v]) => v.bus === 'uart').map(([k,v]) =>
-          `<option value="${k}"${k===pa.controlador?' selected':''}>${esc(v.nombre)}${v.propia ? ' · ' + t('tuya') : ''}</option>`).join('')}</optgroup>
+    <label class="campo"><span>${t('Placa a la que la conectas')}</span><select id="fPlacaAparte">${
+      Object.entries(placasAparte()).map(([k,v]) =>
+        `<option value="${k}"${k===n.placa?' selected':''}>${esc(v.nombre || v.corto)}</option>`).join('')}${
+      /* un proyecto de antes con una placa que no puede: se ve, y se dice */
+      porQueNoPantalla(placaBase(n)) ? `<option value="${esc(n.placa)}" selected disabled>${esc(placaBase(n).corto)} · ${t('no puede')}</option>` : ''}
     </select></label>
+    ${porQueNoPantalla(placaBase(n))
+      ? `<div class="nota error" style="margin-bottom:10px"><b>${esc(placaBase(n).corto)}</b> ${t('no puede mover la pantalla')}: ${porQueNoPantalla(placaBase(n))}. ${esLinux(placaBase(n))
+          ? `${t('Elige en esta lista un ESP32 o la Pico, o cambia a una OLED por I2C; la')} ${esc(placaBase(n).corto)} ${t('también puede ir de nodo de control.')}`
+          : `${t('Elige un ESP32 en esta lista; la')} ${esc(placaBase(n).corto)} ${t('puede ir de nodo de control.')}`}</div>`
+      : `<div class="regla" style="margin:-4px 0 6px">${t('Se dibuja con')} <b>${motorPantalla(placaBase(n), busDePantalla(n))}</b>${placaBase(n).rp2040 ? ' ' + t('sobre FreeRTOS, como en un ESP32: todos los widgets.')
+          : esLinux(placaBase(n)) ? ' ' + t('(Pillow y luma.oled): los widgets de la OLED, con el mismo aspecto que en el lienzo.') : t(': todos los widgets.')}</div>
+         ${placaBase(n).opciones_ide?.Placa ? `<div class="regla" style="margin:0 0 6px">${t('En el IDE de Arduino:')} <b>${t('Herramientas')} › ${t('Placa')} › ${esc(placaBase(n).opciones_ide.Placa)}</b>${
+           placaBase(n).os_pantalla ? `, ${t('y')} <b>${t('Herramientas')} › Operating System › ${esc(placaBase(n).os_pantalla)}</b> (${t('núcleo arduino-pico, de Earle Philhower')})` : ''}</div>` : ''}
+         ${esLinux(placaBase(n)) ? `<div class="regla" style="margin:0 0 6px">${t('Sin IDE: al exportar sale un programa de Python que se copia a la placa. Su LEEME dice cómo instalarlo y arrancarlo.')}</div>` : ''}
+         ${pinesPantallaMal(n).map(m => `<div class="nota error" style="margin-bottom:8px">${esc(m)}</div>`).join('')}
+         <div class="regla" style="margin:0 0 10px">${t(busDePantalla(n) === 'uart' ? 'Aparecen las placas que pueden mover esta pantalla: los ESP32. La Pico todavía no mueve las de puerto serie. El UNO, el Nano y la Raspberry Pi, la Jetson y la Orange Pi sirven de nodo de control, como en control-var.'
+           : busDePantalla(n) === 'i2c' ? 'Aparecen las placas que pueden mover esta pantalla: los ESP32, la Pico y, con Python, la Raspberry Pi, la Jetson y la Orange Pi. El UNO y el Nano (2 KB de memoria) sirven de nodo de control, como en control-var.'
+           : 'Aparecen las placas que pueden mover esta pantalla: los ESP32 y la Pico. El UNO y el Nano (2 KB de memoria) y la Raspberry Pi, la Jetson y la Orange Pi sirven de nodo de control, como en control-var.')}</div>`}
     <div class="fila" style="margin-bottom:10px">
       <button class="btn" id="nuevaPantalla" style="flex:1">${t('+ Pantalla a medida')}</button>
       ${PANELES[pa.controlador]?.propia ? `<button class="btn" id="editarPantalla" style="flex:1">${t('Editar esta ficha')}</button>` : ''}
@@ -4976,12 +5994,14 @@ function bloquePantallaExterna(){
       : `<div class="nota aviso">${t('El otro lado recibe una línea por cada valor que cambia (SET nombre valor) y contesta una por cada toque (EVT nombre). El protocolo exacto va en el LEEME.')}</div>`}
     ` : esI2c ? `
     <div class="acc-sec">${t('Pines de la pantalla')}</div>
-    ${rejilla(pin('i2c.sda', 'SDA', pa.i2c?.sda) + pin('i2c.scl', 'SCL', pa.i2c?.scl) + pin('i2c.rst', 'RESET', pa.i2c?.rst ?? -1))}
+    ${rejilla(pin('i2c.sda', 'SDA', pa.i2c?.sda) + pin('i2c.scl', 'SCL', pa.i2c?.scl) + (esLinux(placaBase(n)) ? '' : pin('i2c.rst', 'RESET', pa.i2c?.rst ?? -1)))}
     <label class="campo"><span>${t('Dirección I2C')}</span><select data-pan="i2c.direccion">${
       ['0x3C', '0x3D'].map(d => `<option value="${d}"${d === (pa.i2c?.direccion || '0x3C') ? ' selected' : ''}>${d}</option>`).join('')}
     </select></label>
     <div class="regla" style="margin-bottom:8px">${t('Casi todas son 0x3C. Si no se ve nada, prueba 0x3D: lo decide una resistencia de la parte de atrás.')}</div>
-    <div class="nota aviso" style="margin-bottom:8px">${t('La pantalla va en su propio bus I2C. Si añades sensores I2C, van en otro par de pines, con su propio controlador: dos buses no se pisan.')}</div>
+    ${esLinux(placaBase(n))
+      ? `<div class="nota aviso" style="margin-bottom:8px">${t('En una placa con Linux, la OLED va al I2C de la cabecera: SDA al GPIO2 (pin 3 del conector) y SCL al GPIO3 (pin 5). El I2C se enciende una vez (en una Raspberry, con raspi-config): el LEEME lo explica.')}</div>`
+      : `<div class="nota aviso" style="margin-bottom:8px">${t('La pantalla va en su propio bus I2C. Si añades sensores I2C, van en otro par de pines, con su propio controlador: dos buses no se pisan.')}</div>`}
     <div class="regla">${t('No tiene táctil: para moverte por la interfaz, añade en Hardware las piezas «Botón de navegación» (siguiente, anterior y aceptar).')}</div>
     ` : `
     <div class="acc-sec">${t('Pines de la pantalla')}</div>
@@ -5019,9 +6039,21 @@ function bloquePantallaExterna(){
 function proponerPinesI2c(pa, base){
   const malos = new Set([...(base.solo_entrada || []), ...(base.arranque || [])]);
   const libres = (base.libres || []).filter(x => !malos.has(x));
+  /* En una Linux el I2C de la cabecera (GPIO2 y GPIO3) no esta entre los
+     libres, porque es un bus y no un pin suelto: es justo donde va la OLED */
+  if (base.familia === 'linux'){
+    const b = (base.pantalla_por_defecto || {}).i2c || base.bus_i2c || {};
+    for (const p of [b.sda, b.scl]) if (p !== undefined && p >= 0 && !libres.includes(p)) libres.push(p);
+    pa.i2c = pa.i2c || {};
+    if (busFijo(base, 'i2c', { sda: pa.i2c.sda, scl: pa.i2c.scl }) === null || !(pa.i2c.sda >= 0)){ pa.i2c.sda = b.sda; pa.i2c.scl = b.scl; }
+    pa.i2c.rst = -1;                /* luma.oled no usa el RESET */
+  }
   const vale = p => p !== undefined && p !== null && p >= 0 && libres.includes(p);
-  const b = base.bus_i2c || {};
+  /* los de la pantalla si la ficha los dice (la Pico: su I2C1), y si no los del bus de la placa */
+  const b = (base.pantalla_por_defecto || {}).i2c || base.bus_i2c || {};
   pa.i2c = pa.i2c || {};
+  /* en la Pico, SDA y SCL tienen que ser del mismo I2C: si no, se proponen de nuevo */
+  if (busFijo(base, 'i2c', { sda: pa.i2c.sda, scl: pa.i2c.scl }) === null){ delete pa.i2c.sda; delete pa.i2c.scl; }
   const usados = new Set();
   const toma = pref => {
     const p = vale(pref) && !usados.has(pref) ? pref : libres.find(x => !usados.has(x)) ?? -1;
@@ -5055,10 +6087,13 @@ function proponerPinesUart(pa, base){
    nueva no puede quedarse, y un SDA en el 21 no significa nada en una C3. */
 function reubicarPantalla(pa, base){
   if (!pa) return pantallaPorDefecto(base);
+  /* a una placa Linux solo le vale una OLED por I2C: la TFT de antes no se queda */
+  if (base.familia === 'linux' && (PANELES[pa.controlador] || {}).bus !== 'i2c') return pantallaPorDefecto(base);
   const libres = new Set(base.libres || []);
   if ((PANELES[pa.controlador] || {}).bus === 'i2c'){ proponerPinesI2c(pa, base); return pa; }
   if ((PANELES[pa.controlador] || {}).bus === 'uart'){ proponerPinesUart(pa, base); return pa; }
-  const todosValen = Object.keys(pinesDePantalla(pa)).map(Number).every(p => libres.has(p));
+  const todosValen = Object.keys(pinesDePantalla(pa)).map(Number).every(p => libres.has(p))
+    && busFijo(base, 'spi', { sck: pa.spi?.sck, mosi: pa.spi?.mosi, miso: pa.spi?.miso }) !== null;
   if (todosValen) return pa;
   const nueva = pantallaPorDefecto(base);
   nueva.controlador = pa.controlador; nueva.rotacion = pa.rotacion;
@@ -5079,7 +6114,17 @@ function proponerPinesTactil(pa, base){
   const toma = () => libres.shift() ?? -1;
   const falta = k => pa.tactil[k] === undefined || pa.tactil[k] === null || pa.tactil[k] < 0;
 
-  if (T.bus === 'spi'){
+  if (T.bus === 'spi' && base.buses_fijos){
+    /* en la Pico no hay un tercer bus libre: el tactil comparte el SPI de
+       la pantalla (los mismos SCK, MOSI y MISO) con su propio CS */
+    pa.tactil.sck = pa.spi?.sck; pa.tactil.mosi = pa.spi?.mosi; pa.tactil.miso = pa.spi?.miso;
+    pa.tactil.bus_compartido = true; pa.bus_compartido = true;
+    pa.tactil.freq = pa.tactil.freq || 1000000;
+    for (const k of ['cs', 'irq']) if (falta(k)) pa.tactil[k] = toma();
+    pa.tactil.x_min ??= 300; pa.tactil.x_max ??= 3900;
+    pa.tactil.y_min ??= 200; pa.tactil.y_max ??= 3700;
+    pa.tactil.rotacion ??= 0;
+  } else if (T.bus === 'spi'){
     pa.tactil.host = pa.tactil.host || 'SPI3_HOST';
     pa.tactil.freq = pa.tactil.freq || 1000000;
     for (const k of ['sck', 'mosi', 'miso', 'cs', 'irq']) if (falta(k)) pa.tactil[k] = toma();
@@ -5313,6 +6358,15 @@ function anadirWidget(tipo, donde){
     y: ajusta(Math.max(0, Math.min(P.alto -cat.h*f, P.alto *.5-cat.h*f*.5+k*16))),
     w: ajusta(Math.min(cat.w*f, P.ancho)), h: ajusta(Math.min(cat.h*f, P.alto)),
     bind:'', series:[], texto: (COMPONENTES[tipo] && COMPONENTES[tipo].textoPorDefecto) || '', evento:'', destino:'' };
+  /* En una pantalla pequena, lo fino del catalogo escalado y redondeado a
+     la rejilla se quedaba en 0: una Linea de 4 px en una de 320 de ancho
+     son 1,6 px, que la rejilla de 4 dejaba en nada y la linea no se veia.
+     La linea va de pixel en pixel (como al arrastrarla) y nunca menos de
+     2; nada nace sin tamano. */
+  if (tipo === 'line') w.h = Math.max(2, Math.round(Math.min(cat.h * f, P.alto)));
+  w.w = Math.max(1, w.w); w.h = Math.max(1, w.h);
+  /* y con ese tamano, dentro de la pantalla (el sitio se calculo con el de antes) */
+  w.x = Math.max(0, Math.min(w.x, P.ancho - w.w)); w.y = Math.max(0, Math.min(w.y, P.alto - w.h));
   if (GEOMETRIA_ANTERIOR[tipo] || PROPORCION[tipo]){
     w.caja = CAJA_VERSION;                                   /* nace ya ceñido */
     if (PROPORCION[tipo]) w.h = Math.round(w.w / PROPORCION[tipo]);
@@ -5322,7 +6376,10 @@ function anadirWidget(tipo, donde){
     w.y = ajusta(Math.max(0, Math.min(P.alto  - w.h, donde.y - w.h / 2)));
   }
   const o = varsPara(cat.acepta);
-  if (o.length && (cat.acepta==='lectura'||cat.acepta==='escritura')) w.bind = o[0].nombre;
+  /* Se enlaza solo lo que lee, y el deslizador y el interruptor (los de
+     siempre). Los demas de entrada ya escriben de verdad su variable: una
+     casilla nueva no debe ponerse a mandar un rele o el PWM sin pedirlo. */
+  if (o.length && (cat.acepta==='lectura' || (cat.acepta==='escritura' && (tipo === 'slider' || tipo === 'toggle')))) w.bind = o[0].nombre;
   if (cat.acepta==='series') w.series = o.slice(0,2).map(v => v.nombre);
   if (AUTOAJUSTABLES.has(tipo) && !COMPONENTES[tipo]){
     w.auto = true;
@@ -5332,12 +6389,41 @@ function anadirWidget(tipo, donde){
   }
   if (tipo==='label') w.texto = 'Texto';
   if (tipo==='button') w.texto = 'Pulsar';
-  if (tipo==='checkbox') w.texto = 'Opción';
+  if (tipo==='checkbox') w.texto = 'Activar';
+  /* textos que la placa sabe dibujar: sin ¿ ni tildes (la letra de LVGL
+     solo trae ASCII y salian con un cuadro). Los de antes no cambian. */
+  if (tipo === 'msgbox') w.elementos = 'Aviso\nRevisa la puerta antes de arrancar.';
+  if (tipo === 'dropdown') w.elementos = 'Manual\nAuto\nParado';
   /* nace con su consigna: sin ella la marca no se dibuja y parecia que al
      componente le faltaba una parte */
   if (CON_CONSIGNA.has(tipo)){ const sp = consignaPropuesta(w.bind); if (sp) w.consigna = sp; }
   /* el Numero nace cenido a su contenido: la caja es lo que ocupa */
   if (tipo === 'lectura' || tipo === 'tiempo'){ w.auto = true; w.estilo = { fuente: 48 }; }
+  /* En una pantalla pequena la letra de partida no puede salirse: en una
+     OLED de 64 px de alto no cabe un numero de 48 con su rotulo encima.
+     Se baja hasta que la caja quepa con holgura; si ya cabe, nada cambia. */
+  if (w.auto && w.estilo && w.estilo.fuente){
+    const cabe = px => { const t = tamanoAuto({ ...w, estilo: { ...w.estilo, fuente: px } });
+      return t.w <= P.ancho * 0.9 && t.h <= P.alto * 0.7; };
+    if (!cabe(w.estilo.fuente)){
+      const inicial = w.estilo.fuente;
+      const menores = [...new Set(TODAS_FUENTES)].sort((a, b) => b - a)
+        .filter(px => px < inicial && px >= (esMono(P) ? 10 : 8));
+      w.estilo.fuente = menores.find(cabe) ?? menores[menores.length - 1] ?? inicial;
+      /* Ni con la letra mas pequena cabe con el rotulo encima: en una OLED
+         de 32 px de alto el rotulo solo ya ocupa 20. Nace sin rotulo, y se
+         le puede poner despues en el panel. */
+      if (!cabe(w.estilo.fuente) && w.texto && COMPONENTES[tipo]){
+        w.texto = '';
+        w.estilo.fuente = [inicial, ...menores].find(cabe) ?? menores[menores.length - 1] ?? inicial;
+      }
+      const t = tamanoAuto(w);
+      w.w = Math.min(t.w, P.ancho); w.h = Math.min(t.h, P.alto);
+      const cx = donde ? donde.x : P.ancho * .5 + k * 16, cy = donde ? donde.y : P.alto * .5 + k * 16;
+      w.x = ajusta(Math.max(0, Math.min(P.ancho - w.w, cx - w.w / 2)));
+      w.y = ajusta(Math.max(0, Math.min(P.alto  - w.h, cy - w.h / 2)));
+    }
+  }
   if (tipo === 'icono') w.icono = 'fa-bolt';
   pantalla().widgets.push(w); seleccionar(w.id, false); pintar();
 }
@@ -5441,10 +6527,12 @@ const ICO_PESTANA = {
 const icoPestana = k => ICO_PESTANA[k] ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICO_PESTANA[k]}</svg>` : '';
 
 function traducirFijos(){
-  document.querySelector('.marca small').textContent = t('DISEÑADOR DE PANTALLAS ESP32');
+  document.querySelector('.marca small').textContent = t('DISEÑADOR DE PANTALLAS');
   document.getElementById('btnSimular').textContent  = '▶ ' + t('Simular');
   document.getElementById('btnSimular').title        = t('Probar la pantalla y la lógica sin compilar ni flashear');
   document.getElementById('btnCargar').textContent   = t('Abrir');
+  document.getElementById('btnDocs').innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5.6c2.9-1.4 5.9-1.3 9 .9 3.1-2.2 6.1-2.3 9-.9v13c-2.9-1.4-5.9-1.3-9 .9-3.1-2.2-6.1-2.3-9-.9z"/><path d="M12 6.5v13"/></svg><span>${esc(t('Documentación'))}</span>`;
+  document.getElementById('btnDocs').title = t('Abrir la documentación') + ' (F1)';
   document.getElementById('btnGuardar').textContent  = t('Guardar');
   document.getElementById('btnExportar').textContent = t('Exportar ▾');
   document.querySelectorAll('.pestanas button').forEach(b => {
@@ -5568,6 +6656,11 @@ function abrirProyectoDesde(txt, h, nombre){
   if (c){ pintar(); toast(`${t('Abierto')}: <code>${escDlg(nombre)}</code>. ${avisoEnlace(c)}`, 'aviso', 7000); }
   else toast(`${t('Abierto')}: <code>${escDlg(nombre)}</code>`);
 }
+/* La documentacion, en su idioma, desde cualquier pestaña (y con F1) */
+const abrirDocs = () => window.open('docs/logica.html?lang=' + encodeURIComponent(IDIOMA.actual), '_blank');
+document.getElementById('btnDocs').addEventListener('click', abrirDocs);
+document.addEventListener('keydown', e => { if (e.key === 'F1'){ e.preventDefault(); abrirDocs(); } });
+
 document.getElementById('btnCargar').addEventListener('click', async () => {
   /* Abrir otro con cambios sin guardar: se pregunta antes de perderlos */
   if (hayCambios()){
@@ -5618,6 +6711,8 @@ if (window.ResizeObserver){
 </script>
 <script src="generador.js"></script>
 <script src="generador-serie.js"></script>
+<script src="motor-linux.js"></script>
+<script src="generador-linux.js"></script>
 <script src="logica-editor.js"></script>
 <script src="simulador.js"></script>
 <script src="puente-escritorio.js"></script>
@@ -5636,6 +6731,9 @@ if (window.ResizeObserver){
 const bytesDeFuente = fich => Uint8Array.from(atob(FUENTES_TTF[fich]), c => c.charCodeAt(0));
 
 function generarFicheros(){
+  /* La pantalla en una placa con Linux no lleva sketch: su camino entero
+     esta en generador-linux.js. El del ESP32 y la Pico sigue aqui, igual. */
+  if (esLinux(placaBase(nodoHMI()))) return generarFicherosLinux();
   /* El codigo tiene que salir del MISMO estado que el lienzo */
   migrarCajas(); migrarTextos(); normalizarAuto();
   const n = cid(E.proyecto);
@@ -5691,6 +6789,14 @@ function generarFicheros(){
     ? ['lvgl_lgfx_port.h', 'lvgl_lgfx_port.cpp', 'compat.h']
     : ['lvgl_v9_port.h', 'lvgl_v9_port.cpp', 'compat.h'];
   for (const nombre of delPuerto) f[nombre] = RUNTIME[nombre];
+  /* La Pico: los dos nombres del ESP32 traducidos (rtos_pico.h), y se
+     incluye donde se usan. En el ESP32 no se toca nada. */
+  if (!serie && placaBase(nodoHMI()).rp2040){
+    f['rtos_pico.h'] = RTOS_PICO;
+    /* antes que FreeRTOS: si falta «FreeRTOS SMP», el primer aviso que se lee es el nuestro */
+    f['state.h'] = f['state.h'].replace('#include "freertos/FreeRTOS.h"', '#include "rtos_pico.h"\n#include "freertos/FreeRTOS.h"');
+    f['lvgl_lgfx_port.cpp'] = f['lvgl_lgfx_port.cpp'].replace('#include', '#include "rtos_pico.h"\n#include');
+  }
 
   /* --- Un solo nodo: todo suelto, como hasta ahora --- */
   if (E.nodos.length < 2) return f;
@@ -5712,6 +6818,18 @@ function generarFicheros(){
     dos[cA + '/enlace.cpp'] = genEnlaceRecibe(A);
   }
 
+  ficherosControl(B, cB, dos);
+  /* Este va suelto, fuera de las dos carpetas, asi que acaba en el
+     sketchbook al lado de los demas proyectos. Un "LEEME.txt" a secas
+     ahi no dice de quien es. */
+  dos['LEEME_' + n + '.txt']  = genLeemeSistema(A, B);
+
+  return dos;
+}
+
+/* El nodo de control, en su carpeta cB: lo mismo con cualquier pantalla,
+   la de un ESP32, la de una Pico o la de una placa con Linux */
+function ficherosControl(B, cB, dos){
   /* Una placa con Linux no lleva sketch: lleva un programa de Python que
      habla el mismo protocolo. Todo lo demas del proyecto no cambia. */
   if (esLinux(placaDe(B))){
@@ -5728,11 +6846,6 @@ function generarFicheros(){
   dos[cB + '/LEEME.txt']      = genLeemeControl(B);
   for (const [r, t] of Object.entries(genBuses(B) || {})) dos[cB + '/' + r] = t;
   }
-  /* Este va suelto, fuera de las dos carpetas, asi que acaba en el
-     sketchbook al lado de los demas proyectos. Un "LEEME.txt" a secas
-     ahi no dice de quien es. */
-  dos['LEEME_' + n + '.txt']  = genLeemeSistema(A, B);
-
   return dos;
 }
 
@@ -5890,7 +7003,7 @@ async function exportar(){
     /* el enlace, en todas las placas (una Pico con ESP-NOW pasaba) */
     if (E.nodos.length > 1 && E.enlace && !enlacesDe(P).has(E.enlace.tipo))
       avrMal.push(`${t('el enlace')} ${ENLACES[E.enlace.tipo].nombre} (${P.corto})`);
-    const permitidas = esAvr(P) ? AVR_PIEZAS : esLinux(P) ? LINUX_PIEZAS : null;
+    const permitidas = piezasDe(P, nd === nodoHMI());   /* AVR, Linux y la Pico: ver piezasDe */
     if (!permitidas) continue;
     for (const c of (nd.conexiones || []))
       if (!permitidas.has(c.tipo)) avrMal.push(`${c.clave} — ${CONEXIONES[c.tipo]?.nombre || c.tipo}`);
@@ -5898,8 +7011,22 @@ async function exportar(){
   if (avrMal.length){
     await avisar(t('Hay cosas que esta placa no puede hacer'),
       listaDlg(avrMal.map(escDlg))
-      + `<p>${t('Estas placas (AVR como UNO o Nano, la Pico y las Linux) no tienen radio ni CAN, y Telar todavía no escribe sus buses. Con ellas el enlace entre nodos va por serie: UART o RS485.')}</p>`
+      + `<p>${t('Estas placas (AVR como UNO o Nano, la Pico y las Linux) no tienen radio ni CAN. Con ellas el enlace entre nodos va por serie: UART o RS485.')}</p>`
       + `<p><b>${t('Quita esas piezas, o pon un ESP32 en ese nodo.')}</b></p>`, 'aviso');
+    return;
+  }
+  /* los pines de la pantalla, en una placa con los buses en pines fijos */
+  const pinesMal = pinesPantallaMal(nodoHMI());
+  if (pinesMal.length){
+    await avisar(t('Los pines de la pantalla no valen en esta placa'),
+      listaDlg(pinesMal.map(escDlg)) + `<p><b>${t('Cámbialos en Diseño, en «Pines y ajustes» de la pantalla conectada.')}</b></p>`, 'aviso');
+    return;
+  }
+  /* la placa de la pantalla tiene que poder moverla (ver placasAparte) */
+  const noPantalla = porQueNoPantalla(placaBase(nodoHMI()));
+  if (noPantalla){
+    await avisar(`${escDlg(placaBase(nodoHMI()).corto)} ${t('no puede mover la pantalla')}`,
+      `<p>${noPantalla}.</p><p><b>${t('En Diseño, en «Placa a la que la conectas», elige un ESP32. Esta placa puede ir de nodo de control.')}</b></p>`, 'aviso');
     return;
   }
   const L = E.nodos.length > 1 && E.enlace ? ENLACES[E.enlace.tipo] : null;
@@ -5986,7 +7113,7 @@ async function exportar(){
   const destino = raiz.name + (dentro ? '\\' + carpeta : '');
 
   /* el fichero que se estaba escribiendo, para decirlo si falla */
-  let rutaActual = '';
+  let rutaActual = '', todoEscrito = false;
   /* Las fuentes propias, aqui mismo. Van a ficheros como un .c mas, en el
      src/ui/ del sketch de la pantalla (el mismo sitio donde las dejaba
      generar.cmd). La que no se pueda generar se queda para el script. */
@@ -6061,6 +7188,8 @@ async function exportar(){
       });
       if (hecho === 'saltado') saltados.push(ruta); else escritos++;
     }
+    /* todo escrito: si algo falla a partir de aqui, no es culpa de un fichero */
+    rutaActual = ''; todoEscrito = true;
 
     /* OJO: solo los tamanos que LVGL trae compilados van a lv_conf.h.
        Mandar activar ahi un LV_FONT_MONTSERRAT_112 declara un simbolo
@@ -6076,11 +7205,27 @@ async function exportar(){
     const nFuente = PLAN.find(f => f.propia);
     const enCarpeta = rel + (E.nodos.length > 1 ? carpetaNodo(nodoHMI()) + '\\' : '') + 'fuentes\\';
     const pasos = [];
+    /* Las fuentes propias: generadas aqui, ya no hay paso. Solo si alguna
+       no se pudo, el paso de siempre, diciendo cuales y por que. Se usa
+       tambien en el dialogo final: va fuera del if de Linux. */
+    const fuentesListas = propias.length && fuentes.hechas.length && !fuentes.fallos.length;
+    /* La pantalla en Linux: ni lv_conf.h ni IDE. Copiar, instalar y arrancar. */
+    const linux = esLinux(placaBase(nodoHMI()));
+    if (linux){
+      const sub = E.nodos.length > 1 ? carpetaNodo(nodoHMI()) : '';
+      pasos.push(`<li><span class="t">${t('Copia a la placa con Linux la carpeta')} <code>${escDlg(sub || carpeta)}</code></span>${t('Por la red (scp) o con una memoria USB, a tu carpeta personal.')}</li>`);
+      pasos.push(`<li><span class="t">${t('En la placa, instala lo necesario (una sola vez)')}</span>`
+        + codigoDlg('sudo apt install -y python3-venv python3-pil i2c-tools\npython3 -m venv --system-site-packages ~/telar-env\n~/telar-env/bin/pip install -r requisitos.txt') + `</li>`);
+      pasos.push(`<li><span class="t">${t('Y arráncala')}</span>` + codigoDlg('~/telar-env/bin/python telar_pantalla.py')
+        + `<div class="dlg-nota">${t('El LEEME.txt de la carpeta lo cuenta paso a paso: encender el I2C, los permisos y cómo hacer que arranque sola al encender.')}</div></li>`);
+      const B = E.nodos[1], PB = B ? placaDe(B) : null;
+      if (PB && !esLinux(PB) && PB.opciones_ide && Object.keys(PB.opciones_ide).length)
+        pasos.push(`<li><span class="t">${t('El nodo de control, con el IDE de Arduino')} (${escDlg(carpetaNodo(B))})</span>`
+          + codigoDlg(Object.entries(PB.opciones_ide).map(([k, v]) => `${k}: ${v}`).join('\n')) + `</li>`);
+    }
+    if (!linux){
     if (compiladas.length) pasos.push(`<li><span class="t">${t('Activa en lv_conf.h las fuentes que trae LVGL')}</span>`
       + codigoDlg(compiladas.map(x => `#define LV_FONT_MONTSERRAT_${x} 1`).join('\n')) + `</li>`);
-    /* Las fuentes propias: generadas aqui, ya no hay paso. Solo si alguna
-       no se pudo, el paso de siempre, diciendo cuales y por que. */
-    const fuentesListas = propias.length && fuentes.hechas.length && !fuentes.fallos.length;
     if (propias.length && !fuentesListas) pasos.push(`<li class="clave"><span class="t">${t('Imprescindible: genera las fuentes propias')} (${[...new Set(propias)].sort((x, y) => x - y).join(', ')} px)</span>`
       + (fuentes.fallos.length ? `<div class="dlg-nota aviso">${t('Telar no pudo generar')} ${fuentes.fallos.map(x => `<b>${escDlg(etiquetaFuente(x.o.nombre))}</b> (${escDlg(x.err)})`).join(', ')}.</div>` : '')
       + `${t('Entra en esta carpeta del proyecto y ejecuta')} <code>generar.cmd</code>. ${t('Los .c van solos a')} <code>src\\ui\\</code>.`
@@ -6088,11 +7233,12 @@ async function exportar(){
       + `<div class="dlg-nota aviso">${t('Si te lo saltas, el enlazador dirá')} <code>undefined reference to '${escDlg(nFuente ? nombreFuente(nFuente) : '')}'</code>. ${t('No las pongas en lv_conf.h: LVGL no las tiene.')}</div></li>`);
     pasos.push(`<li><span class="t">${t('En Herramientas del IDE de Arduino')}</span>`
       + codigoDlg(Object.entries(placa().opciones_ide).map(([k, v]) => `${k}: ${v}`).join('\n')) + `</li>`);
+    }
     await dialogo({ tipo: 'ok', ancho: 580,
       titulo: `${t('Listo')}: ${escritos} ${t('ficheros en')} ${destino}`,
       cuerpo: (saltados.length ? `<div class="dlg-nota">${t('Respetado, porque es tuyo:')} ${saltados.map(s => `<code>${escDlg(s)}</code>`).join(', ')}</div>` : '')
         + (fuentesListas ? `<div class="dlg-nota ok">✓ ${t('Fuentes generadas')}: <b>${fuentes.hechas.length}</b>, ${t('ya en')} <code>src\\ui\\</code>. ${t('No hay que ejecutar nada.')}</div>` : '')
-        + `<p>${t('Antes de subirlo a la placa:')}</p><ol class="dlg-pasos">${pasos.join('')}</ol>`,
+        + `<p>${linux ? t('Para ponerla en marcha:') : t('Antes de subirlo a la placa:')}</p><ol class="dlg-pasos">${pasos.join('')}</ol>`,
       botones: [{ et: t('Entendido'), valor: true, principal: true }] });
   } catch (err){
     prog.cerrar();
@@ -6110,7 +7256,9 @@ async function exportar(){
                         t('la está sincronizando OneDrive (Imágenes, Música y Documentos suelen estarlo);'),
                         t('el IDE de Arduino tiene abierto el proyecto y guarda a la vez.')])
             + `<p><b>${t('Cierra el proyecto en el IDE y elige la carpeta de nuevo:')}</b> ${t('así Chrome la vuelve a leer. Ya lo reintenté dos veces.')}</p>`
-          : `<p>${t('Suele ser una carpeta de solo lectura o un fichero abierto en otro programa (el IDE de Arduino, por ejemplo). Ciérralo y vuelve a exportar.')}</p>`)
+          : todoEscrito
+            ? `<p>${t('Todos los ficheros se escribieron bien: el proyecto está completo. Lo que falló fue preparar el resumen de los pasos siguientes; es un fallo de Telar, no de tu carpeta.')}</p>`
+            : `<p>${t('Suele ser una carpeta de solo lectura o un fichero abierto en otro programa (el IDE de Arduino, por ejemplo). Ciérralo y vuelve a exportar.')}</p>`)
         + `<p>${t('El sistema dijo:')}</p>` + codigoDlg(`${err && err.name ? err.name + ': ' : ''}${err && err.message}`),
       botones: cambio
         ? [{ et: t('Cerrar'), valor: false, cancela: true }, { et: t('Elegir la carpeta de nuevo'), valor: true, principal: true }]
